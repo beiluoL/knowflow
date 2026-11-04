@@ -155,6 +155,43 @@ class FlashcardFsrsHttpTest {
     }
 
     @Test
+    void concurrentReplayReturnsOneCommittedReview() throws Exception {
+        long userId = 98783;
+        long cardId = createCard(userId);
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        var ready = new java.util.concurrent.CountDownLatch(2);
+        var start = new java.util.concurrent.CountDownLatch(1);
+        try {
+            java.util.concurrent.Callable<com.fasterxml.jackson.databind.JsonNode> review = () -> {
+                ready.countDown();
+                assertTrue(start.await(5, java.util.concurrent.TimeUnit.SECONDS));
+                var response = mvc.perform(post("/api/learning/flashcards/" + cardId + "/fsrs-review")
+                                .header("Authorization", auth(userId))
+                                .contentType("application/json")
+                                .content("{\"rating\":3,\"revision\":0,\"requestId\":\"concurrent-replay-001\"}"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.data.revision").value(1))
+                        .andReturn();
+                return json.readTree(response.getResponse().getContentAsString()).get("data");
+            };
+            var first = pool.submit(review);
+            var second = pool.submit(review);
+            assertTrue(ready.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            start.countDown();
+            assertEquals(first.get(15, java.util.concurrent.TimeUnit.SECONDS),
+                    second.get(15, java.util.concurrent.TimeUnit.SECONDS));
+            assertEquals(1, jdbc.queryForObject("SELECT review_count FROM learning_flashcard WHERE id=?",
+                    Integer.class, cardId));
+            assertEquals(1, jdbc.queryForObject(
+                    "SELECT COUNT(*) FROM learning_event WHERE user_id=? AND resource_type='FLASHCARD'"
+                            + " AND resource_id=? AND event_type='FLASHCARD_REVIEWED'",
+                    Integer.class, userId, cardId));
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
+    @Test
     void eventStorageFailureRollsBackScheduling() throws Exception {
         long uid = 98774, id = createCard(uid);
         jdbc.execute(

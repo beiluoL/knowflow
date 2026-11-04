@@ -1,0 +1,20 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# build output
+dist
+dist-ssr
+coverage
+*.local
+
+# generated / minified
+public
+*.min.js
+*.min.css
+*.map
+
+# misc
+.DS_Store
+*.log

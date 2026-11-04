@@ -86,6 +86,7 @@ public class ExamServiceImpl implements ExamService {
     private final ExamPaperMapper paperMapper;
     private final ExamPaperQuestionMapper paperQuestionMapper;
     private final ExamAttemptMapper attemptMapper;
+    private final ExamAttemptHistoryService attemptHistory;
     private final ExamAnswerMapper answerMapper;
     private final LearningMistakeMapper mistakeMapper;
     private final PaperComposer composer;
@@ -1105,11 +1106,7 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public List<ExamVos.AttemptListItemVO> listMyAttempts(Long userId) {
-        return attemptMapper.selectList(new LambdaQueryWrapper<ExamAttempt>()
-                        .eq(ExamAttempt::getUserId, userId)
-                        .orderByDesc(ExamAttempt::getCreateTime)).stream()
-                .map(this::toListItem)
-                .toList();
+        return attemptHistory.listMyAttempts(userId);
     }
 
     @Override
@@ -1191,7 +1188,7 @@ public class ExamServiceImpl implements ExamService {
         vo.setMistakeCount((int) mistakeCount);
         vo.setPendingMistakeCount((int) pendingMistake);
 
-        vo.setRecentAttempts(attempts.stream().limit(5).map(this::toListItem).toList());
+        vo.setRecentAttempts(attempts.stream().limit(5).map(attemptHistory::toListItem).toList());
         List<LearningMistake> recentMistakes = mistakeMapper.selectList(new LambdaQueryWrapper<LearningMistake>()
                         .eq(LearningMistake::getUserId, userId).eq(LearningMistake::getSource, MISTAKE_SOURCE)
                         .orderByDesc(LearningMistake::getCreateTime).last("LIMIT 5"));
@@ -1842,30 +1839,6 @@ public class ExamServiceImpl implements ExamService {
                 //
             }
         }
-        return vo;
-    }
-
-    private ExamVos.AttemptListItemVO toListItem(ExamAttempt a) {
-        ExamVos.AttemptListItemVO vo = new ExamVos.AttemptListItemVO();
-        vo.setAttemptId(a.getId());
-        vo.setPaperId(a.getPaperId());
-        ExamPaper paper = paperMapper.selectById(a.getPaperId());
-        vo.setPaperName(paper == null ? "未知试卷" : paper.getName());
-        vo.setMode(a.getMode());
-        vo.setStatus(a.getStatus());
-        vo.setGradingStatus(a.getGradingStatus());
-        vo.setTotalScore(a.getTotalScore());
-        vo.setMaxScore(a.getMaxScore());
-        vo.setPaperMaxScore(a.getPaperMaxScore());
-        vo.setCorrectCount(a.getCorrectCount());
-        vo.setGradedCount(a.getGradedCount());
-        vo.setQuestionCount(a.getQuestionCount());
-        vo.setStartTime(a.getStartTime());
-        vo.setSubmitTime(a.getSubmitTime());
-        vo.setDurationSeconds(a.getDurationSeconds());
-        vo.setPassScore(paper == null ? 60 : paper.getPassScore());
-        vo.setPassed(ExamAttempt.STATUS_GRADED.equals(a.getStatus()) && a.getTotalScore() != null
-                && paper != null && a.getTotalScore() >= paper.getPassScore());
         return vo;
     }
 

@@ -3,7 +3,7 @@
     <div class="pr-toolbar" role="toolbar" aria-label="导出操作">
       <div class="pr-toolbar-info">
         <strong>导出 PDF</strong>
-        <span>{{ resume?.title }} · {{ templateName }}</span>
+        <span>{{ resume?.title }} · v{{ resume?.version }} · {{ templateName }}</span>
       </div>
       <div class="pr-toolbar-actions">
         <button type="button" class="pr-btn" :disabled="!resume || !hasResumeDocumentContent(doc, theme)" @click="print">打印 / 保存为 PDF</button>

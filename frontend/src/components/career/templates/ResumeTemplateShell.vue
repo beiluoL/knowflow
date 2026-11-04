@@ -27,7 +27,7 @@
           <li v-for="chip in section.chips" :key="chip" class="rt-chip">{{ chip }}</li>
         </ul>
 
-        <div v-for="(item, index) in section.items" :key="index" class="rt-item">
+        <div v-for="(item, index) in section.items" :key="index" class="rt-item" :class="{ 'rt-item--bold': item.textStyle === 'bold', 'rt-item--italic': item.textStyle === 'italic' }">
           <div v-if="item.title || item.subtitle || item.period" class="rt-item-head">
             <span class="rt-item-title">
               {{ item.title }}
@@ -144,6 +144,8 @@ const styleVars = computed(() => ({
   break-inside: auto;
 }
 .rt-contact a { color: inherit; text-decoration: none; }
+.rt-item--bold .rt-bullets, .rt-item--bold .rt-paragraph { font-weight: 700; }
+.rt-item--italic .rt-bullets, .rt-item--italic .rt-paragraph { font-style: italic; }
 .rt-section:first-child {
   margin-top: 0;
 }

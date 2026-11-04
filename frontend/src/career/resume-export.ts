@@ -1,5 +1,5 @@
 import { getResume } from '@/api/career/resume'
-import { createDesign, listDesigns, updateDesign } from '@/api/career/design'
+import { createDesign, listDesigns } from '@/api/career/design'
 import type { CareerRecord, ResumeTheme } from '@/api/career/types'
 import { defaultTheme, RESUME_TEMPLATES } from './templates'
 
@@ -26,7 +26,9 @@ export async function loadResumeExport(id: number, query: { version?: unknown; d
 /** 打印新窗口读取服务端设计；每次先保存本次配置快照，内容版本始终取当前已加载版本。 */
 export async function prepareResumePrint(record: CareerRecord, theme: ResumeTheme, designId: number | null) {
   const snapshot = JSON.parse(JSON.stringify(theme)) as ResumeTheme
-  const design = designId === null ? await createDesign(record.id, snapshot) : await updateDesign(record.id, designId, snapshot)
+  // 每次导出独立设计记录，避免其他窗口更新原设计后改变打印内容。
+  const name = `导出快照 · v${record.version}${designId === null ? '' : ` · 设计${designId}`}`
+  const design = await createDesign(record.id, snapshot, name)
   return { design, location: {
     path: `/career/templates/print/${record.id}`,
     query: { version: String(record.version), designId: String(design.id), auto: '1' },

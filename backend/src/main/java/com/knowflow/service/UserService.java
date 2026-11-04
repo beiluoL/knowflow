@@ -34,4 +34,12 @@ public interface UserService extends IService<SysUser> {
      * @return 登录响应（含 token 与用户信息）
      */
     LoginVO oauthLogin(String provider, String providerUid, String nickname, String avatar, String email);
+    /** 记录已实际创建或复活的文档收藏；调用方与本人统计必须同事务提交。 */
+    void recordDocumentFavoriteAdded(Long actorUserId);
+
+    /** 记录已实际取消的文档收藏，收藏总数不降至负数。 */
+    void recordDocumentFavoriteRemoved(Long actorUserId);
+
+    /** 记录文档业务已认定完成的一次阅读，沿用既有计数语义。 */
+    void recordDocumentReadCompleted(Long actorUserId);
 }

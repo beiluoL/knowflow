@@ -354,6 +354,20 @@ class LearningContentServiceTest {
     }
 
     @Test
+    void failedScenarioValidationRollsBackAcceptedFlashcard() {
+        entity(944039L, "rollback fixture", "k");
+        long before = cardCountOf(UID_A);
+        var request = new LearningContentAcceptRequest();
+        request.setKnowledgeId(944039L);
+        request.getFlashcards().add(card("transaction fixture", "answer"));
+        request.setScenario(new LearningContentAcceptRequest.ScenarioItem());
+
+        var error = assertThrows(BusinessException.class, () -> contentService.accept(request, UID_A));
+        assertEquals(400, error.getCode());
+        assertEquals(before, cardCountOf(UID_A));
+    }
+
+    @Test
     @DisplayName("A4.4-10: 接受闪卡缺正/反面 → 400 明确报错")
     void acceptFlashcardBlankRejected() {
         entity(944010L, "A10-K", "k");

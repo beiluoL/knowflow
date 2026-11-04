@@ -14,8 +14,10 @@ import com.knowflow.service.NotificationService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -69,7 +71,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "knowflow.datasource.h2.url=jdbc:h2:mem:knowflow_p1d2_403;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL")
 class UserResourceOwnership403Test {
 
-    /** 资源所有者；JwtAuthenticationFilter 只解析 token 不查库，故无需预先插入用户行。 */
+    /** 资源所有者，在隔离库中建立真实认证主体。 */
     private static final Long OWNER = 97511L;
     /** 越权者。 */
     private static final Long INTRUDER = 97512L;
@@ -80,6 +82,17 @@ class UserResourceOwnership403Test {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        for (long id : new long[]{OWNER, INTRUDER}) {
+            jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                    id, "p1d2-" + id, "unused", "USER", 0);
+        }
+    }
 
     @Autowired
     private JwtUtils jwtUtils;

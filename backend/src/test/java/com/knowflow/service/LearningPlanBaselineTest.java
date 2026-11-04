@@ -1,8 +1,8 @@
 package com.knowflow.service;
 
 import com.knowflow.dto.PlanGenerateDTO;
-import com.knowflow.entity.LearningPlan;
-import com.knowflow.mapper.LearningPlanMapper;
+import com.knowflow.learning.entity.LearningPlan;
+import com.knowflow.learning.mapper.LearningPlanMapper;
 import com.knowflow.vo.LearningPlanVO;
 import com.knowflow.vo.PlanBlockVO;
 import com.knowflow.vo.PlanItemVO;
@@ -28,7 +28,7 @@ class LearningPlanBaselineTest {
     @Test
     @DisplayName("RED1: LearningPlan 实体存在且含核心字段")
     void learningPlanEntityStructure() throws Exception {
-        Class<?> cls = Class.forName("com.knowflow.entity.LearningPlan");
+        Class<?> cls = Class.forName("com.knowflow.learning.entity.LearningPlan");
         assertField(cls, "userId", Long.class);
         assertField(cls, "planDate", LocalDate.class);
         assertField(cls, "timeBlocks", String.class);   // JSON array
@@ -42,7 +42,7 @@ class LearningPlanBaselineTest {
     @Test
     @DisplayName("RED2: LearningPlanMapper 存在")
     void learningPlanMapperExists() throws Exception {
-        Class<?> cls = Class.forName("com.knowflow.mapper.LearningPlanMapper");
+        Class<?> cls = Class.forName("com.knowflow.learning.mapper.LearningPlanMapper");
         assertTrue(org.apache.ibatis.annotations.Mapper.class.isAssignableFrom(cls)
                         || cls.isInterface(),
                 "Mapper 应为接口");

@@ -1,14 +1,13 @@
 package com.knowflow.store;
 
-import com.knowflow.entity.Order;
-import com.knowflow.entity.Product;
+import com.knowflow.apps.contract.AppPurchaseAccess;
+import com.knowflow.store.entity.Order;
+import com.knowflow.store.entity.Product;
 import com.knowflow.entity.Wallet;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.apps.OfficialAppRegistry;
-import com.knowflow.apps.UserAppService;
 import com.knowflow.reward.RewardLedgerService;
 import com.knowflow.reward.WalletService;
-import com.knowflow.vo.PurchaseResultVO;
+import com.knowflow.store.vo.PurchaseResultVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +30,7 @@ public class PurchaseService {
     private final WalletService walletService;
     private final OrderService orderService;
     private final RewardLedgerService ledgerService;
-    private final OfficialAppRegistry officialAppRegistry;
-    private final UserAppService userAppService;
+    private final AppPurchaseAccess appPurchaseAccess;
 
     @Transactional
     public PurchaseResultVO purchase(Long userId, Long productId) {
@@ -45,7 +43,7 @@ public class PurchaseService {
         }
         // Architecture-3：App 平台可用性门禁（§72/§151-153）——先校验再扣款，绝不「扣了 Coin 才发现 App 停用」
         if (product.getAppKey() != null && !product.getAppKey().isBlank()
-                && !officialAppRegistry.isActive(product.getAppKey())) {
+                && !appPurchaseAccess.isActive(product.getAppKey())) {
             throw new BusinessException(EconomyError.APP_DISABLED, "该应用暂不可用");
         }
         if (entitlementService.hasActive(userId, productId)) {
@@ -66,7 +64,7 @@ public class PurchaseService {
         entitlementService.grant(userId, product);
         // Architecture-3：购买成功 → UserApp installed+enabled（同事务，§270-276）
         if (product.getAppKey() != null && !product.getAppKey().isBlank()) {
-            userAppService.markInstalledAndEnabled(userId, product.getAppKey());
+            appPurchaseAccess.markInstalledAndEnabled(userId, product.getAppKey());
         }
         Wallet after = walletService.getOrCreate(userId);
         if (!unlimited) {

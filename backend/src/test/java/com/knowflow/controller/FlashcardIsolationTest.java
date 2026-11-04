@@ -15,8 +15,10 @@ import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import com.knowflow.vo.FlashcardVO;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -87,7 +89,7 @@ class FlashcardIsolationTest {
     /**
      * 两个真实用户 A/B。取高位 id 避开 db/h2/data.sql 种子用户（admin=1 / user1=2 / user2=3）
      * 与其它测试类常量（97511/97512、70001 等）。
-     * JwtAuthenticationFilter 只解析 token 不查库，故无需预先插入 sys_user 行。
+     * 每次测试在隔离库中建立这些主体，供认证过滤器读取。
      */
     private static final Long USER_A = 97601L;
     private static final Long USER_B = 97602L;
@@ -116,6 +118,17 @@ class FlashcardIsolationTest {
 
     @Autowired
     private LearningEventMapper eventMapper;
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        for (Long id : List.of(USER_A, USER_B, USER_C, USER_D)) {
+            jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                    id, "p0-1-" + id, "unused", "USER", 0);
+        }
+    }
 
     // ============================ 工具 ============================
 

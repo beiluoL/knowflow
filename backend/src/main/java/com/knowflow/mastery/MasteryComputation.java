@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * 单知识点（user, knowledge）的掌握度聚合计算结果（Knowledge Mastery Engine，Phase 2-B）。
- * <p>由 {@link com.knowflow.service.impl.MasteryEngine} 基于业务表聚合生成，
+ * <p>由 {@link com.knowflow.mastery.service.MasteryEngine} 基于业务表聚合生成，
  * 经「有效权重归一化」得到 mastery/confidence/risk/status 后由 KnowledgeMasteryService 落盘。</p>
  */
 @Data

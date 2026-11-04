@@ -6,7 +6,7 @@ import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.DocCategory;
 import com.knowflow.entity.DocDocument;
-import com.knowflow.entity.KbMember;
+import com.knowflow.knowledge.entity.KbMember;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.DocService;

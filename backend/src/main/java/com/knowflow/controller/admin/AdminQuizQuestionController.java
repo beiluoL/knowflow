@@ -7,12 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.entity.DocCategory;
-import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.QuizQuestion;
-import com.knowflow.mapper.DocCategoryMapper;
-import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.QuizQuestionMapper;
+import com.knowflow.knowledge.contract.QuizSourceQueryService;
 import com.knowflow.service.AiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,8 +32,7 @@ public class AdminQuizQuestionController {
 
     private final com.knowflow.catalog.QuizQuestionAdminService questionAdmin;
     private final QuizQuestionMapper quizQuestionMapper;
-    private final DocCategoryMapper docCategoryMapper;
-    private final DocDocumentMapper docDocumentMapper;
+    private final QuizSourceQueryService quizSources;
     private final AiService aiService;
     private final ObjectMapper objectMapper;
 
@@ -151,25 +147,16 @@ public class AdminQuizQuestionController {
         String sourceName = "";
 
         if (docId != null) {
-            DocDocument doc = docDocumentMapper.selectById(docId);
+            var doc = quizSources.findDocument(docId);
             if (doc == null) return Result.error("文档不存在");
-            sourceName = doc.getTitle();
-            String content = doc.getContent();
-            if (content != null && content.length() > 6000) {
-                content = content.substring(0, 6000);
-            }
-            context.append("文档标题：").append(doc.getTitle()).append("\n\n").append(content);
+            sourceName = doc.title();
+            context.append("文档标题：").append(doc.title()).append("\n\n").append(doc.content());
         } else {
-            DocCategory cat = docCategoryMapper.selectById(categoryId);
-            if (cat == null) return Result.error("知识库不存在");
-            sourceName = cat.getName();
-            QueryWrapper<DocDocument> dw = new QueryWrapper<>();
-            dw.eq("category_id", categoryId).eq("status", 1).orderByAsc("sort_order").last("LIMIT 10");
-            List<DocDocument> docs = docDocumentMapper.selectList(dw);
-            for (DocDocument doc : docs) {
-                String c = doc.getContent();
-                if (c != null && c.length() > 2000) c = c.substring(0, 2000);
-                context.append("### ").append(doc.getTitle()).append("\n").append(c).append("\n\n");
+            var category = quizSources.findCategory(categoryId);
+            if (category == null) return Result.error("知识库不存在");
+            sourceName = category.name();
+            for (var doc : category.excerpts()) {
+                context.append("### ").append(doc.title()).append("\n").append(doc.content()).append("\n\n");
             }
         }
 

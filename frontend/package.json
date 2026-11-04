@@ -11,7 +11,10 @@
     "test:watch": "vitest",
     "check:ui-prefix": "node scripts/check-ui-prefix.mjs",
     "lint": "node scripts/lint-check.mjs",
-    "lint:report": "node scripts/lint-check.mjs --report"
+    "lint:report": "node scripts/lint-check.mjs --report",
+    "format": "prettier --write \"src\"",
+    "format:fix": "prettier --write \"src\"",
+    "format:check": "prettier --check \"src\""
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.0.0",

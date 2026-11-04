@@ -7,7 +7,7 @@ import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.KnowledgeImportOptionsDTO;
 import com.knowflow.entity.DocCategory;
-import com.knowflow.entity.KbMember;
+import com.knowflow.knowledge.entity.KbMember;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.ImportCancelService;
 import com.knowflow.service.ImportProgressListener;

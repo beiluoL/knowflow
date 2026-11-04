@@ -4,8 +4,10 @@ import com.knowflow.service.ChatService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -51,6 +53,8 @@ class ChatPrincipalAuthTest {
 
     /** 本类专属用户，避免与共享库中的种子数据/其他用例相互干扰。 */
     private static final Long UID = 97001L;
+    private static final long OTHER = 97002L;
+    private static final long ADMIN = 97003L;
 
     @Autowired
     private MockMvc mockMvc;
@@ -60,6 +64,21 @@ class ChatPrincipalAuthTest {
 
     @Autowired
     private ChatService chatService;
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        seedUser(UID, "USER");
+        seedUser(OTHER, "USER");
+        seedUser(ADMIN, "ADMIN");
+    }
+
+    private void seedUser(long id, String role) {
+        jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                id, "p1a-chat-" + id, "unused", role, 0);
+    }
 
     /** 合法请求体（content 非空，可穿过 @Valid）。 */
     private static final String VALID_BODY = "{\"content\":\"你好\"}";
@@ -187,7 +206,7 @@ class ChatPrincipalAuthTest {
                 .header("Authorization", "Bearer " + validToken()))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200));
         for (String role : new String[]{"USER", "ADMIN"}) {
-            String token = "Bearer " + jwtUtils.generateToken(UID + 1, "chat-other", role);
+            String token = "Bearer " + jwtUtils.generateToken("ADMIN".equals(role) ? ADMIN : OTHER, "chat-other", role);
             mockMvc.perform(get("/api/chat/conversations/" + id + "/messages").header("Authorization", token))
                     .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
             mockMvc.perform(delete("/api/chat/conversations/" + id).header("Authorization", token))

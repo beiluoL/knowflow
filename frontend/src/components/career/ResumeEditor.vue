@@ -140,11 +140,12 @@
               </label>
             </div>
 
-            <div class="resume-format-tools" role="group" aria-label="纯文本格式">
+            <div class="resume-format-tools" role="group" aria-label="受控段落格式">
+              <Select v-if="activeSection !== 'skills'" :model-value="claim.fields?.textStyle ?? 'normal'" :options="contentStyleOptions" aria-label="段落格式" @update:model-value="value => setField(claim, 'textStyle', value)" />
               <Button variant="secondary" size="sm" @click="formatClaim(claim, 'bullet')">项目符号</Button>
               <Button variant="secondary" size="sm" @click="formatClaim(claim, 'plain')">移除项目符号</Button>
               <Button variant="secondary" size="sm" @click="formatClaim(claim, 'newline')">末尾换行</Button>
-              <span class="kf-text-caption">纯文本格式，保留原文证据</span>
+              <span class="kf-text-caption">受控格式，不接收 HTML，保留原文证据</span>
             </div>
             <label class="resume-claim-field">
               <span>内容摘要 / 完整表述</span>
@@ -305,6 +306,7 @@ const needsTextSource = '[原文件未提取到可用正文，请手动粘贴简
 const showPreview = ref(false)
 const previewDoc = computed(() => toDocument({ id: props.record?.id ?? 0, kind: 'RESUME', currentVersion: props.record?.currentVersion ?? 0, version: props.record?.version ?? 0, isDefault: false, confirmed: false, ...payload() }))
 const draggedIndex = ref<number | null>(null)
+const contentStyleOptions = [{ value: 'normal', label: '普通文本' }, { value: 'bold', label: '重点（粗体）' }, { value: 'italic', label: '强调（斜体）' }]
 const activeSection = ref<string>('source')
 const title = ref('')
 const source = ref('')

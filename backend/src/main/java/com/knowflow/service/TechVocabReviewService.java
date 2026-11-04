@@ -9,8 +9,8 @@ import com.knowflow.entity.UserVocabState;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.flashcards.FlashcardFsrsService;
 import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.mapper.TechVocabPronunciationMapper;
-import com.knowflow.mapper.TechVocabTermMapper;
+import com.knowflow.techenglish.mapper.TechVocabPronunciationMapper;
+import com.knowflow.techenglish.mapper.TechVocabTermMapper;
 import com.knowflow.mapper.UserVocabStateMapper;
 import com.knowflow.vo.TechVocabVOs;
 import lombok.RequiredArgsConstructor;
@@ -210,14 +210,15 @@ public class TechVocabReviewService {
             throw new BusinessException(400, "评分必须是 1-4");
         }
         requirePublished(termId);
-        List<Map<String, Object>> rows = jdbc.queryForList(
-                "SELECT linked_flashcard_id FROM user_vocab_state WHERE user_id=? AND term_id=?"
-                        + " AND deleted=0", userId, termId);
-        Number cardId = rows.isEmpty() ? null : (Number) rows.get(0).get("linked_flashcard_id");
+        List<UserVocabState> rows = stateMapper.selectList(new LambdaQueryWrapper<UserVocabState>()
+                .select(UserVocabState::getId, UserVocabState::getLinkedFlashcardId)
+                .eq(UserVocabState::getUserId, userId)
+                .eq(UserVocabState::getTermId, termId));
+        Long cardId = rows.isEmpty() ? null : rows.get(0).getLinkedFlashcardId();
         if (cardId == null) {
             throw new BusinessException(409, "该词条尚未加入复习");
         }
-        LearningFlashcard card = flashcardMapper.selectById(cardId.longValue());
+        LearningFlashcard card = flashcardMapper.selectById(cardId);
         if (card == null || !Objects.equals(card.getUserId(), userId)) {
             throw new BusinessException(409, "该词条尚未加入复习");
         }
@@ -255,16 +256,15 @@ public class TechVocabReviewService {
         Instant now = Instant.now();
         Instant dayStart = dayStart(now, zone, settings.dayStartHour());
         Instant dayEnd = dayStart.plusSeconds(86400);
-        Long totalTerms = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM tech_vocab_term WHERE content_status='PUBLISHED' AND deleted=0",
-                Long.class);
+        Long totalTerms = termMapper.selectCount(new LambdaQueryWrapper<TechVocabTerm>()
+                .eq(TechVocabTerm::getContentStatus, "PUBLISHED"));
         Long added = jdbc.queryForObject(
                 "SELECT COUNT(*) FROM user_vocab_state s JOIN learning_flashcard c"
                         + " ON c.id=s.linked_flashcard_id AND c.deleted=0"
                         + " WHERE s.user_id=? AND s.deleted=0", Long.class, userId);
-        Long favorite = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM user_vocab_state WHERE user_id=? AND favorite=1 AND deleted=0",
-                Long.class, userId);
+        Long favorite = stateMapper.selectCount(new LambdaQueryWrapper<UserVocabState>()
+                .eq(UserVocabState::getUserId, userId)
+                .eq(UserVocabState::getFavorite, true));
         Long learned = jdbc.queryForObject(
                 "SELECT COUNT(*) FROM user_vocab_state s JOIN learning_flashcard c"
                         + " ON c.id=s.linked_flashcard_id AND c.deleted=0"

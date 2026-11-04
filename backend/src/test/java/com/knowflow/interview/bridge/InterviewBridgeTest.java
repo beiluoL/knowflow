@@ -69,7 +69,7 @@ class InterviewBridgeTest {
         var policy=new DocumentAccessPolicy(categories,members,docs);
         var category=new DocCategory();category.setId(20L);category.setOwnerId(7L);category.setStatus(1);
         when(categories.selectById(20L)).thenReturn(category);
-        var membership=new com.knowflow.entity.KbMember();
+        var membership=new com.knowflow.knowledge.entity.KbMember();
         when(members.listByCategory(20L)).thenReturn(List.of(membership));
         when(members.canView(20L,8L)).thenReturn(true); // EDITOR
         when(members.canView(20L,9L)).thenReturn(true); // READER

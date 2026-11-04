@@ -11,6 +11,7 @@ import com.knowflow.entity.KgEntity;
 import com.knowflow.entity.KgRelation;
 import com.knowflow.entity.LearningChapter;
 import com.knowflow.entity.LearningFlashcard;
+import com.knowflow.flashcards.contract.GeneratedFlashcardWriter;
 import com.knowflow.entity.LearningGoal;
 import com.knowflow.entity.LearningScenario;
 import com.knowflow.exception.BusinessException;
@@ -59,7 +60,6 @@ public class LearningContentServiceImpl implements LearningContentService {
     /** 服务端 AI 提供方标识（对齐 4.3 处理追踪，不新增日志表） */
     private static final String PROVIDER = "knowflow-ai-service";
 
-    private static final String SOURCE_AI = "AI";
 
     // ---- 质量约束（§10/§25/§26） ----
     private static final int FLASHCARD_MIN = 3;
@@ -86,6 +86,7 @@ public class LearningContentServiceImpl implements LearningContentService {
     private final KgEntityMapper kgEntityMapper;
     private final KgRelationMapper kgRelationMapper;
     private final LearningFlashcardMapper flashcardMapper;
+    private final GeneratedFlashcardWriter generatedFlashcards;
     private final LearningScenarioMapper scenarioMapper;
     private final LearningChapterMapper chapterMapper;
     private final LearningGoalMapper goalMapper;
@@ -228,23 +229,11 @@ public class LearningContentServiceImpl implements LearningContentService {
                 warnings.add("闪卡「" + truncate(front, 30) + "」与既有/批内重复，已跳过（不重复写入正式库）");
                 continue;
             }
-            LearningFlashcard card = new LearningFlashcard();
-            card.setUserId(userId);
-            if (chapter != null) {
-                card.setPathId(chapter.getPathId());
-                card.setChapterId(chapter.getId());
-            }
-            card.setCategoryId(entity.getCategoryId());
-            card.setDocId(entity.getDocId());
-            card.setFront(front);
-            card.setBack(back);
-            card.setDifficulty(diff(item.getDifficulty()));
-            card.setTags(null);
-            card.setSourceType(SOURCE_AI);
-            card.setReviewCount(0);
-            card.setReviewInterval(0);
-            flashcardMapper.insert(card);
-            savedIds.add(card.getId());
+            var draft = new GeneratedFlashcardWriter.Draft(
+                    chapter == null ? null : chapter.getPathId(),
+                    chapter == null ? null : chapter.getId(),
+                    entity.getCategoryId(), entity.getDocId(), front, back, diff(item.getDifficulty()));
+            savedIds.add(generatedFlashcards.saveAcceptedDraft(userId, draft));
             // 接受后加入批内去重集合，避免同批重复行
             existingNorms.add(norm);
         }

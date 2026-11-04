@@ -92,6 +92,30 @@ class CareerUploadImportTest {
         }
     }
 
+    @Test void chineseDocImportsExactEvidenceIntoPendingSections() throws Exception {
+        byte[] bytes;
+        try (var input = getClass().getResourceAsStream("/career/synthetic-chinese-table.doc")) {
+            assertNotNull(input);
+            bytes = input.readAllBytes();
+        }
+        var realExtractor = new DocumentTextExtractor();
+        try {
+            when(manager.getTransaction(any())).thenReturn(mock(TransactionStatus.class));
+            when(records.create(eq(1L), eq("RESUME"), any())).thenReturn(Map.of("id", 42L, "confirmed", false));
+            var actualService = new CareerUploadService(realExtractor, records, jdbc, manager);
+            var result = actualService.upload(1L, "RESUME", new MockMultipartFile("file", "resume.doc", "application/msword", bytes));
+            assertEquals("REVIEW_REQUIRED", result.get("importStatus"));
+            assertEquals(false, result.get("confirmed"));
+            verify(records).create(eq(1L), eq("RESUME"), argThat(edit -> {
+                assertTrue(edit.source().contains("表格提取证据 Java"));
+                assertTrue(edit.sections().get("projects").stream().anyMatch(claim -> claim.value().contains("知识库项目")));
+                assertFalse(edit.sections().get("skills").isEmpty());
+                edit.sections().values().forEach(claims -> CareerMatcher.validate(claims, edit.source()));
+                return true;
+            }));
+        } finally { realExtractor.shutdown(); }
+    }
+
     private MockMultipartFile file(String name, String text) {
         return new MockMultipartFile("file", name, "application/octet-stream", text.getBytes(StandardCharsets.UTF_8));
     }

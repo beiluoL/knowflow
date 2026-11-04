@@ -24,7 +24,6 @@ import com.knowflow.mapper.WbRecallSessionMapper;
 import com.knowflow.mapper.WbReviewCardMapper;
 import com.knowflow.mapper.WbReviewLogMapper;
 import com.knowflow.mastery.MasteryConfig;
-import com.knowflow.service.impl.KnowledgeMasteryServiceImpl;
 import com.knowflow.vo.KnowledgeMasteryDetailVO;
 import com.knowflow.vo.MasteryDiagnosticsVO;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,6 +107,53 @@ class MasteryEngineIntegrationTest {
     // ============================================================
     // 信号聚合数学
     // ============================================================
+
+    @Test
+    void fixedClockQuizProjectionAndEventReplayKeepGoldenValues() {
+        long knowledgeId = kg("CONCEPT");
+        long questionId = 945001L;
+        LocalDateTime assessedAt = LocalDateTime.of(2026, 1, 1, 12, 0);
+        map(knowledgeId, MasteryConfig.RES_QUIZ, questionId, MasteryConfig.MAP_STATUS_ACCEPTED);
+        var answer = new QuizAnswerRecord();
+        answer.setId(questionId);
+        answer.setUserId(UID);
+        answer.setQuestionId(questionId);
+        answer.setIsCorrect(1);
+        answer.setCreateTime(assessedAt);
+        quizMapper.insert(answer);
+        var event = new com.knowflow.entity.LearningEvent();
+        event.setId(945002L);
+        event.setUserId(UID);
+        event.setResourceType(MasteryConfig.RES_QUIZ);
+        event.setResourceId(questionId);
+
+        assertNull(oneRow(knowledgeId));
+        int[][] observations = {{0, 7}, {1, 9}, {7, 21}, {14, 35}, {30, 67}, {60, 100}};
+        for (int[] observation : observations) {
+            LocalDateTime now = assessedAt.plusDays(observation[0]);
+            try (var time = org.mockito.Mockito.mockStatic(LocalDateTime.class, org.mockito.Mockito.CALLS_REAL_METHODS)) {
+                time.when(LocalDateTime::now).thenReturn(now);
+                masteryService.processEvent(event);
+                masteryService.processEvent(event);
+                masteryService.recalc(UID + 1, knowledgeId);
+            }
+            var row = oneRow(knowledgeId);
+            assertNotNull(row);
+            assertEquals(67, row.getMasteryScore());
+            assertEquals(9, row.getConfidenceScore());
+            assertEquals(observation[1], row.getForgettingRisk());
+            assertEquals(observation[0] == 60 ? "REVIEW_REQUIRED" : "LEARNING", row.getLearningStatus());
+            assertEquals(1, row.getAttemptCount());
+            assertEquals(1, row.getCorrectCount());
+            assertEquals(0, row.getWrongCount());
+            assertEquals(0, row.getReviewCount());
+            assertEquals(assessedAt, row.getLastAssessedAt());
+            assertNull(row.getLastReviewedAt());
+            assertNull(row.getNextReviewAt());
+        }
+        assertEquals(1, masteryMapper.selectCount(new LambdaQueryWrapper<com.knowflow.entity.KnowledgeMastery>()
+                .eq(com.knowflow.entity.KnowledgeMastery::getKnowledgeId, knowledgeId)));
+    }
 
     @Test
     @DisplayName("S1 QUIZ 信号：正确率拉普拉斯平滑 (1+1)/(1+0+2)=67 分，状态 LEARNING")

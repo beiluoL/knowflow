@@ -20,7 +20,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
-@TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:oct2_docs;DB_CLOSE_DELAY=-1;MODE=MySQL")
+@TestPropertySource(properties={
+    "knowflow.datasource.h2.url=jdbc:h2:mem:oct2_docs;DB_CLOSE_DELAY=-1;MODE=MySQL",
+    "knowflow.product.study-pack.enabled=true"
+})
 class DocumentAccessIsolationTest {
     @Autowired MockMvc http; @Autowired JwtUtils jwt; @Autowired DocCategoryMapper categories;
     @Autowired DocDocumentMapper docs; @Autowired KbMemberService members; @Autowired SysUserMapper users;
@@ -102,4 +105,24 @@ class DocumentAccessIsolationTest {
     @Test void importedPrivatePathAndChapterCannotBeReadByOther() throws Exception {LearningPath p=new LearningPath();p.setTitle(keyword);p.setOwnerUserId(owner);p.setStatus(1);paths.insert(p);LearningChapter chapter=new LearningChapter();chapter.setPathId(p.getId());chapter.setTitle(keyword);chapter.setContent(keyword);chapter.setDocIds(document.toString());chapters.insert(chapter);http.perform(get("/api/learning/paths/"+p.getId()).header("Authorization",auth(other))).andExpect(status().isForbidden());http.perform(get("/api/learning/chapters/"+chapter.getId()).header("Authorization",auth(other))).andExpect(status().isForbidden());}
     @Test void processingCannotReadOrAcceptSomeoneElsesDocument() throws Exception {for(String route:List.of("/api/knowledge/process","/api/knowledge/process/accept")){http.perform(post(route).header("Authorization",auth(other)).contentType("application/json").content("{\"docId\":"+document+"}")).andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));}}
     @Test void codeMistakeRelatedDocsCannotLeakPrivateSnippets() throws Exception {String body=http.perform(post("/api/mistakes/collect-code").header("Authorization",auth(other)).contentType("application/json").content("{\"language\":\"python\",\"error\":\""+keyword+"\",\"code\":\"fixture\"}")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();assertFalse(body.contains("PRIVATE "+keyword));}
+    @Test void adminQuizGenerationCannotReadAnotherUsersStudyPack() throws Exception {
+        Long admin = user();
+        sql.update("UPDATE sys_user SET role='ADMIN' WHERE id=?", admin);
+        String bearer = "Bearer " + jwt.generateToken(admin, "fixture-admin", "ADMIN");
+        sql.update("INSERT INTO study_pack_job(owner_id,source_hash,file_name,source_bytes,state,doc_id)"
+                + " VALUES(?,?,?,?,?,?)", owner, keyword, "fixture.txt", new byte[]{1}, "DRAFT_READY", document);
+        FakeAiConfiguration.reset();
+        try {
+            http.perform(post("/api/admin/quiz-questions/ai-generate").header("Authorization", bearer)
+                            .contentType("application/json").content("{\"docId\":" + document + "}"))
+                    .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));
+            http.perform(post("/api/admin/quiz-questions/ai-generate").header("Authorization", bearer)
+                            .contentType("application/json").content("{\"categoryId\":" + category + "}"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(500))
+                    .andExpect(jsonPath("$.message").value("所选内容为空，无法生成题目"));
+            assertEquals(0, FakeAiConfiguration.completeCalls);
+        } finally {
+            FakeAiConfiguration.reset();
+        }
+    }
 }

@@ -30,6 +30,24 @@ describe('native editable resume OOXML', () => {
     expect(xml).toContain('w:keepNext');
     expect(await zip.file('word/styles.xml')!.async('string')).toContain(theme.fontFamily === 'serif' ? 'SimSun' : 'Microsoft YaHei');
   });
+  it('maps controlled paragraph emphasis into Word without exporting style metadata', async () => {
+    const styled: CareerRecord = { id: 9, kind: 'RESUME', title: '格式', version: 1, currentVersion: 1, isDefault: false, confirmed: true, source: '项目正文',
+      sections: { projects: [{ value: '项目正文', quote: '项目正文', fields: { project: '项目', textStyle: 'bold' } }] } };
+    const model = toDocument(styled);
+    expect(model.sections[0].items[0].textStyle).toBe('bold');
+    expect(model.sections[0].items[0].bullets).toEqual(['项目正文']);
+    const zip = await JSZip.loadAsync(await Packer.toBuffer(buildResumeDocx(model, defaultTheme('java-ai'))));
+    const xml = new DOMParser().parseFromString(await zip.file('word/document.xml')!.async('string'), 'application/xml');
+    const run = Array.from(xml.getElementsByTagName('w:r')).find(item => item.textContent === '项目正文');
+    expect(run?.getElementsByTagName('w:b').length).toBe(1);
+  });
+  it('does not treat arbitrary field values as HTML or a formatting instruction', () => {
+    const record: CareerRecord = { id: 9, kind: 'RESUME', title: '格式', version: 1, currentVersion: 1, isDefault: false, confirmed: true, source: '项目正文',
+      sections: { projects: [{ value: '项目正文', quote: '项目正文', fields: { textStyle: '<script>alert(1)</script>' } }] } };
+    const item = toDocument(record).sections[0].items[0];
+    expect(item.textStyle).toBe('normal');
+    expect(item.bullets).toEqual(['项目正文']);
+  });
   it('retains source contacts when only projects have been structured', async () => {
     const partial: CareerRecord = { id: 9, kind: 'RESUME', title: '部分整理', version: 1, currentVersion: 1, isDefault: false, confirmed: true,
       source: '姓名：测试工程师\n邮箱：source@example.invalid\n电话：13800000000\nJava项目',

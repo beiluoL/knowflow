@@ -378,4 +378,34 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         vo.setUser(BeanUtil.copyProperties(user, UserVO.class));
         return vo;
     }
+    /** 为已生效的本人文档收藏累加统计；与文档事务共同回滚。 */
+    @Override
+    @Transactional(rollbackFor = Exception.class, propagation = org.springframework.transaction.annotation.Propagation.MANDATORY)
+    public void recordDocumentFavoriteAdded(Long actorUserId) {
+        updateDocumentStatistic(actorUserId, "favorite_count = favorite_count + 1");
+    }
+
+    /** 回退已实际取消的本人收藏，保持非负统计不变量。 */
+    @Override
+    @Transactional(rollbackFor = Exception.class, propagation = org.springframework.transaction.annotation.Propagation.MANDATORY)
+    public void recordDocumentFavoriteRemoved(Long actorUserId) {
+        updateDocumentStatistic(actorUserId, "favorite_count = GREATEST(0, favorite_count - 1)");
+    }
+
+    /** 记录已通过文档权限验证的本人阅读完成事实，不重新定义去重规则。 */
+    @Override
+    @Transactional(rollbackFor = Exception.class, propagation = org.springframework.transaction.annotation.Propagation.MANDATORY)
+    public void recordDocumentReadCompleted(Long actorUserId) {
+        updateDocumentStatistic(actorUserId, "read_docs_count = read_docs_count + 1");
+    }
+
+    private void updateDocumentStatistic(Long actorUserId, String trustedAssignment) {
+        if (!java.util.Objects.equals(com.knowflow.common.SecurityUtils.getCurrentUserId(), actorUserId)) {
+            throw new BusinessException(403, "不能修改其他用户的文档统计");
+        }
+        // 沿用原文档接口合同：已不存在的统计行不创建、不影响文档操作响应。
+        baseMapper.update(null,
+                new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<SysUser>()
+                        .eq(SysUser::getId, actorUserId).setSql(trustedAssignment));
+    }
 }

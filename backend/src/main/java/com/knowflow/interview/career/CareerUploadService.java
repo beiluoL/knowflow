@@ -39,12 +39,14 @@ public class CareerUploadService {
      : (extracted.indexOf('\uFFFD')>=0 || extracted.chars().anyMatch(c -> Character.isISOControl(c) && c!='\n' && c!='\r' && c!='\t')
        ? "正文包含异常字符，请对照原文件人工检查并修正后确认。" : "");
    String source=unavailable ? NEEDS_TEXT_SOURCE : extracted;
+   var sections=unavailable ? Map.<String,List<CareerMatcher.Claim>>of() : CareerParsingService.previewSections(kind,source);
+   String reviewWarning=sections.isEmpty()?warning:(warning+" 已按明确章节标题整理待审核条目；未识别内容保留在原文，请逐项校对后确认。").trim();
    return new TransactionTemplate(manager).execute(status->{
-    var record=records.create(user,kind,new CareerRecordService.Edit(null,"RESUME".equals(kind)?"私人简历":"目标岗位",source,Map.of()));
+    var record=records.create(user,kind,new CareerRecordService.Edit(null,"RESUME".equals(kind)?"私人简历":"目标岗位",source,sections));
     jdbc.update("INSERT INTO interview_career_file(record_id,user_id,content_type,content_bytes) VALUES(?,?,?,?)",record.get("id"),user,type,bytes);
     var result=new LinkedHashMap<String,Object>(record);
-    result.put("importStatus",unavailable ? "NEEDS_TEXT" : warning.isEmpty() ? "EXTRACTED" : "REVIEW_REQUIRED");
-    result.put("importWarning",warning);
+    result.put("importStatus",unavailable ? "NEEDS_TEXT" : reviewWarning.isEmpty() ? "EXTRACTED" : "REVIEW_REQUIRED");
+    result.put("importWarning",reviewWarning);
     return result;
    });
   }catch(BusinessException invalid){throw invalid;}

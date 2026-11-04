@@ -18,6 +18,8 @@ export interface ResumeDocItem {
   bullets: string[]
   /** 原始条目文本，模板无结构化字段时兜底展示 */
   raw: string
+  /** 受控段落格式，不存储或执行 HTML。 */
+  textStyle?: 'normal' | 'bold' | 'italic'
 }
 
 export interface ResumeDocSection {
@@ -89,7 +91,7 @@ function toItem(claim: CareerClaim): ResumeDocItem {
   }
   const displayed = new Set([title, subtitle, period, claim.value])
   const details = Object.entries(fields)
-    .filter(([key, value]) => key !== 'heading' && value && !displayed.has(value))
+    .filter(([key, value]) => key !== 'heading' && key !== 'textStyle' && value && !displayed.has(value))
     .map(([key, value]) => `${detailLabels[key] ?? key}：${value}`)
   return {
     title: title || (bullets.length > 1 ? bullets[0] : ''),
@@ -97,6 +99,7 @@ function toItem(claim: CareerClaim): ResumeDocItem {
     period,
     bullets: [...(bullets.length > 1 ? bullets.slice(title ? 0 : 1) : [claim.value]), ...details],
     raw: claim.value,
+    textStyle: fields.textStyle === 'bold' || fields.textStyle === 'italic' ? fields.textStyle : 'normal',
   }
 }
 

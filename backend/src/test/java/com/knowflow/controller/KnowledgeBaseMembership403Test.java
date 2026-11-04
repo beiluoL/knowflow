@@ -3,7 +3,7 @@ package com.knowflow.controller;
 import com.knowflow.controller.admin.AdminCategoryController;
 import com.knowflow.controller.admin.AdminKbMemberController;
 import com.knowflow.entity.DocCategory;
-import com.knowflow.entity.KbMember;
+import com.knowflow.knowledge.entity.KbMember;
 import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.SysUserMapper;
@@ -69,6 +69,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties =
         "knowflow.datasource.h2.url=jdbc:h2:mem:knowflow_p1d2_403;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL")
 class KnowledgeBaseMembership403Test {
+
+    @Autowired
+    private org.springframework.context.ApplicationContext context;
+
+    @Autowired
+    private org.apache.ibatis.session.SqlSessionFactory sessions;
+
+    @Test
+    void membershipMapperHasOneBeanAndTheNewStatementNamespace() {
+        var mapper = com.knowflow.knowledge.mapper.KbMemberMapper.class;
+        assertEquals(1, context.getBeansOfType(mapper).size());
+        var configuration = sessions.getConfiguration();
+        assertTrue(configuration.hasStatement(mapper.getName() + ".selectById"));
+        assertFalse(configuration.hasStatement("com.knowflow.mapper.KbMemberMapper.selectById"));
+    }
+
 
     private static final String CATEGORY_NAME = "P1D2-知识库";
 

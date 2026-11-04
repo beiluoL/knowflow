@@ -8,7 +8,7 @@
       <Button variant="secondary" size="sm" @click="editor?.openPreview()">预览</Button>
       <Button v-if="record" variant="secondary" size="sm" @click="showVersions">版本管理</Button>
       <div v-if="record" class="resume-page-export" aria-label="文件导出">
-        <Select :model-value="designKey" :options="designOptions" :disabled="designLoading || busy" aria-label="选择导出设计" @update:model-value="value => designKey = String(value ?? 'default')" />
+        <Select :model-value="designKey" :options="designOptions" :disabled="designLoading || busy" aria-label="选择导出设计" @update:model-value="selectExportDesign" />
         <Button variant="secondary" size="sm" :disabled="designLoading || !!designError || busy" @click="openTemplateEditor">模板选择</Button>
         <Button variant="secondary" size="sm" :loading="preparingPdf" :disabled="designLoading || !!designError || busy || parsing" @click="exportPdf">导出 PDF</Button>
         <ResumeDocxExportButton :doc="toDocument(record)" :theme="activeTheme" :disabled="designLoading || !!designError || busy || parsing" />
@@ -84,13 +84,14 @@
 </template>
 
 <script setup lang="ts">
+import type { LocationQueryRaw } from 'vue-router'
 import { computed, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
 import Select from '@/components/ui/Select.vue'
 import { listDesigns } from '@/api/career/design'
-import { prepareResumePrint } from '@/career/resume-export'
+import { prepareResumePrint, readPositiveQuery } from '@/career/resume-export'
 import StateView from '@/components/ui/StateView.vue'
 import CareerWorkbenchLayout from '@/components/career/CareerWorkbenchLayout.vue'
 import ResumeDocxExportButton from '@/components/career/ResumeDocxExportButton.vue'
@@ -145,10 +146,20 @@ async function loadExportDesigns(): Promise<void> {
     const values = await listDesigns(id)
     if (sequence !== designSequence) return
     exportDesigns.value = values
-    designKey.value = String((values.find(item => item.isDefault) ?? values[0])?.id ?? 'default')
+    const requested = readPositiveQuery(route.query.designId, '设计')
+    if (requested !== undefined && !values.some(item => item.id === requested)) throw new Error('所选设计不存在或无权访问，请重新选择')
+    designKey.value = String(requested ?? (route.query.templateId === 'ats-classic' ? 'default' : (values.find(item => item.isDefault) ?? values[0])?.id ?? 'default'))
   } catch (failure: unknown) {
     if (sequence === designSequence) { exportDesigns.value = []; designError.value = getApiError(failure, '导出设计读取失败，请重试') }
   } finally { if (sequence === designSequence) designLoading.value = false }
+}
+function selectExportDesign(value: string | number | null): void {
+  designKey.value = String(value ?? 'default')
+  if (!record.value) return
+  const query: LocationQueryRaw = { ...route.query, version: String(record.value.version) }
+  if (activeDesign.value) { query.designId = String(activeDesign.value.id); delete query.templateId }
+  else { delete query.designId; query.templateId = 'ats-classic' }
+  void router.replace({ query })
 }
 function openTemplateEditor(): void {
   if (!record.value) return
@@ -160,7 +171,6 @@ async function exportPdf(): Promise<void> {
   try {
     const result = await prepareResumePrint(record.value, activeTheme.value, activeDesign.value?.id ?? null)
     exportDesigns.value = [result.design, ...exportDesigns.value.filter(item => item.id !== result.design.id)]
-    designKey.value = String(result.design.id)
     window.open(router.resolve(result.location).href, '_blank', 'noopener')
   } catch (failure: unknown) { notify(getApiError(failure, 'PDF 导出准备失败，请重试'), 'error') }
   finally { preparingPdf.value = false }
@@ -200,10 +210,11 @@ async function reload(): Promise<void> {
   syncRecord(value)
 }
 
-async function loadVersion(version: number): Promise<void> {
-  if (!resumeId.value) return
+async function loadVersion(version: number): Promise<CareerRecord | null> {
+  if (!resumeId.value) return null
   const value = await loadOne(resumeId.value, version)
   if (value) record.value = value
+  return value
 }
 
 async function executeSave(payload: CareerEdit, id?: number): Promise<void> {
@@ -216,6 +227,7 @@ async function executeSave(payload: CareerEdit, id?: number): Promise<void> {
   message.value = result.confirmed ? '已保存并确认简历版本' : '已保存新的待确认版本'
   notify('简历版本已保存', 'success')
   if (!id) await router.replace(`/career/resumes/${result.id}`)
+  else if (route.query.version !== undefined) await router.replace({ query: { ...route.query, version: String(result.version) } })
 }
 
 async function saveResume(payload: CareerEdit): Promise<void> {
@@ -280,7 +292,8 @@ async function restoreVersion(): Promise<void> {
 async function selectVersion(version: number): Promise<void> {
   await editor.value?.flushDraft()
   if (editor.value?.draftFailed) return
-  await loadVersion(version)
+  const selected = await loadVersion(version)
+  if (selected) await router.replace({ query: { ...route.query, version: String(selected.version) } })
 }
 
 function scrollToEditor(): void {

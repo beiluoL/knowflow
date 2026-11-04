@@ -77,6 +77,42 @@ class ExamConcurrencyIntegrationTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired ObjectMapper objectMapper;
 
+    @Autowired org.springframework.test.web.servlet.MockMvc http;
+    @Autowired com.knowflow.utils.JwtUtils jwt;
+
+    @Test
+    void attemptHistoryIsPrivateOrderedAndKeepsMissingPaperFallback() throws Exception {
+        SysUser owner = newUser();
+        SysUser other = newUser();
+        Fixture first = createFixture(owner, false);
+        Fixture second = createFixture(owner, false);
+        Long older = examService.startAttempt(first.paper().getId(), owner.getId()).getAttemptId();
+        Long newer = examService.startAttempt(second.paper().getId(), owner.getId()).getAttemptId();
+        jdbc.update("UPDATE exam_attempt SET create_time=? WHERE id=?",
+                LocalDateTime.of(2020, 1, 1, 0, 0), older);
+        paperMapper.deleteById(second.paper().getId());
+
+        var route = org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/exam/attempts");
+        assertEquals(401, http.perform(route).andReturn().getResponse().getStatus());
+        var ownerResponse = http.perform(route.header("Authorization",
+                "Bearer " + jwt.generateToken(owner.getId(), owner.getUsername(), "USER")))
+                .andReturn().getResponse();
+        assertEquals(200, ownerResponse.getStatus());
+        var history = objectMapper.readTree(ownerResponse.getContentAsByteArray()).path("data");
+        assertEquals(2, history.size());
+        assertEquals(newer.longValue(), history.get(0).path("attemptId").asLong());
+        assertEquals("未知试卷", history.get(0).path("paperName").asText());
+        assertEquals(60, history.get(0).path("passScore").asInt());
+        assertEquals(older.longValue(), history.get(1).path("attemptId").asLong());
+        var otherResponse = http.perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/exam/attempts")
+                        .header("Authorization", "Bearer " + jwt.generateToken(
+                                other.getId(), other.getUsername(), "USER")))
+                .andReturn().getResponse();
+        assertEquals(200, otherResponse.getStatus());
+        assertEquals(0, objectMapper.readTree(otherResponse.getContentAsByteArray()).path("data").size());
+    }
+
     private final List<ExecutorService> pools = new ArrayList<>();
 
     @AfterEach

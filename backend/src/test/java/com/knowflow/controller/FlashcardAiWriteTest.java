@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -108,6 +109,17 @@ class FlashcardAiWriteTest {
     @BeforeEach
     void resetAi() {
         FakeAiConfiguration.reset();
+    }
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        for (Long id : List.of(OWNER, OTHER)) {
+            jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                    id, "p0-1b-" + id, "unused", "USER", 0);
+        }
     }
 
     // ============================ 工具 ============================

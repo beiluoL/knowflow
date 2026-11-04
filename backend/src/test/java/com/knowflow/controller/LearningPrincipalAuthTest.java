@@ -7,8 +7,10 @@ import com.knowflow.service.LearningService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -62,7 +64,7 @@ class LearningPrincipalAuthTest {
 
     /**
      * 本类专属用户，避免与共享库中的种子数据（admin/user1/user2）相互干扰。
-     * {@code JwtAuthenticationFilter} 只解析 token 不查库，故无需预先插入用户行。
+     * 每个测试建立可被认证过滤器读取的主体账号。
      */
     private static final Long USER_A = 97201L;
     private static final Long USER_B = 97202L;
@@ -74,6 +76,9 @@ class LearningPrincipalAuthTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private JwtUtils jwtUtils;
 
     @Autowired
@@ -81,6 +86,14 @@ class LearningPrincipalAuthTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        for (Long userId : List.of(USER_A, USER_B)) {
+            jdbcTemplate.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                    userId, "p1a-learning-" + userId, "unused", "USER", 0);
+        }
+    }
 
     private String tokenA() {
         return jwtUtils.generateToken(USER_A, "p1a-learning-a", "USER");

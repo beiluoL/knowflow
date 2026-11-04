@@ -12,7 +12,7 @@ import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.LearningNoteMapper;
 import com.knowflow.mapper.TechVocabCandidateMapper;
-import com.knowflow.mapper.TechVocabTermMapper;
+import com.knowflow.techenglish.mapper.TechVocabTermMapper;
 import com.knowflow.vo.TechVocabVOs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

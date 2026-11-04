@@ -2,6 +2,7 @@ package com.knowflow.service;
 
 import com.knowflow.dto.*;
 import com.knowflow.entity.*;
+import com.knowflow.knowledge.entity.KbMember;
 import com.knowflow.mapper.*;
 import com.knowflow.security.HostCapabilityProperties;
 import com.knowflow.support.FakeAiConfiguration;

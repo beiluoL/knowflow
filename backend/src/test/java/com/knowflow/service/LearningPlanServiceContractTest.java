@@ -2,7 +2,7 @@ package com.knowflow.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.dto.PlanGenerateDTO;
-import com.knowflow.entity.LearningPlan;
+import com.knowflow.learning.entity.LearningPlan;
 import com.knowflow.vo.LearningPlanVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

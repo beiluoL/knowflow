@@ -14,6 +14,7 @@ import com.knowflow.mapper.PrivateConversationReadMapper;
 import com.knowflow.mapper.PrivateMessageMapper;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -120,6 +121,14 @@ class PrivateMessagePrincipalAuthTest {
     private JdbcTemplate jdbcTemplate;
 
     // ============================ 工具 ============================
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        for (Long userId : List.of(USER_A, USER_B, USER_C)) {
+            jdbcTemplate.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                    userId, "p1a5-im-" + userId, "unused", "USER", 0);
+        }
+    }
 
     private String auth(Long userId) {
         return "Bearer " + jwtUtils.generateToken(userId, "p1a5-im-" + userId, "USER");

@@ -6,6 +6,7 @@ import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -25,11 +26,26 @@ class ChatConversationTitleV2Test {
  @Autowired com.knowflow.service.impl.ChatServiceImpl chat;
  @SpyBean AiService ai;
  final long owner=982001,other=982002;
+ private static final long ADMIN = 982003L;
+ @Autowired JdbcTemplate jdbc;
+
+ @BeforeEach
+ void seedTokenSubjects() {
+  seedUser(owner, "USER");
+  seedUser(other, "USER");
+  seedUser(ADMIN, "ADMIN");
+ }
+
+ private void seedUser(long id, String role) {
+  jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+          id, "chat-title-" + id, "unused", role, 0);
+ }
+
  String token(long user,String role){return "Bearer "+jwt.generateToken(user,"chat-v2",role);}
  Long conversation(){return service.createConversation(owner,"新对话").getId();}
  void patchTitle(Long id,String title,String auth,int status)throws Exception{http.perform(patch("/api/chat/conversations/"+id).header("Authorization",auth).contentType("application/json").content(json.writeValueAsString(java.util.Map.of("title",title)))).andExpect(status().is(status)).andExpect(jsonPath("$.code").value(status));}
  @Test void ownerRenamePersistsAndAcceptsAnIdenticalRetry()throws Exception{Long id=conversation();patchTitle(id,"  并发学习  ",token(owner,"USER"),200);patchTitle(id,"并发学习",token(owner,"USER"),200);assertEquals("并发学习",service.getById(id).getTitle());}
- @Test void otherAndAdminCannotRenamePrivateConversation()throws Exception{Long id=conversation();for(String role:new String[]{"USER","ADMIN"})patchTitle(id,"intrusion",token(other,role),404);assertEquals("新对话",service.getById(id).getTitle());}
+ @Test void otherAndAdminCannotRenamePrivateConversation()throws Exception{Long id=conversation();for(String role:new String[]{"USER","ADMIN"})patchTitle(id,"intrusion",token("ADMIN".equals(role) ? ADMIN : other,role),404);assertEquals("新对话",service.getById(id).getTitle());}
  @Test void anonymousRenameRequiresAuthentication()throws Exception{Long id=conversation();http.perform(patch("/api/chat/conversations/"+id).contentType("application/json").content("{\"title\":\"x\"}")).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value(401));}
  @Test void invalidOrDeletedRenameDoesNotMutate()throws Exception{Long id=conversation();patchTitle(id,"  ",token(owner,"USER"),400);patchTitle(id,"x".repeat(201),token(owner,"USER"),400);service.deleteConversation(id,owner);patchTitle(id,"deleted",token(owner,"USER"),404);}
  @Test void firstQuestionBecomesServerTitleInStream()throws Exception{Long id=conversation();http.perform(post("/api/chat/stream").header("Authorization",token(owner,"USER")).contentType("application/json").content("{\"conversationId\":"+id+",\"content\":\"解释 Java CAS\",\"useKnowledgeBase\":false}")).andExpect(status().isOk());chat.awaitSseTasks(3000);assertEquals("解释 Java CAS",service.getById(id).getTitle());}

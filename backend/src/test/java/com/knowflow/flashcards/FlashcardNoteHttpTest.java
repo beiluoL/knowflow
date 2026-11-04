@@ -7,11 +7,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +31,15 @@ class FlashcardNoteHttpTest {
     @Autowired MockMvc mvc;
     @Autowired JwtUtils jwt;
     @Autowired ObjectMapper json;
+    @Autowired JdbcTemplate jdbc;
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        for (long id : new long[]{98761L, 98762L}) {
+            jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                    id, "note-test" + id, "unused", "USER", 0);
+        }
+    }
 
     String auth(long id) {
         return "Bearer " + jwt.generateToken(id, "note-test" + id, "USER");

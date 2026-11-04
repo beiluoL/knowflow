@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.dto.ObsidianImportDTO;
 import com.knowflow.entity.*;
+import com.knowflow.knowledge.entity.KbMember;
 import com.knowflow.mapper.*;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.service.ImportProgressListener;

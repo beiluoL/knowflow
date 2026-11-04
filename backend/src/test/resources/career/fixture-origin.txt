@@ -5,3 +5,5 @@ Retrieved using the GitHub connector, base64-decoded without modification.
 Apache POI is licensed under Apache License 2.0; upstream legal/LICENSE and
 legal/NOTICE are retained as APACHE-POI-LICENSE.txt and APACHE-POI-NOTICE.txt.
 The document is public synthetic test content, not a user resume.
+
+synthetic-chinese-table.doc: generated locally in Microsoft Word Word 97-2004 format from synthetic-resume.docx (synthetic Chinese resume and table; no real personal data), 2026-11-03.

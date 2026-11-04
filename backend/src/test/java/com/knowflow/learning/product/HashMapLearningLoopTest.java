@@ -1,4 +1,8 @@
 package com.knowflow.learning.product;
+
+import com.knowflow.knowledge.mapper.KbMemberMapper;
+
+import com.knowflow.knowledge.entity.KbMember;
 import com.fasterxml.jackson.databind.*;
 import com.knowflow.entity.*;import com.knowflow.mapper.*;
 import com.knowflow.support.FakeAiConfiguration;import com.knowflow.utils.JwtUtils;

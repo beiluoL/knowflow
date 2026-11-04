@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import java.util.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,6 +27,22 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:flashcard_exchange_4g;DB_CLOSE_DELAY=-1;MODE=MySQL", "knowflow.datasource.config-file=/tmp/knowflow-phase4g-exchange-no-config.json"})
 class FlashcardExchangeHttpTest {
  @Autowired MockMvc mvc; @Autowired JwtUtils jwt; @Autowired ObjectMapper json; @Autowired JdbcTemplate jdbc;
+ private static final long ADMIN_ID = 912099L;
+
+ @BeforeEach
+ void seedTokenSubjects() {
+  for (long uid : new long[]{912001, 912002, 912011, 912012, 912021, 912031, 912041, 912051,
+          912061, 912062, 912071, 912081, 912082, 912091}) {
+   seedUser(uid, "USER");
+  }
+  seedUser(ADMIN_ID, "ADMIN");
+ }
+
+ private void seedUser(long uid, String role) {
+  jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+          uid, "exchange" + uid, "unused", role, 0);
+ }
+
  String auth(long uid){return "Bearer "+jwt.generateToken(uid,"exchange"+uid,"USER");}
  Map<String,Object> input(String content){return new LinkedHashMap<>(Map.of("format","csv","content",content,"source","test-library","mapping",Map.of()));}
  JsonNode postData(String endpoint,long uid,Object body,int expected) throws Exception {
@@ -136,7 +153,7 @@ class FlashcardExchangeHttpTest {
   assertEquals(front,p.path("rows").get(0).path("note").path("front").asText());assertEquals(back,p.path("rows").get(0).path("note").path("back").asText());
  }
  @Test void adminRoleCannotExportAnotherOwnersPrivateContents() throws Exception {
-  String admin="Bearer "+jwt.generateToken(912099L,"exchange-admin","ADMIN");
+  String admin="Bearer "+jwt.generateToken(ADMIN_ID,"exchange" + ADMIN_ID,"ADMIN");
   mvc.perform(get("/api/learning/my/flashcard-exchange/export").header("Authorization",admin))
    .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200)).andExpect(jsonPath("$.data.notes").value(0));
  }

@@ -13,7 +13,7 @@ import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.LearningChapterMapper;
 import com.knowflow.mapper.LearningNoteMapper;
 import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.mapper.TechVocabConceptLinkMapper;
+import com.knowflow.techenglish.mapper.TechVocabConceptLinkMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;

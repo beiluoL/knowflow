@@ -1,11 +1,11 @@
 package com.knowflow.apps;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.UserApp;
+import com.knowflow.apps.contract.AppPurchaseAccess;
+import com.knowflow.apps.entity.UserApp;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.UserAppMapper;
-import com.knowflow.store.EconomyError;
-import com.knowflow.vo.UserAppVO;
+import com.knowflow.apps.mapper.UserAppMapper;
+import com.knowflow.apps.vo.UserAppVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class UserAppService {
+public class UserAppService implements AppPurchaseAccess {
+
+    private static final int INVALID_APP = 2006;
 
     private final UserAppMapper userAppMapper;
     private final OfficialAppRegistry registry;
@@ -115,7 +117,7 @@ public class UserAppService {
     @Transactional
     public UserAppVO upsert(Long userId, String appKey, Boolean installed, Boolean enabled, Integer sortOrder) {
         if (!registry.isValid(appKey)) {
-            throw new BusinessException(EconomyError.INVALID_APP, "无效的应用标识");
+            throw new BusinessException(INVALID_APP, "无效的应用标识");
         }
         boolean inst = installed == null || installed; // 缺省视为 true（安装）
         boolean enab = enabled == null || enabled;
@@ -155,7 +157,13 @@ public class UserAppService {
         return toVO(created);
     }
 
+    @Override
+    public boolean isActive(String appKey) {
+        return registry.isActive(appKey);
+    }
+
     /** 购买成功后自动安装启用（PurchaseService 同事务调用，§270-274）。 */
+    @Override
     @Transactional
     public void markInstalledAndEnabled(Long userId, String appKey) {
         upsert(userId, appKey, true, true, null);

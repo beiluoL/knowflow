@@ -11,8 +11,6 @@ public final class EconomyError {
     public static final int PRODUCT_DISABLED = 2003;
     public static final int APP_DISABLED = 2004;
     public static final int INVALID_PRODUCT = 2005;
-    /** Architecture-3：非法/未知 appKey（§34-35/§249-250 统一为单一错误码） */
-    public static final int INVALID_APP = 2006;
 
     private EconomyError() {
     }

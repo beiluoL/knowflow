@@ -1,7 +1,9 @@
 package com.knowflow.catalog;
 import com.knowflow.common.PageResult;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.knowflow.learning.contract.LearningQuestionCatalogQueryPort;
+import com.knowflow.coding.contract.LegacyCodeCatalogQueryPort;
 import com.knowflow.coding.service.CodeProblemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,9 +22,8 @@ public class QuestionCatalogService {
  private final QuizQuestionAdminService quizAdmin;
  private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
  private final JdbcTemplate jdbc;
- private final QuizQuestionMapper quiz;
- private final LearningScenarioMapper scenarios;
- private final CodeQuestionMapper legacy;
+ private final LearningQuestionCatalogQueryPort learningQuestions;
+ private final LegacyCodeCatalogQueryPort legacy;
  private final CodeProblemService code;
  private static final Set<String> SOURCES=Set.of("QUIZ","SCENARIO","LEGACY_CODE","CODE_PROBLEM");
  private static final String BANK="""
@@ -54,7 +55,7 @@ public class QuestionCatalogService {
  }
  @SuppressWarnings("unchecked") private static <T> T number(ResultSet r,String column,Class<T> cls)throws SQLException{Number n=(Number)r.getObject(column);return n==null?null:(T)(cls==Long.class?(Object)n.longValue():(Object)n.intValue());}
  private static List<String> split(String tags){return tags==null?List.of():Arrays.stream(tags.split(",")).map(String::trim).filter(s->!s.isBlank()).distinct().toList();}
- public Map<String,Object> detail(String catalogId){var identity=parse(catalogId);var rows=jdbc.query("SELECT * FROM ("+BANK+") bank WHERE source_type=? AND source_question_id=?",this::row,identity.source(),identity.id());if(rows.isEmpty())throw new BusinessException(404,"题目不存在");if(rows.get(0).isCanonicalEvidence())rows.get(0).setDuplicateCount(jdbc.queryForObject("SELECT COUNT(*) FROM ("+BANK+") bank WHERE canonical_key=?",Long.class,rows.get(0).getCanonicalKey()));Object payload=switch(identity.source()){case "QUIZ"->quiz.selectById(identity.id());case "SCENARIO"->scenarios.selectById(identity.id());case "LEGACY_CODE"->legacy.selectById(identity.id());default->rows.get(0).getSourceStorageId()==null?quiz.selectById(identity.id()):code.adminDetail(identity.id());};rows.get(0).setEditToken(token(payload));return Map.of("item",rows.get(0),"payload",payload);}
+ public Map<String,Object> detail(String catalogId){var identity=parse(catalogId);var rows=jdbc.query("SELECT * FROM ("+BANK+") bank WHERE source_type=? AND source_question_id=?",this::row,identity.source(),identity.id());if(rows.isEmpty())throw new BusinessException(404,"题目不存在");if(rows.get(0).isCanonicalEvidence())rows.get(0).setDuplicateCount(jdbc.queryForObject("SELECT COUNT(*) FROM ("+BANK+") bank WHERE canonical_key=?",Long.class,rows.get(0).getCanonicalKey()));Object payload=switch(identity.source()){case "QUIZ"->learningQuestions.findQuiz(identity.id());case "SCENARIO"->learningQuestions.findScenario(identity.id());case "LEGACY_CODE"->legacy.findDetail(identity.id());default->rows.get(0).getSourceStorageId()==null?learningQuestions.findQuiz(identity.id()):code.adminDetail(identity.id());};rows.get(0).setEditToken(token(payload));return Map.of("item",rows.get(0),"payload",payload);}
  private String token(Object value){return QuestionEditToken.of(objectMapper,value);}
  public record Identity(String source,long id){}
  public static Identity parse(String value){if(value==null||!value.matches("(QUIZ|SCENARIO|LEGACY_CODE|CODE_PROBLEM):[1-9][0-9]*"))throw new BusinessException(400,"题目身份必须包含来源与ID");String[] p=value.split(":");try{return new Identity(p[0],Long.parseLong(p[1]));}catch(NumberFormatException e){throw new BusinessException(400,"题目ID超出范围");}}
@@ -63,7 +64,7 @@ public class QuestionCatalogService {
  public void editBasic(String catalogId,BasicEdit req){
   if(req.title()==null||req.title().isBlank()||req.title().length()>200||req.difficulty()==null||req.difficulty()<1||req.difficulty()>3)throw new BusinessException(400,"标题不能为空且不超过200字，难度必须为1–3");
   if(req.tags()!=null&&req.tags().length()>500)throw new BusinessException(400,"标签不超过500字");
-  var identity=parse(catalogId);String lockedTable=switch(identity.source()){case "SCENARIO"->"learning_scenario";case "LEGACY_CODE"->"code_question";default->"quiz_question";};if(jdbc.queryForList("SELECT id FROM "+lockedTable+" WHERE id=? AND deleted=0 FOR UPDATE",Long.class,identity.id()).isEmpty())throw new BusinessException(404,"题目不存在");var item=(QuestionCatalogItem)detail(catalogId).get("item");
+  var identity=parse(catalogId);String lockedTable=switch(identity.source()){case "SCENARIO"->"learning_scenario";case "LEGACY_CODE"->"code_question";default->"quiz_question";};if(jdbc.queryForList("SELECT id FROM "+lockedTable+" WHERE id=? AND deleted=0 FOR UPDATE",Long.class,identity.id()).isEmpty())throw new BusinessException(404,"题目不存在");var detail=detail(catalogId);var item=(QuestionCatalogItem)detail.get("item");
   if((identity.source().equals("SCENARIO")||identity.source().equals("LEGACY_CODE")||req.expectedEditToken()!=null)&&!Objects.equals(item.getEditToken(),req.expectedEditToken()))throw new BusinessException(409,"题目内容已变更，请重新加载后编辑");
   if(!Objects.equals(item.getSourceVersion(),req.expectedSourceVersion()))throw new BusinessException(409,"题目已变更，请重新加载后编辑");
   java.time.LocalDateTime expected=null;try{if(req.expectedUpdatedAt()!=null)expected=java.time.LocalDateTime.parse(req.expectedUpdatedAt().replace(' ','T'));}catch(java.time.format.DateTimeParseException e){throw new BusinessException(400,"更新时间格式错误");}
@@ -76,7 +77,9 @@ public class QuestionCatalogService {
    String topic=req.topicCode()==null||req.topicCode().isBlank()?null:req.topicCode().trim();
    if(topic!=null&&jdbc.queryForObject("SELECT COUNT(*) FROM question_topic WHERE code=? AND deleted=0 AND status=1",Long.class,topic)!=1)throw new BusinessException(400,"知识点编码不存在或已停用");
    sql+=",category_id=?,topic_code=?,version=COALESCE(version,0)+1";args.add(req.categoryId());args.add(topic);
-   var q=quiz.selectById(identity.id());if(identity.source().equals("CODE_PROBLEM")||"AI".equals(q.getSource())||q.getReviewStatus()!=null)sql+=",review_status='PENDING_REVIEW',status=0";
+   if (identity.source().equals("CODE_PROBLEM") || requiresReview((JsonNode) detail.get("payload"))) {
+    sql+=",review_status='PENDING_REVIEW',status=0";
+   }
   }else if(identity.source().equals("SCENARIO")){
    List<Long> knowledge=req.knowledgePointIds()==null?List.of():req.knowledgePointIds();if(knowledge.size()>1)throw new BusinessException(400,"场景目前仅支持一个知识点");Long knowledgeId=knowledge.isEmpty()?null:knowledge.get(0);
    if(knowledgeId!=null&&jdbc.queryForObject("SELECT COUNT(*) FROM kg_entity WHERE id=? AND deleted=0",Long.class,knowledgeId)!=1)throw new BusinessException(400,"知识点不存在");sql+=",knowledge_id=?";args.add(knowledgeId);
@@ -86,6 +89,9 @@ public class QuestionCatalogService {
   if(identity.source().equals("QUIZ")||identity.source().equals("CODE_PROBLEM")){if(req.expectedSourceVersion()==null)sql+=" AND version IS NULL";else{sql+=" AND version=?";args.add(req.expectedSourceVersion());}}
   if(jdbc.update(sql,args.toArray())!=1)throw new BusinessException(409,"题目已变更，请重新加载后编辑");
   audit.record(identity.source(),identity.id(),"EDIT_BASIC","version="+item.getSourceVersion(),"title/difficulty/tags/classification updated");
+ }
+ private static boolean requiresReview(JsonNode quizDetail) {
+  return "AI".equals(quizDetail.path("source").asText()) || quizDetail.hasNonNull("reviewStatus");
  }
  @org.springframework.transaction.annotation.Transactional
  public void batchStatus(List<String> ids,boolean published){

@@ -33,7 +33,7 @@ export function buildResumeDocx(doc: ResumeDocumentViewModel, theme: ResumeTheme
       const title = [item.title, item.subtitle, item.period].filter(Boolean).join(' · ');
       if (title) children.push(new Paragraph({ keepNext: true, children: [new TextRun({ text: title, bold: true })] }));
       for (const line of item.bullets) {
-        children.push(new Paragraph({ text: line, ...(item.bullets.length > 1 ? { bullet: { level: 0 } } : {}), widowControl: true }));
+        children.push(new Paragraph({ children: [new TextRun({ text: line, ...(item.textStyle === 'bold' ? { bold: true } : item.textStyle === 'italic' ? { italics: true } : {}) })], ...(item.bullets.length > 1 ? { bullet: { level: 0 } } : {}), widowControl: true }));
       }
     }
   }

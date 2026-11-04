@@ -12,6 +12,7 @@ import com.knowflow.mapper.LearningFlashcardMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -104,6 +105,14 @@ class DocPrincipalAuthTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        for (Long userId : List.of(USER_A, USER_B)) {
+            jdbcTemplate.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                    userId, "p1a-doc-" + userId, "unused", "USER", 0);
+        }
+    }
 
     // ============================ 工具 ============================
 

@@ -13,8 +13,10 @@ import com.knowflow.mapper.PrivateConversationReadMapper;
 import com.knowflow.mapper.PrivateMessageMapper;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -84,6 +86,17 @@ class PrivateMessageErrorSemanticsTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @BeforeEach
+    void seedTokenSubjects() {
+        for (long id : new long[]{USER_A, USER_B, USER_C}) {
+            jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+                    id, "p1d4-im-" + id, "unused", "USER", 0);
+        }
+    }
 
     @Autowired
     private JwtUtils jwtUtils;

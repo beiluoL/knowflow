@@ -38,7 +38,9 @@
         <section class="ed-block">
           <h2 class="ed-block-title">章节</h2>
           <ul class="ed-sections">
-            <li v-for="(key, index) in theme.sectionOrder" :key="key" class="ed-section">
+            <li v-for="(key, index) in theme.sectionOrder" :key="key" class="ed-section"
+              :draggable="!saving && !exporting" @dragstart="draggedSection = key" @dragend="draggedSection = null"
+              @dragover.prevent @drop.prevent="dropSection(index)">
               <label class="ed-section-check">
                 <Checkbox
                   :model-value="theme.visibleSections.includes(key)"
@@ -57,7 +59,7 @@
               </span>
             </li>
           </ul>
-          <p class="kf-text-caption">只影响渲染顺序与显隐，不改动简历条目本身。</p>
+          <p class="kf-text-caption">可拖拽章节排序，也可用上下移按钮；只影响设计，不改简历内容版本。</p>
         </section>
       </aside>
 
@@ -116,7 +118,7 @@
           </label>
           <label class="ed-field">
             <span class="ed-field-label">行距 {{ theme.lineHeight }}</span>
-            <input v-model.number="theme.lineHeight" type="range" min="1.2" max="2.4" step="0.1" aria-label="行距" />
+            <input v-model.number="theme.lineHeight" type="range" min="1.2" max="2.4" step="0.05" aria-label="行距" />
           </label>
           <label class="ed-field">
             <span class="ed-field-label">章节间距 {{ theme.sectionGap }}px</span>
@@ -156,6 +158,7 @@
 </template>
 
 <script setup lang="ts">
+import type { LocationQueryRaw } from 'vue-router'
 /**
  * 模板编辑器（三栏）。
  *
@@ -204,6 +207,7 @@ const designId = ref<number | null>(null)
 const sheetRef = ref<HTMLElement | null>(null)
 const zoom = ref(0.85)
 const pageCount = ref(1)
+const draggedSection = ref<string | null>(null)
 
 const theme = reactive<ResumeTheme>(defaultTheme('ats-classic'))
 
@@ -267,6 +271,18 @@ function moveSection(index: number, delta: number): void {
   theme.sectionOrder = next
 }
 
+/** 仅接受本页已存在的章节标识，外部拖入的数据不参与排序。 */
+function dropSection(target: number): void {
+  if (saving.value || exporting.value || draggedSection.value === null) return
+  const from = theme.sectionOrder.indexOf(draggedSection.value)
+  draggedSection.value = null
+  if (from < 0 || from === target) return
+  const order = [...theme.sectionOrder]
+  const [item] = order.splice(from, 1)
+  order.splice(target, 0, item)
+  theme.sectionOrder = order
+}
+
 function resetTheme(): void {
   assignTheme(defaultTheme(theme.templateId))
 }
@@ -307,6 +323,13 @@ function measure(): void {
   pageCount.value = Math.max(1, Math.ceil(height / pageHeight.value))
 }
 
+function keepDesignLink(id: number): void {
+  if (!resume.value) return
+  const query: LocationQueryRaw = { ...route.query, version: String(resume.value.version), designId: String(id) }
+  delete query.templateId
+  void router.replace({ query })
+}
+
 async function save(): Promise<boolean> {
   if (!resume.value) return false
   saving.value = true
@@ -321,6 +344,7 @@ async function save(): Promise<boolean> {
       designs.value = [created, ...designs.value]
       notify('已保存为新设计', 'success')
     }
+    keepDesignLink(designId.value!)
     return true
   } catch (failure) {
     notify(getApiError(failure, '保存失败'), 'error')
@@ -337,6 +361,7 @@ async function saveAs(): Promise<void> {
     const created = await createDesign(resume.value.id, { ...theme }, `${template.value.name} 副本`)
     designs.value = [created, ...designs.value]
     designId.value = created.id
+    keepDesignLink(created.id)
     notify('已另存为新设计', 'success')
   } catch (failure) {
     notify(getApiError(failure, '另存为失败'), 'error')
@@ -350,7 +375,6 @@ async function exportPdf(): Promise<void> {
   exporting.value = true
   try {
     const result = await prepareResumePrint(resume.value, theme, designId.value)
-    designId.value = result.design.id
     designs.value = [result.design, ...designs.value.filter(item => item.id !== result.design.id)]
     const url = router.resolve(result.location).href
     window.open(url, '_blank', 'noopener')

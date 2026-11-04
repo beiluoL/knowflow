@@ -1,15 +1,15 @@
 package com.knowflow.store;
 
-import com.knowflow.entity.Product;
+import com.knowflow.store.entity.Product;
 import com.knowflow.entity.SysUser;
 import com.knowflow.entity.Wallet;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.EntitlementMapper;
-import com.knowflow.mapper.OrderMapper;
-import com.knowflow.mapper.ProductMapper;
+import com.knowflow.store.mapper.EntitlementMapper;
+import com.knowflow.store.mapper.OrderMapper;
+import com.knowflow.store.mapper.ProductMapper;
 import com.knowflow.mapper.RewardLedgerMapper;
 import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.mapper.UserAppMapper;
+import com.knowflow.apps.mapper.UserAppMapper;
 import com.knowflow.mapper.WalletMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -86,13 +86,13 @@ class PurchaseAppDisabledIntegrationTest {
         Wallet w = walletMapper.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Wallet>()
                 .eq(Wallet::getUserId, uid));
         assertEquals(500, w.getCoin());
-        assertEquals(0, orderMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.Order>()
-                .eq(com.knowflow.entity.Order::getUserId, uid)));
-        assertEquals(0, entitlementMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.Entitlement>()
-                .eq(com.knowflow.entity.Entitlement::getUserId, uid)));
-        assertEquals(0, userAppMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.UserApp>()
-                .eq(com.knowflow.entity.UserApp::getUserId, uid)
-                .eq(com.knowflow.entity.UserApp::getAppKey, "unknown-app")));
+        assertEquals(0, orderMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.store.entity.Order>()
+                .eq(com.knowflow.store.entity.Order::getUserId, uid)));
+        assertEquals(0, entitlementMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.store.entity.Entitlement>()
+                .eq(com.knowflow.store.entity.Entitlement::getUserId, uid)));
+        assertEquals(0, userAppMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.apps.entity.UserApp>()
+                .eq(com.knowflow.apps.entity.UserApp::getUserId, uid)
+                .eq(com.knowflow.apps.entity.UserApp::getAppKey, "unknown-app")));
         assertEquals(0, ledgerMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.RewardLedger>()
                 .eq(com.knowflow.entity.RewardLedger::getUserId, uid)));
     }

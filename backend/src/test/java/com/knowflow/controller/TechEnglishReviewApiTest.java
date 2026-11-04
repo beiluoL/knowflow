@@ -411,4 +411,30 @@ class TechEnglishReviewApiTest {
         assertTrue(data.path("domains").size() > 0);
         assertTrue(data.path("domains").get(0).path("learned").isNumber(), "领域进度必须是真实数值");
     }
+    @Test
+    void progressExcludesOtherUsersAndDeletedFavorites() throws Exception {
+        String insert = "INSERT INTO user_vocab_state(user_id,term_id,favorite,learning_status,deleted)"
+                + " VALUES(?,?,1,'NEW',?)";
+        jdbc.update(insert, userA, aqsId, 0);
+        jdbc.update(insert, userA, wordId, 1);
+        jdbc.update(insert, userB, wordId, 0);
+        String body = mockMvc.perform(get("/api/tech-english/me/progress")
+                        .header("Authorization", auth(userA)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+        JsonNode progress = json.readTree(body).path("data");
+        assertEquals(1, progress.path("favoriteCount").asLong());
+        assertEquals(jdbc.queryForObject(
+                "SELECT COUNT(*) FROM tech_vocab_term WHERE content_status='PUBLISHED' AND deleted=0",
+                Long.class).longValue(), progress.path("totalTerms").asLong());
+
+        mockMvc.perform(post("/api/tech-english/me/terms/" + aqsId + "/review")
+                        .header("Authorization", auth(userA))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"rating\":3,\"requestId\":\"no-review-card-001\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.code")
+                        .value(409));
+    }
+
 }

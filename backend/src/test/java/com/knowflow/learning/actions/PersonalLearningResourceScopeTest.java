@@ -1,4 +1,6 @@
 package com.knowflow.learning.actions;
+
+import com.knowflow.knowledge.entity.KbMember;
 import com.knowflow.entity.*;import com.knowflow.mapper.DocCategoryMapper;import com.knowflow.security.DocumentAccessPolicy;import com.knowflow.service.KbMemberService;
 import org.junit.jupiter.api.*;import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;
 class PersonalLearningResourceScopeTest {

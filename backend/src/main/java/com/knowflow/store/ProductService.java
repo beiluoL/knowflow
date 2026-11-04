@@ -1,9 +1,9 @@
 package com.knowflow.store;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.Product;
-import com.knowflow.mapper.ProductMapper;
-import com.knowflow.vo.ProductVO;
+import com.knowflow.store.entity.Product;
+import com.knowflow.store.mapper.ProductMapper;
+import com.knowflow.store.vo.ProductVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

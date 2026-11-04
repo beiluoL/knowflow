@@ -79,4 +79,88 @@ class QuestionCatalogIntegrationTest {
   }finally{executor.shutdownNow();}
  }
 
+ @Test
+ void legacyDetailRetainsJsonTokenAndAdminVisibility() throws Exception {
+  var question = new CodeQuestion();
+  question.setTitle(key);
+  question.setDescription("legacy description");
+  question.setLanguage("java");
+  question.setDifficulty(1);
+  question.setStatus(0);
+  question.setTestCases("[]");
+  legacy.insert(question);
+  var stored = legacy.selectById(question.getId());
+  String path = "/api/admin/question-catalog/LEGACY_CODE:" + question.getId();
+
+  mvc.perform(get(path).header("Authorization", user))
+      .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));
+  var response = mvc.perform(get(path).header("Authorization", admin))
+      .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200))
+      .andExpect(jsonPath("$.data.item.difficulty").value(2))
+      .andExpect(jsonPath("$.data.item.status").value(0))
+      .andReturn().getResponse().getContentAsString();
+  var data = json.readTree(response).path("data");
+  assertEquals(json.readTree(json.writeValueAsBytes(stored)), data.path("payload"));
+  assertEquals(QuestionEditToken.of(json, stored), data.path("item").path("editToken").asText());
+
+  legacy.deleteById(question.getId());
+  mvc.perform(get(path).header("Authorization", admin))
+      .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
+  mvc.perform(get("/api/admin/question-catalog").param("keyword", key)
+          .param("sourceType", "LEGACY_CODE").header("Authorization", admin))
+      .andExpect(status().isOk()).andExpect(jsonPath("$.data.total").value(0));
+ }
+
+ @Test
+ void missingCodeExtensionRetainsBasicOnlyCapabilities() throws Exception {
+  var question = q("CODE");
+  mvc.perform(get("/api/admin/question-catalog/CODE_PROBLEM:" + question.getId())
+          .header("Authorization", admin))
+      .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200))
+      .andExpect(jsonPath("$.data.item.capabilities[0]").value("EDIT"))
+      .andExpect(jsonPath("$.data.item.capabilities.length()").value(1))
+      .andExpect(jsonPath("$.data.payload.id").value(question.getId()));
+ }
+ @Test
+ void adminVisibilityAndStablePagingKeepStatusAndMissingCategorySemantics() throws Exception {
+  var first = q("SHORT_ANSWER");
+  var second = q("SHORT_ANSWER");
+  var deleted = q("SHORT_ANSWER");
+  long missingCategory = 987654321L;
+  for (var question : List.of(first, second, deleted)) {
+   jdbc.update("UPDATE quiz_question SET create_time=?, category_id=?, topic_code=?, review_status=? WHERE id=?",
+       java.sql.Timestamp.valueOf("2026-01-01 00:00:00"), missingCategory, "MISSING_TOPIC", "REJECTED", question.getId());
+  }
+  quiz.deleteById(deleted.getId());
+  String root = "/api/admin/question-catalog";
+  for (int page = 1; page <= 3; page++) {
+   var response = mvc.perform(get(root).header("Authorization", admin)
+           .param("keyword", key).param("sourceType", "QUIZ").param("questionType", "SHORT_ANSWER")
+           .param("difficulty", "2").param("status", "0").param("reviewStatus", "REJECTED")
+           .param("categoryId", Long.toString(missingCategory)).param("topicCode", "MISSING_TOPIC")
+           .param("pageSize", "1").param("page", Integer.toString(page)))
+       .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200))
+       .andExpect(jsonPath("$.data.total").value(2)).andReturn().getResponse().getContentAsString();
+   var records = json.readTree(response).at("/data/records");
+   assertEquals(page == 3 ? 0 : 1, records.size());
+   if (page < 3) assertEquals("QUIZ:" + (page == 1 ? second.getId() : first.getId()),
+       records.get(0).path("catalogId").asText());
+  }
+  mvc.perform(get(root + "/QUIZ:" + first.getId()).header("Authorization", user))
+      .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));
+  mvc.perform(get(root + "/QUIZ:" + deleted.getId()).header("Authorization", admin))
+      .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
+  mvc.perform(get(root + "/facets").header("Authorization", admin))
+      .andExpect(status().isOk()).andExpect(jsonPath("$.data.categories[?(@.id == " + missingCategory + ")]").isEmpty());
+ }
+ @Test
+ void questionGenerationRetainsMissingSourceContract() throws Exception {
+  for (var source : Map.of("docId", "文档不存在", "categoryId", "知识库不存在").entrySet()) {
+   mvc.perform(post("/api/admin/quiz-questions/ai-generate").header("Authorization", admin)
+           .contentType(MediaType.APPLICATION_JSON)
+           .content(json.writeValueAsString(Map.of(source.getKey(), Long.MAX_VALUE))))
+       .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(500))
+       .andExpect(jsonPath("$.message").value(source.getValue()));
+  }
+ }
 }

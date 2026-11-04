@@ -15,22 +15,26 @@ describe('正式版本与设计导出合同', () => {
   expect(getResume).toHaveBeenCalledWith(8, 2)
   expect(result.record.version).toBe(2); expect(result.theme.templateId).toBe('java-ai')
  })
+ it('明确选择模板时不用旧默认设计替换', async () => {
+  const result = await loadResumeExport(8, { version: '2', templateId: 'java-backend' })
+  expect(result.design).toBeUndefined(); expect(result.theme.templateId).toBe('java-backend')
+ })
  it('请求设计不存在时明确失败，不静默替换为默认设计', async () => {
   await expect(loadResumeExport(8, { version: '2', designId: '999' })).rejects.toThrow('设计')
  })
  it.each(['0','-1','1.5','NaN','1e3','', ['2','3']])('拒绝无效版本参数 %s', value => {
   expect(() => readPositiveQuery(value, '版本')).toThrow()
  })
- it('PDF导出先持久化已有设计的最新配置，携带实际内容版本', async () => {
+ it('PDF为当前配置创建独立快照，避免另一窗口改写原设计影响打印', async () => {
   const theme = { ...defaultTheme('java-ai'), fontSize: 12 }
-  vi.mocked(updateDesign).mockResolvedValue({ ...design, theme })
+  vi.mocked(createDesign).mockResolvedValue({ ...design, id: 12, theme })
   const result = await prepareResumePrint(record, theme, 11)
-  expect(updateDesign).toHaveBeenCalledWith(8, 11, theme)
-  expect(createDesign).not.toHaveBeenCalled()
-  expect(result.location.query).toEqual({ version: '2', designId: '11', auto: '1' })
+  expect(createDesign).toHaveBeenCalledWith(8, theme, expect.stringContaining('导出快照'))
+  expect(updateDesign).not.toHaveBeenCalled()
+  expect(result.location.query).toEqual({ version: '2', designId: '12', auto: '1' })
  })
  it('设计保存失败则不返回可用打印链接', async () => {
-  vi.mocked(updateDesign).mockRejectedValue(new Error('保存失败'))
+  vi.mocked(createDesign).mockRejectedValue(new Error('保存失败'))
   await expect(prepareResumePrint(record, defaultTheme('java-ai'), 11)).rejects.toThrow('保存失败')
  })
 })

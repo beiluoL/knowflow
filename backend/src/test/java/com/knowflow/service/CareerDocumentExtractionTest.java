@@ -38,6 +38,21 @@ class CareerDocumentExtractionTest {
         }
     }
 
+    @Test void extractsChineseLegacyWordParagraphsContactsAndTable() throws Exception {
+        byte[] bytes;
+        try (var input = getClass().getResourceAsStream("/career/synthetic-chinese-table.doc")) {
+            assertNotNull(input);
+            bytes = input.readAllBytes();
+        }
+        var extractor = new DocumentTextExtractor();
+        try {
+            String text = extractor.extractCareerText(new MockMultipartFile("file", "chinese-resume.doc", "application/msword", bytes));
+            for (String expected : java.util.List.of("测试工程师", "resume-v4@example.invalid", "13800000000", "知识库项目", "教育经历", "表格提取证据 Java")) {
+                assertTrue(text.contains(expected), "未保留中文DOC正文/表格/联系方式: " + expected);
+            }
+        } finally { extractor.shutdown(); }
+    }
+
     @Test void imageOnlyPdfProducesNoInventedText() throws Exception {
         try (var document = new PDDocument(); var bytes = new ByteArrayOutputStream()) {
             document.addPage(new PDPage());

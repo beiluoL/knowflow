@@ -1,7 +1,7 @@
 package com.knowflow.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.knowflow.entity.KbMember;
+import com.knowflow.knowledge.entity.KbMember;
 
 import java.util.List;
 import java.util.Set;

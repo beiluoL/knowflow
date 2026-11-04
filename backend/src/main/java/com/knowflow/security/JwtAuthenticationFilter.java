@@ -1,5 +1,8 @@
 package com.knowflow.security;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.knowflow.entity.SysUser;
+import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,12 +19,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * JWT 认证过滤器：每次请求解析并校验 token，校验通过后将用户信息写入 SecurityContext。
- * 仅当 token 有效且未登出（不在黑名单）时建立认证，否则匿名放行交由后续鉴权处理。
+ * 仅为持有有效、未撤销 token 的现存账号建立认证。
  */
 @Slf4j
 @Component
@@ -30,10 +32,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
     private final TokenBlacklistService tokenBlacklistService;
+    private final SysUserMapper users;
 
     /**
      * 核心过滤逻辑：提取请求 token，依次校验有效性、黑名单，
-     * 解析出 userId/username/role 构建认证信息写入 SecurityContext；解析异常仅告警不阻断。
+     * 按 token 主体读取当前账号和角色，避免已删除或降权账号继续使用旧权限。
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -42,17 +45,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(token) && jwtUtils.validateToken(token) && !tokenBlacklistService.isBlacklisted(token)) {
             try {
                 Long userId = jwtUtils.getUserIdFromToken(token);
-                String username = jwtUtils.getUsernameFromToken(token);
-                String role = jwtUtils.getRoleFromToken(token);
-                List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                        new SimpleGrantedAuthority("ROLE_" + role)
-                );
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, authorities);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SysUser account = users.selectOne(new LambdaQueryWrapper<SysUser>()
+                        .select(SysUser::getId, SysUser::getRole)
+                        .eq(SysUser::getId, userId));
+                if (account != null && StringUtils.hasText(account.getRole())) {
+                    var authentication = UsernamePasswordAuthenticationToken.authenticated(
+                            account.getId(), null, List.of(new SimpleGrantedAuthority("ROLE_" + account.getRole())));
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    var context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(authentication);
+                    SecurityContextHolder.setContext(context);
+                }
             } catch (Exception e) {
-                log.warn("JWT token 解析失败: {}", e.getMessage());
+                log.warn("JWT 主体认证失败: {}", e.getClass().getSimpleName());
             }
         }
         filterChain.doFilter(request, response);

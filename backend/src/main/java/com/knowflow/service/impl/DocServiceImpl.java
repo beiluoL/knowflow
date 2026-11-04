@@ -15,13 +15,11 @@ import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.DocFavorite;
 import com.knowflow.entity.DocReadProgress;
 import com.knowflow.entity.LearningFlashcard;
-import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.DocFavoriteMapper;
 import com.knowflow.mapper.DocReadProgressMapper;
 import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.DocChunkService;
@@ -63,7 +61,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final com.knowflow.security.DocumentAssetBindings assetBindings;
     private final DocReadProgressMapper readProgressMapper;
     private final CategoryService categoryService;
-    private final SysUserMapper userMapper;
+    private final com.knowflow.service.UserService userService;
     private final LearningFlashcardMapper flashcardMapper;
     private final AiService aiService;
     private final DocChunkService docChunkService;
@@ -581,9 +579,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
                 this.update(new LambdaUpdateWrapper<DocDocument>()
                         .eq(DocDocument::getId, docId)
                         .setSql("favorite_count = GREATEST(0, favorite_count - 1)"));
-                userMapper.update(null, new LambdaUpdateWrapper<SysUser>()
-                        .eq(SysUser::getId, userId)
-                        .setSql("favorite_count = GREATEST(0, favorite_count - 1)"));
+                userService.recordDocumentFavoriteRemoved(userId);
             }
         } else {
             // 再次收藏：优先复活历史软删行。取消收藏只把 deleted 置 1，物理行仍占着
@@ -605,9 +601,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             this.update(new LambdaUpdateWrapper<DocDocument>()
                     .eq(DocDocument::getId, docId)
                     .setSql("favorite_count = favorite_count + 1"));
-            userMapper.update(null, new LambdaUpdateWrapper<SysUser>()
-                    .eq(SysUser::getId, userId)
-                    .setSql("favorite_count = favorite_count + 1"));
+            userService.recordDocumentFavoriteAdded(userId);
         }
     }
 
@@ -684,9 +678,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             this.update(new LambdaUpdateWrapper<DocDocument>()
                     .eq(DocDocument::getId, dto.getDocId())
                     .setSql("read_count = read_count + 1"));
-            userMapper.update(null, new LambdaUpdateWrapper<SysUser>()
-                    .eq(SysUser::getId, userId)
-                    .setSql("read_docs_count = read_docs_count + 1"));
+            userService.recordDocumentReadCompleted(userId);
         }
     }
 

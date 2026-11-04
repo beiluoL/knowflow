@@ -1,6 +1,7 @@
 package com.knowflow.controller;
 import com.knowflow.service.ChatService;
 import com.knowflow.utils.JwtUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,11 +14,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties={"knowflow.datasource.config-file=/tmp/chat-management-no-config.json","knowflow.datasource.type=h2","knowflow.datasource.h2.url=jdbc:h2:mem:chat_management;DB_CLOSE_DELAY=-1;MODE=MySQL"})
 class ChatManagementTest {
  @Autowired MockMvc http; @Autowired ChatService service; @Autowired JwtUtils jwt;
+ private static final long OTHER = 998002L;
+ private static final long ADMIN = 998003L;
+
+ @BeforeEach
+ void seedTokenSubjects() {
+  seedUser(998001L, "USER");
+  seedUser(998011L, "USER");
+  seedUser(OTHER, "USER");
+  seedUser(ADMIN, "ADMIN");
+ }
+
+ private void seedUser(long id, String role) {
+  jdbc.update("MERGE INTO sys_user (id, username, password, role, deleted) KEY(id) VALUES (?,?,?,?,?)",
+          id, "chat-management-" + id, "unused", role, 0);
+ }
+
  String auth(long id,String role){return "Bearer "+jwt.generateToken(id,"management",role);}
  @Test void stateOwnerOnlyAndEmptyBodyRejected()throws Exception{
  long id=service.createConversation(998001L,"安全对话").getId();String url="/api/chat/conversations/"+id+"/state";
  http.perform(patch(url).header("Authorization",auth(998001,"USER")).contentType("application/json").content("{\"pinned\":true,\"archived\":true}")).andExpect(status().isOk()).andExpect(jsonPath("$.data.archived").value(true));
- for(String role:new String[]{"USER","ADMIN"}) http.perform(patch(url).header("Authorization",auth(998002,role)).contentType("application/json").content("{\"pinned\":false}")).andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
+ for(String role:new String[]{"USER","ADMIN"}) http.perform(patch(url).header("Authorization",auth("ADMIN".equals(role) ? ADMIN : OTHER,role)).contentType("application/json").content("{\"pinned\":false}")).andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
  http.perform(patch(url).contentType("application/json").content("{}")).andExpect(status().isUnauthorized());
  http.perform(patch(url).header("Authorization",auth(998001,"USER")).contentType("application/json").content("{}")).andExpect(status().isBadRequest());
  }
@@ -35,7 +52,7 @@ class ChatManagementTest {
   jdbc.update("UPDATE chat_message SET content='changed' WHERE conversation_id=?",id);
   http.perform(get("/api/public/chat-shares/"+token)).andExpect(jsonPath("$.data.messages[0].content").value("safe text"));
   String listing=http.perform(get("/api/chat/conversations/"+id+"/shares").header("Authorization",auth(998001,"USER"))).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();org.junit.jupiter.api.Assertions.assertFalse(listing.contains(token));
-  for(String role:new String[]{"USER","ADMIN"})http.perform(delete("/api/chat/conversations/"+id+"/shares/"+data.path("id").asLong()).header("Authorization",auth(998002,role))).andExpect(status().isNotFound());
+  for(String role:new String[]{"USER","ADMIN"})http.perform(delete("/api/chat/conversations/"+id+"/shares/"+data.path("id").asLong()).header("Authorization",auth("ADMIN".equals(role) ? ADMIN : OTHER,role))).andExpect(status().isNotFound());
   shares.revoke(id,998001,data.path("id").asLong());http.perform(get("/api/public/chat-shares/"+token)).andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
   data=json.readTree(createShare(id)).path("data");token=data.path("urlPath").asText().substring(12);service.deleteConversation(id,998001L);http.perform(get("/api/public/chat-shares/"+token)).andExpect(status().isNotFound());
  }
@@ -69,8 +86,8 @@ class ChatManagementTest {
   String path="/api/chat/conversations/"+first+"/shares";
   http.perform(post(path).contentType("application/json").content("{\"confirmed\":true,\"expiresInHours\":24}")).andExpect(status().isUnauthorized());
   for(String role:new String[]{"USER","ADMIN"}){
-   http.perform(post(path).header("Authorization",auth(998002,role)).contentType("application/json").content("{\"confirmed\":true,\"expiresInHours\":24}")).andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
-   http.perform(get(path).header("Authorization",auth(998002,role))).andExpect(status().isNotFound());
+   http.perform(post(path).header("Authorization",auth("ADMIN".equals(role) ? ADMIN : OTHER,role)).contentType("application/json").content("{\"confirmed\":true,\"expiresInHours\":24}")).andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
+   http.perform(get(path).header("Authorization",auth("ADMIN".equals(role) ? ADMIN : OTHER,role))).andExpect(status().isNotFound());
   }
   org.junit.jupiter.api.Assertions.assertNotNull(service.getMessageList(first,998011L));
  }

@@ -1,38 +1,71 @@
 package com.knowflow.store;
 
-import com.knowflow.entity.Entitlement;
-import com.knowflow.entity.Order;
-import com.knowflow.entity.Product;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.knowflow.apps.entity.UserApp;
+import com.knowflow.apps.mapper.UserAppMapper;
+import com.knowflow.store.entity.Entitlement;
+import com.knowflow.store.entity.Order;
+import com.knowflow.store.entity.Product;
 import com.knowflow.entity.SysUser;
 import com.knowflow.entity.Wallet;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.EntitlementMapper;
-import com.knowflow.mapper.OrderItemMapper;
-import com.knowflow.mapper.OrderMapper;
-import com.knowflow.mapper.ProductMapper;
+import com.knowflow.store.mapper.EntitlementMapper;
+import com.knowflow.store.mapper.OrderItemMapper;
+import com.knowflow.store.mapper.OrderMapper;
+import com.knowflow.store.mapper.ProductMapper;
 import com.knowflow.mapper.RewardLedgerMapper;
 import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.mapper.UserAppMapper;
 import com.knowflow.mapper.WalletMapper;
+import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Architecture-2 集成测试：购买事务（成功 / 余额不足回滚 / 重复购买 / 商品下架）。
  * 关键验证：§69-70 严禁部分成功；§71 ALREADY_OWNED；§41 条件扣款。
  */
 @SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("local")
 class StorePurchaseIntegrationTest {
+
+    @Autowired
+    private MockMvc mvc;
+    @Autowired
+    private JwtUtils jwt;
+
+    @Test
+    void purchaseHttpContract() throws Exception {
+        walletWith(product.getPriceCoin());
+        String bearer = "Bearer " + jwt.generateToken(uid, "purchase-fixture", "USER");
+        var request = post("/api/store/purchase")
+                .header("Authorization", bearer)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"productId\":" + product.getId() + "}");
+        mvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+        mvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(2002))
+                .andExpect(jsonPath("$.message").value("该应用已拥有"));
+    }
 
     @Autowired
     private PurchaseService purchaseService;
@@ -90,12 +123,12 @@ class StorePurchaseIntegrationTest {
     }
 
     private long orderItemsForUser() {
-        List<com.knowflow.entity.Order> list = orderMapper.selectList(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Order>()
+        List<com.knowflow.store.entity.Order> list = orderMapper.selectList(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Order>()
                 .eq(Order::getUserId, uid));
         if (list.isEmpty()) return 0;
-        List<Long> ids = list.stream().map(com.knowflow.entity.Order::getId).collect(java.util.stream.Collectors.toList());
-        return orderItemMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.OrderItem>()
-                .in(com.knowflow.entity.OrderItem::getOrderId, ids));
+        List<Long> ids = list.stream().map(com.knowflow.store.entity.Order::getId).collect(java.util.stream.Collectors.toList());
+        return orderItemMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.store.entity.OrderItem>()
+                .in(com.knowflow.store.entity.OrderItem::getOrderId, ids));
     }
 
     private long ledgersForUser() {
@@ -123,9 +156,9 @@ class StorePurchaseIntegrationTest {
         assertEquals(1, entitlementMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Entitlement>()
                 .eq(Entitlement::getUserId, uid).eq(Entitlement::getStatus, "ACTIVE")));
         // Architecture-3：购买成功后 UserApp installed+enabled=true（同事务，§270-275/§341）
-        var userApp = userAppMapper.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.UserApp>()
-                .eq(com.knowflow.entity.UserApp::getUserId, uid)
-                .eq(com.knowflow.entity.UserApp::getAppKey, "feynman"));
+        var userApp = userAppMapper.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.apps.entity.UserApp>()
+                .eq(com.knowflow.apps.entity.UserApp::getUserId, uid)
+                .eq(com.knowflow.apps.entity.UserApp::getAppKey, "feynman"));
         assertNotNull(userApp);
         assertEquals(1, userApp.getInstalled());
         assertEquals(1, userApp.getEnabled());
@@ -155,9 +188,9 @@ class StorePurchaseIntegrationTest {
         assertEquals(50, order.getTotalCoin());
         assertEquals(1, entitlementMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Entitlement>()
                 .eq(Entitlement::getUserId, uid).eq(Entitlement::getStatus, "ACTIVE")));
-        var userApp = userAppMapper.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.UserApp>()
-                .eq(com.knowflow.entity.UserApp::getUserId, uid)
-                .eq(com.knowflow.entity.UserApp::getAppKey, "feynman"));
+        var userApp = userAppMapper.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.apps.entity.UserApp>()
+                .eq(com.knowflow.apps.entity.UserApp::getUserId, uid)
+                .eq(com.knowflow.apps.entity.UserApp::getAppKey, "feynman"));
         assertNotNull(userApp);
         assertEquals(1, userApp.getInstalled());
         assertEquals(1, userApp.getEnabled());
@@ -177,9 +210,33 @@ class StorePurchaseIntegrationTest {
         assertEquals(0, orders());
         assertEquals(0, orderItemsForUser());
         assertEquals(0, entitlementMapper.selectCount(null));
-        assertEquals(0, userAppMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.UserApp>()
-                .eq(com.knowflow.entity.UserApp::getUserId, uid))); // 余额不足：UserApp 也不得创建（§342）
+        assertEquals(0, userAppMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.apps.entity.UserApp>()
+                .eq(com.knowflow.apps.entity.UserApp::getUserId, uid))); // 余额不足：UserApp 也不得创建（§342）
         assertEquals(0, ledgersForUser());
+    }
+
+    @Test
+    void entitlementGrantFailureRollsBackDebitAndOrder() {
+        walletWith(200);
+        Entitlement existing = new Entitlement();
+        existing.setUserId(uid);
+        existing.setProductId(product.getId());
+        existing.setProductKey(product.getProductKey());
+        existing.setStatus("REVOKED");
+        existing.setGrantedAt(java.time.LocalDateTime.now());
+        entitlementMapper.insert(existing);
+        try {
+            assertThrows(DuplicateKeyException.class, () -> purchaseService.purchase(uid, product.getId()));
+            Wallet wallet = walletMapper.selectOne(new LambdaQueryWrapper<Wallet>().eq(Wallet::getUserId, uid));
+            assertEquals(200, wallet.getCoin());
+            assertEquals(0, orders());
+            assertEquals(0, orderItemsForUser());
+            assertEquals(0, ledgersForUser());
+            assertEquals(0, userAppMapper.selectCount(new LambdaQueryWrapper<UserApp>().eq(UserApp::getUserId, uid)));
+            assertEquals("REVOKED", entitlementMapper.selectById(existing.getId()).getStatus());
+        } finally {
+            entitlementMapper.deleteById(existing.getId());
+        }
     }
 
     @Test

@@ -1,10 +1,10 @@
 package com.knowflow.store;
 
-import com.knowflow.entity.Order;
-import com.knowflow.entity.OrderItem;
-import com.knowflow.entity.Product;
-import com.knowflow.mapper.OrderItemMapper;
-import com.knowflow.mapper.OrderMapper;
+import com.knowflow.store.entity.Order;
+import com.knowflow.store.entity.OrderItem;
+import com.knowflow.store.entity.Product;
+import com.knowflow.store.mapper.OrderItemMapper;
+import com.knowflow.store.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

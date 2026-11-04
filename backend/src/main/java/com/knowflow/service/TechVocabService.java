@@ -19,15 +19,14 @@ import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.KgEntityMapper;
 import com.knowflow.mapper.LearningChapterMapper;
 import com.knowflow.mapper.LearningNoteMapper;
-import com.knowflow.mapper.TechVocabConceptLinkMapper;
-import com.knowflow.mapper.TechVocabPronunciationMapper;
-import com.knowflow.mapper.TechVocabTermMapper;
+import com.knowflow.techenglish.mapper.TechVocabConceptLinkMapper;
+import com.knowflow.techenglish.mapper.TechVocabPronunciationMapper;
+import com.knowflow.techenglish.mapper.TechVocabTermMapper;
 import com.knowflow.mapper.UserVocabStateMapper;
 import com.knowflow.vo.TechVocabVOs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,9 +82,6 @@ public class TechVocabService {
     private final ObjectMapper objectMapper;
     /** 关联知识可见性必须与知识库阅读权限一致，不能只看文档发布状态 */
     private final com.knowflow.security.DocumentAccessPolicy docAccess;
-    /** 仅用于替换发音子行：发音是词条子内容，物理删除可避免逻辑删除值累积触发唯一键冲突 */
-    private final JdbcTemplate jdbc;
-
     /** 导入预览短期缓存：单实例内存，10 分钟过期；确认后保留幂等回执。 */
     private final Map<String, PreviewEntry> previews = new ConcurrentHashMap<>();
     private static final long PREVIEW_TTL_MINUTES = 10L;
@@ -956,7 +952,7 @@ public class TechVocabService {
     /** 替换发音子行：物理删除后重建，避免逻辑删除值累积触发 (term_id, variant, deleted) 唯一键冲突 */
     private void replacePronunciations(Long termId, List<TechVocabDtos.PronunciationInput> inputs,
                                        String termType, String headword) {
-        jdbc.update("DELETE FROM tech_vocab_pronunciation WHERE term_id = ?", termId);
+        pronunciationMapper.deleteAllForTermReplacement(termId);
         List<TechVocabDtos.PronunciationInput> rows = inputs;
         if (rows == null) {
             rows = defaultPronunciations(termType, headword);

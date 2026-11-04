@@ -13,6 +13,42 @@ public class CareerParsingService {
  private final CareerRecordService records;
  private final AiService ai;
  private final ObjectMapper json;
+ /**
+  * 仅将明确的简历标题和逐行原文转换成待审核条目；不补写缺失信息。
+  * 长段落和超出数量的原文仍由原记录完整保留，供用户人工整理。
+  */
+ public static Map<String,List<CareerMatcher.Claim>> previewSections(String kind,String source){
+  if(!"RESUME".equals(kind)||source==null||source.isBlank())return Map.of();
+  Map<String,String> headings=Map.ofEntries(
+   Map.entry("基本信息","basics"),Map.entry("个人信息","basics"),
+   Map.entry("工作经历","experience"),Map.entry("工作经验","experience"),
+   Map.entry("项目经历","projects"),Map.entry("项目经验","projects"),
+   Map.entry("教育经历","education"),Map.entry("教育背景","education"),
+   Map.entry("专业技能","skills"),Map.entry("技能列表","skills"),Map.entry("技能","skills"),
+   Map.entry("求职意向","intention"),Map.entry("求职方向","intention"),
+   Map.entry("个人简介","selfIntro"),Map.entry("自我评价","selfIntro"),Map.entry("自我介绍","selfIntro"),
+   Map.entry("证书与荣誉","certificates"));
+  Map<String,List<CareerMatcher.Claim>> result=new LinkedHashMap<>();
+  String section=null;
+  for(String raw:source.split("\\R")){
+   String line=raw.trim();if(line.isEmpty())continue;
+   String next=headings.get(line);
+   if(next!=null){section=next;continue;}
+   int colon=line.indexOf('：');if(colon<0)colon=line.indexOf(':');
+   String prefix=colon<0?"":line.substring(0,colon).trim();
+   if(headings.containsKey(prefix))section=headings.get(prefix);
+   String target=Set.of("姓名","邮箱","手机","电话","联系电话").contains(prefix)?"basics":section;
+   if(target==null||line.length()>500)continue;
+   var claims=result.computeIfAbsent(target,key->new ArrayList<>());
+   if("skills".equals(target)){
+    String text=headings.containsKey(prefix)?line.substring(colon+1):line;
+    for(String part:text.split("[、,，;；]")){
+     String value=part.trim();if(!value.isEmpty()&&value.length()<=80&&claims.size()<80)claims.add(new CareerMatcher.Claim(value,value));
+    }
+   }else if(claims.size()<80){claims.add(new CareerMatcher.Claim(line,line));}
+  }
+  return result;
+ }
  public Map<String,Object> parse(Long user,long id,int version,boolean allowModelProcessing){
   if(!allowModelProcessing)throw new BusinessException(400,"需先确认允许当前模型处理这份个人资料");
   var record=records.detail(user,id,version);
