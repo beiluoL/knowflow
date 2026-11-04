@@ -16,6 +16,9 @@ public final class PcmWav {
         if (!ascii(wav, 0, "RIFF") || !ascii(wav, 8, "WAVE")) {
             throw new IllegalArgumentException("仅支持 16kHz 单声道 PCM16 WAV");
         }
+        int encoding = -1;
+        int byteRate = -1;
+        int blockAlign = -1;
         int channels = -1;
         int rate = -1;
         int bits = -1;
@@ -31,6 +34,9 @@ public final class PcmWav {
                 throw new IllegalArgumentException("音频数据不完整");
             }
             if ("fmt ".equals(id) && size >= 16) {
+                encoding = readShort(wav, body);
+                byteRate = readInt(wav, body + 8);
+                blockAlign = readShort(wav, body + 12);
                 channels = readShort(wav, body + 2);
                 rate = readInt(wav, body + 4);
                 bits = readShort(wav, body + 14);
@@ -41,11 +47,12 @@ public final class PcmWav {
             }
             offset = body + size + (size % 2);
         }
-        if (channels != 1 || rate != SAMPLE_RATE || bits != 16 || dataOffset < 0) {
+        if (encoding != 1 || channels != 1 || rate != SAMPLE_RATE || bits != 16
+                || byteRate != SAMPLE_RATE * 2 || blockAlign != 2 || dataOffset < 0) {
             throw new IllegalArgumentException("仅支持 16kHz 单声道 PCM16 WAV");
         }
         if (dataBytes <= 0 || dataBytes % 2 != 0) throw new IllegalArgumentException("音频数据不完整");
-        int maxBytes = Math.max(1, maxSeconds) * SAMPLE_RATE * 2;
+        long maxBytes = Math.max(1, maxSeconds) * (long) SAMPLE_RATE * 2;
         if (dataBytes > maxBytes) throw new IllegalArgumentException("音频超过时长限制");
         byte[] pcm = new byte[dataBytes];
         System.arraycopy(wav, dataOffset, pcm, 0, dataBytes);

@@ -73,6 +73,8 @@ public class VoiceSpeechController {
             audio = PcmWav.parse(raw, MAX_SECONDS);
         } catch (IllegalArgumentException invalid) {
             throw new BusinessException(400, invalid.getMessage());
+        } finally {
+            java.util.Arrays.fill(raw, (byte) 0);
         }
         VoiceRuntimeSetting runtime = settings.current();
         long started = System.nanoTime();
@@ -132,10 +134,12 @@ public class VoiceSpeechController {
             stream = tts.synthesizeStream(text, requestId, new InterviewTtsProvider.Listener() {
                 @Override
                 public void audio(byte[] pcm, String format, int sampleRate, long sequence, boolean last) {
+                    if (failure.get() != null) return;
                     try {
                         write(output, sequence, sampleRate, pcm, last);
                     } catch (IOException disconnect) {
-                        failure.set(disconnect);
+                        failure.compareAndSet(null, disconnect);
+                        done.countDown();
                     } finally {
                         if (last) done.countDown();
                     }
@@ -143,7 +147,7 @@ public class VoiceSpeechController {
 
                 @Override
                 public void error(String code) {
-                    failure.set(new IllegalStateException(code));
+                    failure.compareAndSet(null, new IllegalStateException(code));
                     done.countDown();
                 }
             });
@@ -152,12 +156,10 @@ public class VoiceSpeechController {
         }
         try {
             if (!done.await(120, TimeUnit.SECONDS)) {
-                stream.cancel();
                 failure.compareAndSet(null, new IllegalStateException("TTS_TIMEOUT"));
             }
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
-            stream.cancel();
         } finally {
             stream.cancel();
         }

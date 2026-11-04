@@ -36,6 +36,16 @@ class PcmWavTest {
     }
 
     @Test
+    void rejectsNonPcmEncodingAndInvalidFrameLayout() {
+        byte[] compressed = PcmWav.wrap(pcm(100));
+        compressed[20] = 3;
+        assertThrows(IllegalArgumentException.class, () -> PcmWav.parse(compressed, 60));
+        byte[] invalidAlignment = PcmWav.wrap(pcm(100));
+        invalidAlignment[32] = 4;
+        assertThrows(IllegalArgumentException.class, () -> PcmWav.parse(invalidAlignment, 60));
+    }
+
+    @Test
     void rejectsOverlongAudio() {
         var wrapped = PcmWav.wrap(pcm(16000 * 3));
         assertThrows(IllegalArgumentException.class, () -> PcmWav.parse(wrapped, 2));

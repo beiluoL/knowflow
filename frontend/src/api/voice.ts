@@ -99,24 +99,40 @@ export async function speakText(
   const reader = response.body.getReader()
   const decoder = new TextDecoder('utf-8')
   let buffer = ''
+  let reachedEnd = false
+  let receivedFinalFrame = false
   try {
     while (true) {
       const { done, value } = await reader.read()
       if (signal?.aborted) return
-      if (done) break
+      if (done) {
+        reachedEnd = true
+        break
+      }
       buffer += decoder.decode(value, { stream: true })
       let index = buffer.indexOf('\n')
       while (index >= 0) {
         const line = buffer.slice(0, index).trim()
         buffer = buffer.slice(index + 1)
         index = buffer.indexOf('\n')
+        if (signal?.aborted) return
         if (!line) continue
         const parsed = JSON.parse(line) as { sequence: number; sampleRate: number; audio: string; last: boolean }
         const binary = parsed.audio ? Uint8Array.from(atob(parsed.audio), (char) => char.charCodeAt(0)) : new Uint8Array(0)
-        await onChunk({ sequence: Number(parsed.sequence), sampleRate: Number(parsed.sampleRate), audio: binary, last: parsed.last === true })
+        const last = parsed.last === true
+        await onChunk({ sequence: Number(parsed.sequence), sampleRate: Number(parsed.sampleRate), audio: binary, last })
+        receivedFinalFrame ||= last
       }
     }
+    if (!receivedFinalFrame || buffer.trim()) {
+      throw new Error('语音合成流提前结束')
+    }
   } finally {
+    if (!reachedEnd) {
+      await reader.cancel().catch(() => {
+        // 请求可能已经被 AbortSignal 关闭，保留原始错误。
+      })
+    }
     reader.releaseLock()
   }
 }
