@@ -16,7 +16,7 @@ import com.knowflow.mapper.QuizQuestionMapper;
 import com.knowflow.mapper.LearningMistakeMapper;
 import com.knowflow.service.MistakeService;
 import com.knowflow.service.QuizService;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.service.LearningEventService;
 import com.knowflow.vo.QuizExplainVO;
 import com.knowflow.vo.QuizMistakeVO;

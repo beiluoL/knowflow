@@ -22,7 +22,7 @@ import com.knowflow.coding.service.CodeProblemService;
 import com.knowflow.coding.util.CodeDiff;
 import com.knowflow.coding.vo.CodingVos;
 import com.knowflow.ai.capability.AiCapabilityException;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.common.PageResult;
 import com.knowflow.entity.LearningMistake;
 import com.knowflow.entity.QuizQuestion;

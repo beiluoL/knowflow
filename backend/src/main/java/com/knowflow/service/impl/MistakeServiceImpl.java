@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.dto.CodeMistakeCollectRequest;
 import com.knowflow.dto.CodeMistakeCollectResult;
 import com.knowflow.dto.MistakePageQuery;

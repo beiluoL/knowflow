@@ -21,7 +21,7 @@ import com.knowflow.entity.WbReviewCard;
 import com.knowflow.entity.WbReviewLog;
 import com.knowflow.entity.WbStory;
 import com.knowflow.entity.WbRecallSession;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.WbCaptureMapper;
 import com.knowflow.mapper.WbNoteMapper;

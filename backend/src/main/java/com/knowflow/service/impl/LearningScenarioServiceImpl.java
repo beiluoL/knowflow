@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.dto.ScenarioAdminDTO;
 import com.knowflow.dto.ScenarioKeyPoint;
 import com.knowflow.dto.ScenarioSubmitDTO;

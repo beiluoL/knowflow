@@ -1,7 +1,7 @@
 package com.knowflow.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.entity.LearningEvent;
 
 import java.util.Map;

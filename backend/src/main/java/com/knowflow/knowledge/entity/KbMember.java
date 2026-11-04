@@ -1,6 +1,6 @@
 package com.knowflow.knowledge.entity;
 
-import com.knowflow.entity.BaseEntity;
+import com.knowflow.common.persistence.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

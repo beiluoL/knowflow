@@ -1,7 +1,7 @@
 package com.knowflow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.controller.CodeQuestionController;
 import com.knowflow.dto.QuizSubmitDTO;
 import com.knowflow.entity.CodeQuestion;

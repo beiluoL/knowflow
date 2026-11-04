@@ -1,6 +1,6 @@
 package com.knowflow.controller;
 
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.service.KnowledgeService;

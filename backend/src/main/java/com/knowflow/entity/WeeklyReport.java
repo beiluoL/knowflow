@@ -1,5 +1,7 @@
 package com.knowflow.entity;
 
+import com.knowflow.common.persistence.BaseEntity;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

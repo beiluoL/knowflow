@@ -1,6 +1,7 @@
 package com.knowflow.exception;
 
 import com.knowflow.common.Result;
+import com.knowflow.common.error.ResponseException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,154 +26,134 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /** 上传文件大小上限（与 spring.servlet.multipart.max-file-size 保持一致，用于友好提示）。 */
-    @Value("${spring.servlet.multipart.max-file-size:50MB}")
-    private String maxFileSize;
+  /** 上传文件大小上限（与 spring.servlet.multipart.max-file-size 保持一致，用于友好提示）。 */
+  @Value("${spring.servlet.multipart.max-file-size:50MB}")
+  private String maxFileSize;
 
-    /**
-     * F-04/F-14 修复：业务异常若携带 4xx 错误码，则同步映射为对应 HTTP 状态码，
-     * 便于监控/自动化识别；其余保持 HTTP 200 + 业务码（兼容旧行为）。
-     */
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Result<Void>> handleBusinessException(BusinessException e) {
-        log.warn("业务异常: {}", e.getMessage());
-        int code = e.getCode() != null ? e.getCode() : 500;
-        HttpStatus status = (code >= 400 && code < 500)
-                ? HttpStatus.valueOf(code)
-                : HttpStatus.OK;
-        return ResponseEntity.status(status).body(Result.error(code, e.getMessage()));
-    }
+  @ExceptionHandler(ResponseException.class)
+  public ResponseEntity<Result<Void>> handleResponseException(ResponseException exception) {
+    log.warn("请求失败，业务码 {}", exception.getCode());
+    return ResponseEntity.status(exception.getHttpStatus())
+        .body(Result.error(exception.getCode(), exception.getMessage()));
+  }
 
-    /** 编程 Agent 模型/工具调用异常：映射为统一的 AI 业务码，便于前端识别。 */
-    @ExceptionHandler(com.knowflow.ai.AiException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result<Void> handleAiException(com.knowflow.ai.AiException e) {
-        log.warn("AI 调用异常: {}", e.getMessage());
-        return Result.error(e.getCode(), e.getMessage());
-    }
+  /** F-11 修复：方法级 @PreAuthorize 抛出的越权异常返回 403（避免被兜底 Exception 处理成 500）。 */
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public Result<Void> handleAccessDeniedException(AccessDeniedException e) {
+    log.warn("越权访问: {}", e.getMessage());
+    return Result.error(403, "无权访问该资源");
+  }
 
-    /**
-     * F-11 修复：方法级 @PreAuthorize 抛出的越权异常返回 403（避免被兜底 Exception 处理成 500）。
-     */
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Result<Void> handleAccessDeniedException(AccessDeniedException e) {
-        log.warn("越权访问: {}", e.getMessage());
-        return Result.error(403, "无权访问该资源");
-    }
+  /** F-14 修复：路径/参数类型不匹配（如 /api/docs/abc）返回 400 而非 500。 */
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result<Void> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
+    log.warn("参数类型错误: {}", e.getName());
+    return Result.error(400, "参数格式不正确");
+  }
 
-    /**
-     * F-14 修复：路径/参数类型不匹配（如 /api/docs/abc）返回 400 而非 500。
-     */
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        log.warn("参数类型错误: {} = {}", e.getName(), e.getValue());
-        return Result.error(400, "参数格式不正确");
-    }
+  /**
+   * P1-B 修复：缺少必需的请求参数（如 /api/learning/certificates/verify 未传 certNo）返回 400 而非 500。
+   *
+   * <p>只回传参数名——它来自接口契约，不含堆栈、内部类名与敏感数据。
+   */
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result<Void> handleMissingServletRequestParameterException(
+      MissingServletRequestParameterException e) {
+    log.warn("缺少必需参数: {}", e.getParameterName());
+    return Result.error(400, "缺少必需的请求参数：" + e.getParameterName());
+  }
 
-    /**
-     * P1-B 修复：缺少必需的请求参数（如 /api/learning/certificates/verify 未传 certNo）返回 400 而非 500。
-     * <p>只回传参数名——它来自接口契约，不含堆栈、内部类名与敏感数据。</p>
-     */
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleMissingServletRequestParameterException(
-            MissingServletRequestParameterException e) {
-        log.warn("缺少必需参数: {}", e.getParameterName());
-        return Result.error(400, "缺少必需的请求参数：" + e.getParameterName());
-    }
+  /**
+   * P1-B 修复：请求体格式错误（畸形 JSON / 无法反序列化）返回 400 而非 500。
+   *
+   * <p>不回传解析器原始信息，避免暴露内部字段名与类名。
+   */
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result<Void> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+    log.warn("请求体不可读");
+    return Result.error(400, "请求参数不正确");
+  }
 
-    /**
-     * P1-B 修复：请求体格式错误（畸形 JSON / 无法反序列化）返回 400 而非 500。
-     * <p>不回传解析器原始信息，避免暴露内部字段名与类名。</p>
-     */
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        log.warn("请求体不可读: {}", e.getMessage());
-        return Result.error(400, "请求参数不正确");
-    }
+  /** P1-B 修复：Content-Type 不受支持返回 415 而非 500。 */
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+  public Result<Void> handleHttpMediaTypeNotSupportedException(
+      HttpMediaTypeNotSupportedException e) {
+    log.warn("不支持的 Content-Type: {}", e.getContentType());
+    return Result.error(415, "请求内容类型不受支持");
+  }
 
-    /**
-     * P1-B 修复：Content-Type 不受支持返回 415 而非 500。
-     */
-    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-    public Result<Void> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
-        log.warn("不支持的 Content-Type: {}", e.getContentType());
-        return Result.error(415, "请求内容类型不受支持");
-    }
+  /** P1-B 修复：HTTP 方法不受支持（如用 GET 调 POST 接口）返回 405 而非 500。 */
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+  public Result<Void> handleHttpRequestMethodNotSupportedException(
+      HttpRequestMethodNotSupportedException e) {
+    log.warn("不支持的请求方法: {}", e.getMethod());
+    return Result.error(405, "请求方法不受支持");
+  }
 
-    /**
-     * P1-B 修复：HTTP 方法不受支持（如用 GET 调 POST 接口）返回 405 而非 500。
-     */
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public Result<Void> handleHttpRequestMethodNotSupportedException(
-            HttpRequestMethodNotSupportedException e) {
-        log.warn("不支持的请求方法: {}", e.getMethod());
-        return Result.error(405, "请求方法不受支持");
-    }
+  /** F-12 修复：不存在的端点（如 /api/search）返回 404 而非 500。 */
+  @ExceptionHandler(NoResourceFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public Result<Void> handleNoResourceFoundException(NoResourceFoundException e) {
+    return Result.error(404, "接口不存在");
+  }
 
-    /**
-     * F-12 修复：不存在的端点（如 /api/search）返回 404 而非 500。
-     */
-    @ExceptionHandler(NoResourceFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Result<Void> handleNoResourceFoundException(NoResourceFoundException e) {
-        return Result.error(404, "接口不存在");
-    }
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    String message =
+        e.getBindingResult().getFieldError() != null
+            ? e.getBindingResult().getFieldError().getDefaultMessage()
+            : "参数校验失败";
+    log.warn("参数校验异常: {}", message);
+    return Result.error(400, message);
+  }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        String message = e.getBindingResult().getFieldError() != null
-                ? e.getBindingResult().getFieldError().getDefaultMessage()
-                : "参数校验失败";
-        log.warn("参数校验异常: {}", message);
-        return Result.error(400, message);
-    }
+  @ExceptionHandler(BindException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result<Void> handleBindException(BindException e) {
+    String message =
+        e.getBindingResult().getFieldError() != null
+            ? e.getBindingResult().getFieldError().getDefaultMessage()
+            : "参数绑定失败";
+    log.warn("参数绑定异常: {}", message);
+    return Result.error(400, message);
+  }
 
-    @ExceptionHandler(BindException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleBindException(BindException e) {
-        String message = e.getBindingResult().getFieldError() != null
-                ? e.getBindingResult().getFieldError().getDefaultMessage()
-                : "参数绑定失败";
-        log.warn("参数绑定异常: {}", message);
-        return Result.error(400, message);
-    }
+  @ExceptionHandler(ConstraintViolationException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result<Void> handleConstraintViolationException(ConstraintViolationException e) {
+    log.warn("约束违反异常: {}", e.getMessage());
+    return Result.error(400, e.getMessage());
+  }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleConstraintViolationException(ConstraintViolationException e) {
-        log.warn("约束违反异常: {}", e.getMessage());
-        return Result.error(400, e.getMessage());
+  /**
+   * 上传文件超过大小限制：给出友好提示，避免被兜底 Exception 处理成"系统内部错误"。 限制本身由 spring.servlet.multipart.max-*-size 在
+   * Servlet 层拦截。
+   */
+  @ExceptionHandler(MaxUploadSizeExceededException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+    long maxBytes;
+    try {
+      maxBytes = DataSize.parse(maxFileSize).toBytes();
+    } catch (Exception ex) {
+      maxBytes = 0;
     }
+    String limit = maxBytes > 0 ? DataSize.ofBytes(maxBytes).toMegabytes() + "MB" : "系统限制";
+    log.warn("上传文件超过大小限制: {}", limit);
+    return Result.error(400, "文件大小超过限制（最大 " + limit + "），请压缩或分批发送");
+  }
 
-    /**
-     * 上传文件超过大小限制：给出友好提示，避免被兜底 Exception 处理成"系统内部错误"。
-     * 限制本身由 spring.servlet.multipart.max-*-size 在 Servlet 层拦截。
-     */
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
-        long maxBytes;
-        try {
-            maxBytes = DataSize.parse(maxFileSize).toBytes();
-        } catch (Exception ex) {
-            maxBytes = 0;
-        }
-        String limit = maxBytes > 0 ? DataSize.ofBytes(maxBytes).toMegabytes() + "MB" : "系统限制";
-        log.warn("上传文件超过大小限制: {}", limit);
-        return Result.error(400, "文件大小超过限制（最大 " + limit + "），请压缩或分批发送");
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result<Void> handleException(Exception e) {
-        log.error("系统异常", e);
-        return Result.error(500, "系统内部错误");
-    }
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public Result<Void> handleException(Exception e) {
+    log.error("系统异常: {}", e.getClass().getName());
+    return Result.error(500, "系统内部错误");
+  }
 }

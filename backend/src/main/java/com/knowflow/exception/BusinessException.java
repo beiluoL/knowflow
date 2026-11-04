@@ -1,22 +1,31 @@
 package com.knowflow.exception;
 
-import lombok.Getter;
+import com.knowflow.common.error.ErrorCode;
+import com.knowflow.common.error.ResponseException;
 
-/**
- * 业务异常：携带业务码 code，供全局异常处理器映射为规范响应。
- */
-@Getter
-public class BusinessException extends RuntimeException {
+/** 保留整数业务码的旧协议，同时支持显式 HTTP 状态。 */
+public class BusinessException extends ResponseException {
+  public BusinessException(String message) {
+    this(500, message);
+  }
 
-    private final Integer code;
+  public BusinessException(Integer code, String message) {
+    this(code, message, null);
+  }
 
-    public BusinessException(String message) {
-        super(message);
-        this.code = 500;
-    }
+  public BusinessException(Integer code, String message, Throwable cause) {
+    super(code == null ? 500 : code, legacyHttpStatus(code), message, cause);
+  }
 
-    public BusinessException(Integer code, String message) {
-        super(message);
-        this.code = code;
-    }
+  public BusinessException(ErrorCode errorCode) {
+    this(errorCode, errorCode.message(), null);
+  }
+
+  public BusinessException(ErrorCode errorCode, String message, Throwable cause) {
+    super(errorCode.code(), errorCode.httpStatus(), message, cause);
+  }
+
+  private static int legacyHttpStatus(Integer code) {
+    return code != null && code >= 400 && code < 500 ? code : 200;
+  }
 }

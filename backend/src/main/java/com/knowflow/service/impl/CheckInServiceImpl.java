@@ -2,7 +2,7 @@ package com.knowflow.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.entity.SysUser;
 import com.knowflow.entity.UserCheckIn;
 import com.knowflow.mapper.SysUserMapper;

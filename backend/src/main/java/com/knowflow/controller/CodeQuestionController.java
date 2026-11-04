@@ -1,7 +1,7 @@
 package com.knowflow.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.common.Result;
 import cn.hutool.core.util.StrUtil;
 import com.knowflow.common.SecurityUtils;

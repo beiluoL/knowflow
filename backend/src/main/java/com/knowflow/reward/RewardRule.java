@@ -1,6 +1,6 @@
 package com.knowflow.reward;
 
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import lombok.Getter;
 
 /**

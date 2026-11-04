@@ -1,7 +1,7 @@
 package com.knowflow.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.dto.FirstPrinciplesSubmitDTO;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.service.LearningEventService;

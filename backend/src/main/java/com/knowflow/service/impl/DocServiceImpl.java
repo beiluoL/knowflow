@@ -24,7 +24,7 @@ import com.knowflow.service.AiService;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.DocChunkService;
 import com.knowflow.service.DocService;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.service.LearningEventService;
 import com.knowflow.service.DocumentTextExtractor;
 import com.knowflow.service.KnowledgeService;

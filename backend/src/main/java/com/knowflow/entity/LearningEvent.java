@@ -1,7 +1,7 @@
 package com.knowflow.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.knowflow.entity.BaseEntity;
+import com.knowflow.common.persistence.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

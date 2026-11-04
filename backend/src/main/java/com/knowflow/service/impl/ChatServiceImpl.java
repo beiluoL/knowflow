@@ -18,7 +18,7 @@ import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.ai.CoachPrompts;
 import com.knowflow.service.AiService;
 import com.knowflow.service.ChatService;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.service.DocChunkService;
 import com.knowflow.service.LearningEventService;
 import com.knowflow.vo.ConversationVO;

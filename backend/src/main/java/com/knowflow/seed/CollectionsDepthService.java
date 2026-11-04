@@ -1,5 +1,7 @@
 package com.knowflow.seed;
 
+import com.knowflow.common.persistence.BaseEntity;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.knowflow.entity.*;
 import com.knowflow.mapper.*;

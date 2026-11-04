@@ -1,7 +1,7 @@
 package com.knowflow.reward;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.entity.LearningEvent;
 import com.knowflow.entity.Wallet;
 import lombok.RequiredArgsConstructor;

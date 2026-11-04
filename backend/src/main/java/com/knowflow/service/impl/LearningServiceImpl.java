@@ -28,7 +28,7 @@ import com.knowflow.entity.DocReadProgress;
 import com.knowflow.entity.SysUser;
 import com.knowflow.entity.KgEntity;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.mapper.AiPersonalizedPathMapper;
 import com.knowflow.mapper.DocCategoryMapper;
 import com.knowflow.mapper.DocDocumentMapper;

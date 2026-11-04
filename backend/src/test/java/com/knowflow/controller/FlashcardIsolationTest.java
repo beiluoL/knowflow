@@ -3,7 +3,7 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.common.LearningEventType;
+import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.entity.LearningEvent;
 import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.entity.LearningPath;
