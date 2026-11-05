@@ -85,13 +85,13 @@ public class QianfanAdapter implements ModelAdapter {
             String resp = new SimplePost(tokenUrl, null, null, new HashMap<>(), objectMapper).execute();
             JsonNode node = objectMapper.readTree(resp);
             if (node.has("error")) {
-                throw new AiException("文心鉴权失败：" + node.get("error_description").asText());
+                throw new AiException("文心鉴权失败");
             }
             return node.get("access_token").asText();
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
-            throw new AiException("获取文心 access_token 失败：" + e.getMessage());
+            throw AiTransportErrors.from("获取文心 access_token 失败", e);
         }
     }
 
@@ -134,7 +134,7 @@ public class QianfanAdapter implements ModelAdapter {
         try {
             JsonNode root = objectMapper.readTree(resp);
             if (root.has("error_code")) {
-                throw new AiException("文心错误：" + root.get("error_msg").asText());
+                throw new AiException("文心返回错误");
             }
             JsonNode result = root.get("result");
             String content = result != null ? result.asText() : "";
@@ -151,7 +151,7 @@ public class QianfanAdapter implements ModelAdapter {
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
-            throw new AiException("解析文心返回失败：" + e.getMessage());
+            throw AiTransportErrors.from("解析文心返回失败", e);
         }
     }
 }

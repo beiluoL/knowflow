@@ -44,7 +44,7 @@ public class OpenAiAdapter implements ModelAdapter {
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
-            throw new AiException("模型调用失败：" + e.getMessage());
+            throw AiTransportErrors.from("模型调用失败", e);
         }
     }
 
@@ -208,7 +208,7 @@ public class OpenAiAdapter implements ModelAdapter {
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
-            throw new AiException("解析模型返回失败：" + e.getMessage());
+            throw AiTransportErrors.from("解析模型返回失败", e);
         }
     }
 

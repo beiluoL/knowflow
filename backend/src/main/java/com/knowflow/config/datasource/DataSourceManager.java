@@ -185,6 +185,8 @@ public class DataSourceManager {
             com.knowflow.service.TechVocabSchema.migrate(conn);
             runScript(conn, "db/" + type.getCode() + "/migration/V20261104__identity_oauth_state.sql",
                     type, "identity-oauth-state");
+            runScript(conn, "db/" + type.getCode() + "/migration/V20261105__ai_billing.sql",
+                    type, "ai-billing");
         } catch (SQLException e) {
             throw new IllegalStateException("执行数据库初始化脚本失败: " + rootMessage(e), e);
         }

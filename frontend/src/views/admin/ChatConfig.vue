@@ -13,6 +13,35 @@
     </div>
 
     <p role="status" class="text-sm" style="color:var(--kf-muted-foreground)">服务端能力：{{ capability.error ? '状态暂不可读取' : capability.status?.status || '正在读取' }}。保存个人配置不等于系统已启用；连通性测试会发起模型请求。</p>
+    <Card v-if="auth.isAdmin">
+      <template #header>
+        <h2 class="font-semibold">模型目录与今日用量</h2>
+      </template>
+      <StateView :status="modelCenterLoading ? 'loading' : modelCenterError ? 'error' : 'ready'"
+        error-title="模型概览读取失败" @retry="loadModelCenter">
+        <div v-if="modelCenter" class="space-y-3 text-sm">
+          <p>当前实例 · {{ modelCenter.usage.day }} · {{ modelCenter.models.length }} 个目录模型</p>
+          <dl class="grid grid-cols-2 gap-3 md:grid-cols-3">
+            <div><dt>上报 Token</dt><dd>{{ modelCenter.usage.reportedTokens }}</dd></div>
+            <div><dt>估算 Token</dt><dd>{{ modelCenter.usage.estimatedTokens }}</dd></div>
+            <div><dt>未上报调用</dt><dd>{{ modelCenter.usage.unreportedCalls }}</dd></div>
+            <div><dt>未定价 Token</dt><dd>{{ modelCenter.usage.unpricedTokens }}</dd></div>
+            <div><dt>已定价成本（USD）</dt><dd>{{ modelCenter.usage.pricedCostUsd }}</dd></div>
+            <div><dt>每日 Token 护栏</dt><dd>{{ modelCenter.usage.dailyTokenLimit || '未设置' }}</dd></div>
+          </dl>
+          <details v-if="modelCenter.models.length">
+            <summary>查看模型目录</summary>
+            <ul class="mt-2 space-y-1">
+              <li v-for="entry in modelCenter.models" :key="entry.provider + ':' + entry.model">
+                {{ entry.label }} · {{ entry.model }}<span v-if="entry.defaultModel">（默认）</span>
+              </li>
+            </ul>
+          </details>
+          <p v-else>目录暂无模型。</p>
+        </div>
+      </StateView>
+    </Card>
+
     <StateView :status="configLoading ? 'loading' : configError ? 'error' : 'ready'" error-title="AI 配置加载失败" error-description="未成功读取配置，请重试后再编辑。" @retry="loadConfig">
     <p v-if="actionError" role="alert" class="text-sm" style="color:var(--kf-danger)">{{ actionError }}</p>
     <p v-if="saving || deleting" role="status" aria-live="polite" class="text-sm">{{ saving ? '正在保存配置…' : '正在确认或删除配置…' }}</p>
@@ -395,8 +424,27 @@ import Card from '@/components/ui/Card.vue'
 import StateView from '@/components/ui/StateView.vue'
 import { useAiCapabilityStore } from '@/stores/aiCapability'
 import { aiConfigApi } from '@/api/aiConfig'
+import type { AiModelCenterOverview } from '@/api/aiConfig'
+import { useAuthStore } from '@/stores/auth'
 import { notify, confirmDialog } from '@/utils/toast'
 import type { UserAiConfigVO, PlatformModelVO, AiTestResult } from '@/api/types'
+
+const auth = useAuthStore()
+const modelCenter = ref<AiModelCenterOverview | null>(null)
+const modelCenterLoading = ref(true)
+const modelCenterError = ref(false)
+
+async function loadModelCenter() {
+  modelCenterLoading.value = true
+  modelCenterError.value = false
+  try {
+    modelCenter.value = await aiConfigApi.modelCenter()
+  } catch {
+    modelCenterError.value = true
+  } finally {
+    modelCenterLoading.value = false
+  }
+}
 
 const capability = useAiCapabilityStore()
 // 测试用于验证新配置，系统启用但尚未配置/旧配置失败时也应允许；不能要求旧配置已AVAILABLE。
@@ -565,6 +613,7 @@ function saveParams() {
 }
 
 onMounted(() => {
+  if (auth.isAdmin) void loadModelCenter()
   void loadConfig()
   void capability.refresh(false)
   loadParams()

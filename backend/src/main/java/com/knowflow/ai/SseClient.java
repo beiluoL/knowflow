@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,7 +14,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
@@ -64,58 +64,44 @@ public final class SseClient {
                     reqBuilder.build(),
                     HttpResponse.BodyHandlers.ofInputStream());
 
-            int statusCode = resp.statusCode();
-            if (statusCode < 200 || statusCode >= 300) {
-                String errBody = readAll(resp.body());
-                handler.onError("模型返回状态码 " + statusCode + (errBody != null ? "：" + errBody : ""));
-                return;
-            }
-
-            InputStream raw = resp.body();
-            // 处理 gzip 压缩
-            List<String> enc = resp.headers().allValues("Content-Encoding");
-            if (enc != null && enc.contains("gzip")) {
-                raw = new GZIPInputStream(raw);
-            }
-
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(raw, StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.isEmpty()) continue;
-                    if (line.startsWith("data:")) {
-                        String data = line.substring(5).trim();
-                        if ("[DONE]".equals(data)) break;
-                        try {
-                            JsonNode node = objectMapper.readTree(data);
-                            handler.onData(node);
-                        } catch (Exception parseEx) {
-                            log.debug("跳过 SSE 帧: {}", data);
-                        }
-                    } else if (line.startsWith("event:")) {
-                        // Anthropic 使用 event: 前缀
-                    }
+            try (InputStream bodyStream = resp.body()) {
+                if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
+                    throw new AiException("模型返回状态码 " + resp.statusCode());
                 }
+                readFrames(bodyStream, resp.headers().allValues("Content-Encoding").contains("gzip"),
+                        objectMapper, handler);
             }
-        } catch (AiException e) {
-            handler.onError(e.getMessage());
-        } catch (Exception e) {
-            handler.onError(e.getMessage());
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            handler.onError("模型请求已中断");
+        } catch (AiException failure) {
+            handler.onError(failure.getMessage());
+        } catch (IOException | RuntimeException failure) {
+            handler.onError(AiTransportErrors.from("模型流式请求失败", failure).getMessage());
         }
     }
 
-    private static String readAll(InputStream is) {
-        if (is == null) return null;
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            StringBuilder sb = new StringBuilder();
+    static void readFrames(InputStream body, boolean gzip, ObjectMapper mapper, Handler handler)
+            throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                gzip ? new GZIPInputStream(body) : body, StandardCharsets.UTF_8))) {
             String line;
-            while ((line = r.readLine()) != null) {
-                if (sb.length() > 0) sb.append('\n');
-                sb.append(line);
+            while ((line = reader.readLine()) != null) {
+                if (!line.startsWith("data:")) continue;
+                String data = line.substring(5).trim();
+                if ("[DONE]".equals(data)) break;
+
+                JsonNode node;
+                try {
+                    node = mapper.readTree(data);
+                } catch (com.fasterxml.jackson.core.JsonProcessingException malformed) {
+                    log.debug("跳过无法解析的模型 SSE 帧");
+                    continue;
+                }
+                if (node != null && node.isObject()) {
+                    handler.onData(node);
+                }
             }
-            return sb.toString();
-        } catch (Exception e) {
-            return null;
         }
     }
 }

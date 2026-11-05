@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import java.time.LocalDate;
+import java.math.BigDecimal;
 
 /**
  * AI 能力调用执行器（Facade 内核）：统一负责超时外的可靠性策略。
@@ -35,8 +36,12 @@ public class AiCapabilityExecutor {
     private final AiCapabilityStateService stateService;
 
     private Semaphore concurrency = new Semaphore(8);
-    private final AtomicLong tokensUsedToday = new AtomicLong(0);
-    private volatile String budgetDay = "";
+    private LocalDate budgetDay;
+    private long reportedTokens;
+    private long estimatedTokens;
+    private long unreportedCalls;
+    private long unpricedTokens;
+    private BigDecimal pricedCostUsd = BigDecimal.ZERO;
 
     @PostConstruct
     void init() {
@@ -82,18 +87,18 @@ public class AiCapabilityExecutor {
             try {
                 // 排队或退避期间可能关停：每次真正调用前重新准入，不撤回已发出的请求。
                 if (!props.isEnabled()) throw new AiCapabilityException(AiFailureKind.SYSTEM_DISABLED, null);
+                checkDailyBudget();
                 AiRawResult result = call.invoke();
                 circuitBreaker.recordSuccess(scope);
-                if (result.totalTokens() > 0) {
-                    tokensUsedToday.addAndGet(result.totalTokens());
-                }
+                recordUsage(scope, result);
                 if (attempt > 1) {
                     log.info("AI 调用重试成功 scope={} attempts={}", scope, attempt);
                 }
                 return result;
             } catch (AiCapabilityException e) {
                 // 能力关停属于准入拒绝，不是供应商失败；finally 仍会释放并发槽位。
-                if (e.getKind() == AiFailureKind.SYSTEM_DISABLED || e.getKind() == AiFailureKind.USER_DISABLED) throw e;
+                if (e.getKind() == AiFailureKind.SYSTEM_DISABLED || e.getKind() == AiFailureKind.USER_DISABLED
+                        || e.getKind() == AiFailureKind.BUDGET_EXCEEDED) throw e;
                 last = e;
                 circuitBreaker.recordFailure(scope);
                 stateService.recordTransient(scope, e.getKind());
@@ -117,25 +122,50 @@ public class AiCapabilityExecutor {
         throw last != null ? last : new AiCapabilityException(AiFailureKind.UNKNOWN, "执行器无结果");
     }
 
-    private void checkDailyBudget() {
+    private synchronized void checkDailyBudget() {
+        rollDay();
         long limit = props.getDailyTokenLimit();
-        if (limit <= 0) {
-            return;
+        if (limit > 0 && reportedTokens + estimatedTokens >= limit) {
+            throw new AiCapabilityException(AiFailureKind.BUDGET_EXCEEDED, "limit=" + limit);
         }
-        String today = java.time.LocalDate.now().toString();
-        if (!today.equals(budgetDay)) {
-            synchronized (this) {
-                if (!today.equals(budgetDay)) {
-                    budgetDay = today;
-                    tokensUsedToday.set(0);
+    }
+
+    private synchronized void recordUsage(String scope, AiRawResult result) {
+        rollDay();
+        switch (result.usageSource()) {
+            case UNREPORTED -> unreportedCalls++;
+            case ESTIMATED -> estimatedTokens += result.totalTokens();
+            case REPORTED -> {
+                reportedTokens += result.totalTokens();
+                BigDecimal rate = props.getUsdPerMillionTokens().get(scope);
+                if (rate == null || rate.signum() < 0) {
+                    unpricedTokens += result.totalTokens();
+                } else {
+                    pricedCostUsd = pricedCostUsd.add(rate.multiply(BigDecimal.valueOf(result.totalTokens()))
+                            .movePointLeft(6));
                 }
             }
         }
-        if (tokensUsedToday.get() >= limit) {
-            throw new AiCapabilityException(AiFailureKind.BUDGET_EXCEEDED,
-                    "limit=" + limit);
+    }
+
+    private void rollDay() {
+        LocalDate today = LocalDate.now();
+        if (!today.equals(budgetDay)) {
+            resetBudget();
+            budgetDay = today;
         }
     }
+
+    /** 返回当前实例当日用量。成本只覆盖配置了费率的供应商上报 Token。 */
+    public synchronized UsageSnapshot usageSnapshot() {
+        rollDay();
+        return new UsageSnapshot(budgetDay, reportedTokens, estimatedTokens, unreportedCalls,
+                unpricedTokens, pricedCostUsd, props.getDailyTokenLimit());
+    }
+
+    public record UsageSnapshot(LocalDate day, long reportedTokens, long estimatedTokens,
+                                long unreportedCalls, long unpricedTokens, BigDecimal pricedCostUsd,
+                                long dailyTokenLimit) {}
 
     /**
      * @return true 表示已退避、可以继续下一次重试；false 表示应立即结束
@@ -165,13 +195,18 @@ public class AiCapabilityExecutor {
     }
 
     /** 监控/测试用：今日已用 token。 */
-    public long tokensUsedToday() {
-        return tokensUsedToday.get();
+    public synchronized long tokensUsedToday() {
+        rollDay();
+        return reportedTokens + estimatedTokens;
     }
 
     /** 测试辅助：重置预算计数。 */
-    public void resetBudget() {
-        tokensUsedToday.set(0);
+    public synchronized void resetBudget() {
+        reportedTokens = 0;
+        estimatedTokens = 0;
+        unreportedCalls = 0;
+        unpricedTokens = 0;
+        pricedCostUsd = BigDecimal.ZERO;
     }
 
     /** 受保护的单次调用。 */

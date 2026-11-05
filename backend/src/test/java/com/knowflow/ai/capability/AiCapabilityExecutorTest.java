@@ -54,6 +54,22 @@ class AiCapabilityExecutorTest {
         executor.resetBudget();
     }
 
+    @Test
+    void pricesOnlyReportedUsageWithAnExplicitRate() {
+        props.getUsdPerMillionTokens().put("p:priced", new java.math.BigDecimal("2"));
+        executor.execute("p:priced", false, () -> new AiRawResult("reported", 1000));
+        executor.execute("p:priced", false,
+                () -> new AiRawResult("estimate", 2000, AiRawResult.UsageSource.ESTIMATED));
+        executor.execute("p:other", false, () -> new AiRawResult("unpriced", 500));
+        executor.execute("p:other", false, () -> new AiRawResult("unknown"));
+        var usage = executor.usageSnapshot();
+        assertEquals(1500, usage.reportedTokens());
+        assertEquals(2000, usage.estimatedTokens());
+        assertEquals(500, usage.unpricedTokens());
+        assertEquals(1, usage.unreportedCalls());
+        assertEquals(0, new java.math.BigDecimal("0.002").compareTo(usage.pricedCostUsd()));
+    }
+
     private AiCapabilityException fail(AiFailureKind kind) {
         return new AiCapabilityException(kind, "inject");
     }

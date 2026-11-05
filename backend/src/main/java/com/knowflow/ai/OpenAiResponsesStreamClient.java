@@ -68,10 +68,7 @@ public class OpenAiResponsesStreamClient {
                             return;
                         }
                         if ("response.failed".equals(type) || "error".equals(type)) {
-                            JsonNode error = frame.get("error");
-                            String message = error != null && error.has("message")
-                                    ? error.get("message").asText() : "模型返回失败事件";
-                            throw new AiException("模型流式响应异常：" + message);
+                            throw new AiException("模型流式响应异常：模型返回失败事件");
                         }
                     }
 

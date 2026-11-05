@@ -2,7 +2,21 @@
 import { apiGet, apiPost, apiDelete } from './request'
 import type { UserAiConfigVO, UserAiConfigPayload, PlatformModelVO, AiTestResult } from './types'
 
+export interface AiModelCenterOverview {
+  models: Array<{ provider: string; label: string; model: string; providerType: string; defaultModel: boolean }>
+  usage: {
+    day: string
+    reportedTokens: number
+    estimatedTokens: number
+    unreportedCalls: number
+    unpricedTokens: number
+    pricedCostUsd: number
+    dailyTokenLimit: number
+  }
+}
+
 export const aiConfigApi = {
+  modelCenter: () => apiGet<AiModelCenterOverview>('/admin/ai-model-center'),
   getConfig: () => apiGet<UserAiConfigVO>('/ai-config'),
   listConfigs: () => apiGet<UserAiConfigVO[]>('/ai-config/list'),
   saveConfig: (data: UserAiConfigPayload) => apiPost<UserAiConfigVO>('/ai-config', data),

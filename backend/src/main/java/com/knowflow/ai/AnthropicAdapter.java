@@ -45,7 +45,7 @@ public class AnthropicAdapter implements ModelAdapter {
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
-            throw new AiException("Anthropic 调用失败：" + e.getMessage());
+            throw AiTransportErrors.from("Anthropic 调用失败", e);
         }
     }
 
@@ -156,7 +156,7 @@ public class AnthropicAdapter implements ModelAdapter {
         try {
             JsonNode root = objectMapper.readTree(resp);
             if (root.has("error")) {
-                throw new AiException("Anthropic 错误：" + root.get("error").get("message").asText());
+                throw new AiException("Anthropic 返回错误");
             }
             JsonNode content = root.get("content");
             StringBuilder text = new StringBuilder();
@@ -179,7 +179,7 @@ public class AnthropicAdapter implements ModelAdapter {
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
-            throw new AiException("解析 Anthropic 返回失败：" + e.getMessage());
+            throw AiTransportErrors.from("解析 Anthropic 返回失败", e);
         }
     }
 

@@ -58,6 +58,7 @@ public class AiServiceImpl implements AiService {
     private final AiCapabilityExecutor capabilityExecutor;
     private final AiCapabilityStateService capabilityStateService;
     private final AiCapabilityProperties capabilityProperties;
+    private final com.knowflow.ai.billing.AiBillingService billing;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final OpenAiResponsesStreamClient responsesStreamClient = new OpenAiResponsesStreamClient(objectMapper);
     private final HttpClient httpClient = HttpClient.newBuilder()
@@ -169,9 +170,61 @@ public class AiServiceImpl implements AiService {
         }
         String effectiveModel = (model != null && !model.isBlank()) ? model : effective.model();
         String scope = (effective.provider() == null ? "platform" : effective.provider()) + ":" + effectiveModel;
-        AiRawResult result = capabilityExecutor.execute(scope, false,
-                () -> invokeChatCompletion(effective, effectiveModel, systemPrompt, userPrompt, temperature, structured));
-        return result.content();
+        Long billingUser = userId != null ? userId : com.knowflow.common.SecurityUtils.getCurrentUserIdNullable();
+        String scene = structured ? "structured" : "completion";
+        try {
+            return executeBilled(effective, effectiveModel, scope, systemPrompt, userPrompt,
+                    temperature, structured, billingUser, scene);
+        } catch (AiCapabilityException primaryFailure) {
+            if (structured || (model != null && !model.isBlank()) || !canFallback(primaryFailure.getKind())) {
+                throw primaryFailure;
+            }
+            var cross = capabilityProperties.getCrossProviderFallbacks().get(scope);
+            if (cross != null && effective.provider() == null) {
+                var provider = providerRegistry.find(cross.provider());
+                if (provider == null || provider.getProtocol() != AiProviderRegistry.Protocol.OPENAI
+                        || cross.baseUrl() == null || cross.model() == null || cross.apiKey() == null
+                        || cross.baseUrl().isBlank() || cross.model().isBlank() || cross.apiKey().isBlank()) {
+                    throw primaryFailure;
+                }
+                var alternate = new EffectiveAiConfig(cross.apiKey(), cross.baseUrl().replaceAll("/+$", ""),
+                        cross.model(), cross.provider(), null);
+                return executeBilled(alternate, cross.model(), cross.provider() + ":" + cross.model(),
+                        systemPrompt, userPrompt, temperature, false, billingUser, scene);
+            }
+            String fallback = capabilityProperties.getFallbackModels().get(scope);
+            if (fallback == null || fallback.isBlank() || fallback.equals(effectiveModel)) {
+                throw primaryFailure;
+            }
+            String fallbackScope = (effective.provider() == null ? "platform" : effective.provider()) + ":" + fallback;
+            return executeBilled(effective, fallback, fallbackScope, systemPrompt, userPrompt,
+                    temperature, false, billingUser, scene);
+        }
+    }
+
+    private String executeBilled(EffectiveAiConfig effective, String model, String scope,
+                                 String systemPrompt, String userPrompt, double temperature,
+                                 boolean structured, Long userId, String scene) {
+        return capabilityExecutor.execute(scope, false, () -> {
+            requireAiEnabled();
+            var reservation = billing.reserve(userId, scene, scope);
+            AiRawResult result;
+            try {
+                result = invokeChatCompletion(effective, model, systemPrompt, userPrompt, temperature, structured);
+            } catch (RuntimeException failure) {
+                billing.settle(reservation, null, null, false);
+                throw failure;
+            }
+            billing.settle(reservation, result.inputTokens(), result.outputTokens(), true);
+            return result;
+        }).content();
+    }
+
+    private boolean canFallback(AiFailureKind kind) {
+        return switch (kind) {
+            case CIRCUIT_OPEN, PROVIDER_ERROR, RATE_LIMITED, TIMEOUT, NETWORK_ERROR -> true;
+            default -> false;
+        };
     }
 
     @Override
@@ -219,7 +272,8 @@ public class AiServiceImpl implements AiService {
                         objectMapper, delta, () -> cancelled.getAsBoolean() || !capabilityProperties.isEnabled(),
                         aiConfig.getTimeoutSeconds());
                 // Conservative upper-bound accounting; streaming providers need not return usage frames.
-                return new AiRawResult(text, Math.max(1, aiConfig.getMaxTokens()));
+                return new AiRawResult(text, Math.max(1, aiConfig.getMaxTokens()),
+                        AiRawResult.UsageSource.ESTIMATED);
             } catch (java.io.IOException | IllegalArgumentException invalid) {
                 throw new AiCapabilityException(AiFailureKind.INVALID_RESPONSE, "Structured stream rejected");
             }
@@ -288,7 +342,13 @@ public class AiServiceImpl implements AiService {
                     }
                     content += "\n\n---\n*注意：本次回复已达到模型最大输出长度，内容可能被截断。如需更完整的内容，请分多次询问或缩短问题范围。*";
                 }
-                return new AiRawResult(content, totalTokens);
+                Long input = usage != null && usage.get("prompt_tokens") instanceof Number value
+                        ? value.longValue() : null;
+                Long output = usage != null && usage.get("completion_tokens") instanceof Number value
+                        ? value.longValue() : null;
+                return new AiRawResult(content, Math.max(0, totalTokens),
+                        totalTokens > 0 ? AiRawResult.UsageSource.REPORTED : AiRawResult.UsageSource.UNREPORTED,
+                        input, output);
             }
             throw classifyHttpError(status, response.body(), response.headers().firstValue("Retry-After").orElse(null));
         } catch (AiCapabilityException e) {
@@ -296,14 +356,14 @@ public class AiServiceImpl implements AiService {
         } catch (HttpTimeoutException e) {
             throw new AiCapabilityException(AiFailureKind.TIMEOUT, "读取超时（" + aiConfig.getTimeoutSeconds() + "s）");
         } catch (UnknownHostException | ConnectException e) {
-            throw new AiCapabilityException(AiFailureKind.NETWORK_ERROR, e.getMessage());
+            throw new AiCapabilityException(AiFailureKind.NETWORK_ERROR, null);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AiCapabilityException(AiFailureKind.CANCELLED, "请求被中断");
         } catch (Exception e) {
             // BodyPublishers/JSON 序列化等本地异常：请求本身没发出去，属于非法请求构造
             throw new AiCapabilityException(AiFailureKind.INVALID_REQUEST,
-                    e.getClass().getSimpleName() + ": " + e.getMessage());
+                    e.getClass().getSimpleName());
         }
     }
 
@@ -328,11 +388,11 @@ public class AiServiceImpl implements AiService {
         if (status == 400) {
             // 部分供应商用 400 表达模型不支持能力（如对不支持工具的模型下发 tools）
             if (low.contains("does not support") || low.contains("unsupported") || low.contains("not support")) {
-                return new AiCapabilityException(AiFailureKind.UNSUPPORTED_CAPABILITY, snippet);
+                return new AiCapabilityException(AiFailureKind.UNSUPPORTED_CAPABILITY, "HTTP " + status);
             }
-            return new AiCapabilityException(AiFailureKind.INVALID_REQUEST, snippet);
+            return new AiCapabilityException(AiFailureKind.INVALID_REQUEST, "HTTP " + status);
         }
-        return new AiCapabilityException(AiFailureKind.UNKNOWN, "HTTP " + status + " " + snippet);
+        return new AiCapabilityException(AiFailureKind.UNKNOWN, "HTTP " + status);
     }
 
     /** Retry-After 可能是秒数或 HTTP 日期；仅接受数字秒形式，其它忽略。 */
@@ -526,8 +586,8 @@ public class AiServiceImpl implements AiService {
             log.error("Vision API 调用失败: status={}", resp.statusCode());
             return "抱歉，图像分析失败（状态码 " + resp.statusCode() + "）";
         } catch (Exception e) {
-            log.error("视觉模型调用失败: {}", e.getMessage());
-            return "抱歉，图像分析失败：" + e.getMessage();
+            log.warn("视觉模型调用失败: {}", e.getClass().getSimpleName());
+            return "抱歉，图像分析失败";
         }
     }
 
@@ -780,8 +840,9 @@ public class AiServiceImpl implements AiService {
                 if (callback != null) notifyComplete(callback, full.toString(), reasoning, reasoningKind, reasoningStarted, reasoningStart, false);
                 return;
             }
-            log.error("流式对话异常: userId={}, configId={}, err={}", userId, configId, e.getMessage(), e);
-            String errMsg = "AI 流式调用失败：" + e.getMessage();
+            log.warn("流式对话异常: userId={}, configId={}, type={}",
+                    userId, configId, e.getClass().getSimpleName());
+            String errMsg = "AI 流式调用失败";
             sendSseEvent(emitter, "error", Map.of("error", errMsg));
             String partial = full.length() > 0 ? full.toString() : errMsg;
             callbackDone[0] = true;

@@ -45,6 +45,21 @@ public class AiCapabilityProperties {
     /** 每日 token 预算（输入+输出）；0 表示不限制。内存计数，进程重启归零，仅作护栏而非计费依据。 */
     private long dailyTokenLimit = 0;
 
+    /** 同供应商备用模型，键为 provider:model。只在暂时性供应商故障后使用。 */
+    private java.util.Map<String, String> fallbackModels = new java.util.HashMap<>();
+
+    /** 供应商确认的总 Token 单价（每百万 Token，USD），仅用于统一费率模型。 */
+    private java.util.Map<String, java.math.BigDecimal> usdPerMillionTokens = new java.util.HashMap<>();
+
+    private long userDailyHardTokenLimit;
+    private java.util.Map<String, Long> modelAttemptTokenBounds = new java.util.HashMap<>();
+    private java.util.Map<String, Long> sceneDailyHardTokenLimits = new java.util.HashMap<>();
+    private java.util.Map<String, Price> splitPrices = new java.util.HashMap<>();
+    private java.util.Map<String, Route> crossProviderFallbacks = new java.util.HashMap<>();
+
+    public record Price(java.math.BigDecimal inputUsdPerMillion, java.math.BigDecimal outputUsdPerMillion) {}
+    public record Route(String provider, String baseUrl, String model, String apiKey) {}
+
     /** 能力状态接口缓存时间（秒）；状态由配置 + 近期调用结果聚合，不主动打付费健康检查。 */
     private int statusCacheSeconds = 30;
 

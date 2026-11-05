@@ -50,7 +50,7 @@ class SimplePost {
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
-            throw new AiException("HTTP 请求失败：" + e.getMessage());
+            throw AiTransportErrors.from("HTTP 请求失败", e);
         }
     }
 }
