@@ -1,0 +1,35 @@
+{
+  "version": "rag-golden-v1",
+  "cases": [
+    {
+      "id": "java-hashmap-collision",
+      "query": "Java HashMap collision",
+      "relevant": ["hashmap"],
+      "candidates": [
+        {"id":"array-list","text":"Java ArrayList grows its backing array."},
+        {"id":"hashmap","text":"Java HashMap handles a collision by grouping keys in a bucket."},
+        {"id":"collision","text":"A collision can also occur in network transmission."}
+      ]
+    },
+    {
+      "id": "http-conditional-request",
+      "query": "ＥＴａｇ   If-None-Match",
+      "relevant": ["cache"],
+      "candidates": [
+        {"id":"authorization","text":"Authorization validates the access token."},
+        {"id":"cache","text":"ETag and If-None-Match enable conditional HTTP requests."},
+        {"id":"cache-control","text":"Cache-Control sets the response freshness lifetime."}
+      ]
+    },
+    {
+      "id": "sql-transaction",
+      "query": "SQL transaction rollback",
+      "relevant": ["rollback"],
+      "candidates": [
+        {"id":"index","text":"SQL indexes improve lookup speed."},
+        {"id":"rollback","text":"A SQL transaction can rollback uncommitted writes."},
+        {"id":"batch","text":"A batch sends multiple SQL statements."}
+      ]
+    }
+  ]
+}

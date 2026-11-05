@@ -43,6 +43,8 @@ public class DocChunkServiceImpl implements DocChunkService {
     private final CategoryService categoryService;
     private final com.knowflow.security.DocumentAccessPolicy access;
 
+    private final com.knowflow.knowledge.mapper.RagIndexRevisionMapper revisions;
+
     /** 单块最大字符数 */
     private static final int MAX_CHUNK_SIZE = 500;
 
@@ -57,8 +59,7 @@ public class DocChunkServiceImpl implements DocChunkService {
     public void indexDocument(Long docId, String content) {
         if (docId == null || content == null || content.isBlank()) return;
 
-        // 先删旧分块
-        deleteChunks(docId);
+
 
         // 按段落切分
         String[] paragraphs = content.split("\n\n+");
@@ -84,6 +85,12 @@ public class DocChunkServiceImpl implements DocChunkService {
                 ? embeddingService.embedBatch(chunks)
                 : List.of();
 
+        // 锁住文档后，在同一事务内替换分块与发布版本。
+        if (docDocumentMapper.selectOne(new LambdaQueryWrapper<DocDocument>()
+                .eq(DocDocument::getId, docId).last("FOR UPDATE")) == null) {
+            return;
+        }
+        removeChunkRows(docId);
         for (int i = 0; i < chunks.size(); i++) {
             String chunkText = chunks.get(i);
             List<Float> vec = i < vectors.size() ? vectors.get(i) : null;
@@ -97,8 +104,11 @@ public class DocChunkServiceImpl implements DocChunkService {
             chunk.setContent(chunkText);
             chunk.setCharCount(chunkText.length());
             chunk.setEmbedding(embeddingStr);
-            docChunkMapper.insert(chunk);
+            if (docChunkMapper.insert(chunk) != 1) {
+                throw new IllegalStateException("Chunk insert did not write one row");
+            }
         }
+        revisions.publish(docId, chunks.size());
         log.info("文档分块完成：docId={}, chunks={}, 向量化={}", docId, chunks.size(),
                 embeddingService.isAvailable() ? "已启用" : "已跳过");
     }
@@ -106,6 +116,13 @@ public class DocChunkServiceImpl implements DocChunkService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteChunks(Long docId) {
+        docDocumentMapper.selectOne(new LambdaQueryWrapper<DocDocument>()
+                .eq(DocDocument::getId, docId).last("FOR UPDATE"));
+        removeChunkRows(docId);
+        revisions.deleteById(docId);
+    }
+
+    private void removeChunkRows(Long docId) {
         docChunkMapper.delete(new LambdaQueryWrapper<DocChunk>()
                 .eq(DocChunk::getDocId, docId));
     }
@@ -147,46 +164,39 @@ public class DocChunkServiceImpl implements DocChunkService {
             return new SearchOutcome(List.of(), trace);
         }
 
+        int size = Math.min(Math.max(limit, 1), 20);
+        int recallSize = size * 3;
         long searchStart = System.currentTimeMillis();
+        var variants = com.knowflow.knowledge.rag.RagQueryRewrite.variants(query);
+        if (variants.size() > 1) {
+            emitStep(trace, onStep, step("query_rewrite", "查询改写", "success",
+                    "保留原查询并补充规范化关键词", searchStart, variants.size()));
+        }
+        List<DocChunk> keyword = variants.stream()
+                .flatMap(variant -> searchByKeyword(variant, recallSize, accessibleDocIds).stream())
+                .limit(recallSize * variants.size()).toList();
+        emitStep(trace, onStep, step("keyword_search", "关键词检索",
+                keyword.isEmpty() ? "empty" : "success",
+                "按关键词匹配已授权文档片段", searchStart, keyword.size()));
+
+        long vectorStart = System.currentTimeMillis();
         List<Float> queryVec = embeddingService.embed(query);
-        List<String> results;
-        if (queryVec == null || queryVec.isEmpty()) {
-            // 向量检索真实不可用 → 关键词降级（DocChunkService 现有行为）
-            log.info("query embedding 不可用，降级为分块关键词检索");
-            results = searchByKeyword(query, limit, accessibleDocIds);
-            trace.setStrategy("keyword");
-            emitStep(trace, onStep, step("keyword_search", "关键词检索",
-                    results.isEmpty() ? "empty" : "success",
-                    "向量检索不可用，按关键词匹配已授权文档片段", searchStart, results.size()));
-        } else {
-            List<DocChunk> allChunks = docChunkMapper.selectList(
-                    new LambdaQueryWrapper<DocChunk>()
-                            .isNotNull(DocChunk::getEmbedding)
-                            .ne(DocChunk::getEmbedding, "")
-                            .in(DocChunk::getDocId, accessibleDocIds)
-                            .orderByAsc(DocChunk::getDocId)
-                            .orderByAsc(DocChunk::getChunkIndex));
-            if (allChunks.isEmpty()) {
-                results = List.of();
-            } else {
-                int size = Math.min(Math.max(limit, 1), 20);
-                results = allChunks.parallelStream()
-                        .map(chunk -> {
-                            List<Float> chunkVec = parseVector(chunk.getEmbedding());
-                            if (chunkVec == null) return null;
-                            double sim = embeddingService.cosineSimilarity(queryVec, chunkVec);
-                            return new Object[]{chunk, sim};
-                        })
-                        .filter(Objects::nonNull)
-                        .sorted(Comparator.comparingDouble(o -> - (Double) o[1]))
-                        .limit(size)
-                        .map(o -> ((DocChunk) o[0]).getContent())
-                        .collect(Collectors.toList());
-            }
-            trace.setStrategy("vector");
+        List<DocChunk> vector = queryVec == null || queryVec.isEmpty()
+                ? List.of() : searchByVector(queryVec, recallSize, accessibleDocIds);
+        if (queryVec != null && !queryVec.isEmpty()) {
             emitStep(trace, onStep, step("vector_search", "向量检索",
+                    vector.isEmpty() ? "empty" : "success",
+                    "按余弦相似度召回已授权文档片段", vectorStart, vector.size()));
+        }
+
+        long fusionStart = System.currentTimeMillis();
+        List<String> results = fuseChunks(keyword, vector, size, variants.get(variants.size() - 1));
+        boolean hybrid = !keyword.isEmpty() && !vector.isEmpty();
+        trace.setStrategy(hybrid ? "hybrid" : vector.isEmpty() ? "keyword" : "vector");
+        if (hybrid) {
+            emitStep(trace, onStep, step("rank_fusion", "排名融合",
                     results.isEmpty() ? "empty" : "success",
-                    "按余弦相似度召回已授权文档片段", searchStart, results.size()));
+                    "按两路排名融合并限制单文档片段数", fusionStart, results.size()));
         }
 
         trace.setResultCount(results.size());
@@ -242,18 +252,63 @@ public class DocChunkServiceImpl implements DocChunkService {
         return current.getId();
     }
 
-    private List<String> searchByKeyword(String query, int limit, List<Long> accessibleDocIds) {
-        int size = Math.min(Math.max(limit, 1), 20);
+    private List<DocChunk> searchByKeyword(String query, int limit, List<Long> accessibleDocIds) {
         return docChunkMapper.selectList(new LambdaQueryWrapper<DocChunk>()
-                        .like(DocChunk::getContent, query.trim())
-                        .in(DocChunk::getDocId, accessibleDocIds)
-                        .orderByAsc(DocChunk::getDocId)
-                        .orderByAsc(DocChunk::getChunkIndex)
-                        .last("LIMIT " + size))
+                .like(DocChunk::getContent, query.trim())
+                .in(DocChunk::getDocId, accessibleDocIds)
+                .orderByAsc(DocChunk::getDocId)
+                .orderByAsc(DocChunk::getChunkIndex)
+                .orderByAsc(DocChunk::getId)
+                .last("LIMIT " + limit));
+    }
+
+    private record ScoredChunk(DocChunk chunk, double similarity) {}
+
+    private List<DocChunk> searchByVector(List<Float> query, int limit, List<Long> accessibleDocIds) {
+        return docChunkMapper.selectList(new LambdaQueryWrapper<DocChunk>()
+                        .isNotNull(DocChunk::getEmbedding).ne(DocChunk::getEmbedding, "")
+                        .in(DocChunk::getDocId, accessibleDocIds))
                 .stream()
+                .map(chunk -> {
+                    List<Float> vector = parseVector(chunk.getEmbedding());
+                    return new ScoredChunk(chunk, vector == null || vector.size() != query.size()
+                            ? Double.NaN : embeddingService.cosineSimilarity(query, vector));
+                })
+                .filter(candidate -> Double.isFinite(candidate.similarity())
+                        && candidate.similarity() >= MIN_SIMILARITY)
+                .sorted(Comparator.comparingDouble(ScoredChunk::similarity).reversed()
+                        .thenComparing(candidate -> candidate.chunk().getId(), Comparator.nullsLast(Long::compareTo)))
+                .limit(limit)
+                .map(ScoredChunk::chunk)
+                .toList();
+    }
+
+    private List<String> fuseChunks(List<DocChunk> keyword, List<DocChunk> vector, int limit, String query) {
+        Map<Object, DocChunk> chunks = new LinkedHashMap<>();
+        Map<Object, Double> scores = new HashMap<>();
+        for (List<DocChunk> channel : List.of(keyword, vector)) {
+            Set<Object> seen = new java.util.HashSet<>();
+            for (int index = 0; index < channel.size(); index++) {
+                DocChunk chunk = channel.get(index);
+                if (chunk.getContent() == null || chunk.getContent().isBlank()) continue;
+                Object key = chunk.getId() == null ? chunk : chunk.getId();
+                if (seen.add(key)) {
+                    chunks.putIfAbsent(key, chunk);
+                    scores.merge(key, 1.0 / (60 + index + 1), Double::sum);
+                }
+            }
+        }
+        Map<Long, Integer> counts = new HashMap<>();
+        List<DocChunk> ranked = chunks.keySet().stream()
+                .sorted(Comparator.<Object>comparingDouble(scores::get).reversed()
+                        .thenComparing(key -> chunks.get(key).getId(), Comparator.nullsLast(Long::compareTo)))
+                .map(chunks::get).toList();
+        return com.knowflow.knowledge.rag.RagCoverageReranker.rerank(query, ranked, DocChunk::getContent)
+                .stream()
+                .filter(chunk -> chunk.getDocId() == null || counts.merge(chunk.getDocId(), 1, Integer::sum) <= 3)
+                .limit(limit)
                 .map(DocChunk::getContent)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

@@ -17,6 +17,8 @@
       </div>
     </div>
 
+    <RagEvaluationPanel />
+
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-card border border-[var(--kf-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
@@ -696,6 +698,7 @@
 </template>
 
 <script setup lang="ts">
+import RagEvaluationPanel from './RagEvaluationPanel.vue'
 // 管理后台-知识库管理：维护知识库（分类）的增删改查、成员权限、批量导入 / 导出。
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, reactive, computed, onMounted } from 'vue'

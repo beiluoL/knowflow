@@ -80,6 +80,7 @@ watch(() => props.active, (active) => {
 const strategyLabel = computed(() => {
   switch (props.trace?.strategy) {
     case 'vector': return '向量检索'
+    case 'hybrid': return '混合检索'
     case 'keyword': return '关键词检索'
     case 'permission_denied': return '权限受限'
     case 'none': return '未检索'
@@ -110,6 +111,7 @@ function typeLabel(type?: string) {
     case 'permission_filter': return '权限过滤'
     case 'vector_search': return '向量检索'
     case 'keyword_search': return '关键词检索'
+    case 'rank_fusion': return '排名融合'
     case 'evidence': return '证据判断'
     case 'retrieval': return '知识库检索'
     default: return type || '检索步骤'
