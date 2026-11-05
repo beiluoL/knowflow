@@ -1,9 +1,16 @@
 package com.knowflow.support;
 
+import com.knowflow.ai.service.EmbeddingService;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.service.KbMemberService;
+
+
 import com.knowflow.KnowFlowApplication;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
-import com.knowflow.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.TestConfiguration;

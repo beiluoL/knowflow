@@ -1,9 +1,12 @@
 package com.knowflow.controller;
 
+import com.knowflow.learning.controller.LearningController;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.LearningPath;
-import com.knowflow.entity.LearningTask;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.entity.LearningTask;
+import com.knowflow.learning.service.LearningService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;

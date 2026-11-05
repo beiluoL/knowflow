@@ -1,6 +1,6 @@
 package com.knowflow.seed;
 
-import com.knowflow.entity.SysUser;
+import com.knowflow.identity.entity.SysUser;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** Promoting an existing learner must not remove their own activated material.

@@ -1,4 +1,5 @@
 package com.knowflow.controller;
+import com.knowflow.support.ActiveIdentityFixtures;
 import com.fasterxml.jackson.databind.*;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
@@ -18,8 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:note_organization;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.datasource.config-file=/tmp/knowflow-note-organization-no-config.json"})
 class NoteOrganizationHttpTest {
+ @Autowired org.springframework.jdbc.core.JdbcTemplate sql;
  @Autowired MockMvc mvc;@Autowired JwtUtils jwt;@Autowired ObjectMapper json;
  JsonNode call(String method,String path,Object body,long user,int code)throws Exception {
+  ActiveIdentityFixtures.ensureActive(sql, user, "org-" + user, "USER");
   var req=switch(method){case "POST"->post(path);case "PUT"->put(path);case "DELETE"->delete(path);default->get(path);};
   var r=mvc.perform(req.header("Authorization","Bearer "+jwt.generateToken(user,"org-"+user,"USER")).contentType("application/json").content(body==null?"":json.writeValueAsString(body))).andExpect(status().is(code)).andExpect(jsonPath("$.code").value(code)).andReturn();
   return json.readTree(r.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("data");
@@ -56,6 +59,7 @@ class NoteOrganizationHttpTest {
  @Test void imageUploadIsAuthenticatedAndRejectsActiveContent()throws Exception {
   var svg=new org.springframework.mock.web.MockMultipartFile("file","unsafe.svg","image/svg+xml","<svg onload='alert(1)'/>".getBytes());
   mvc.perform(multipart("/api/notes/images").file(svg)).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value(401));
+  ActiveIdentityFixtures.ensureActive(sql, 99225L, "image-user", "USER");
   mvc.perform(multipart("/api/notes/images").file(svg).header("Authorization","Bearer "+jwt.generateToken(99225L,"image-user","USER"))).andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value(400));
   var png=new org.springframework.mock.web.MockMultipartFile("file","safe.png","image/png",java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jx1sAAAAASUVORK5CYII="));
   mvc.perform(multipart("/api/notes/images").file(png).header("Authorization","Bearer "+jwt.generateToken(99225L,"image-user","USER"))).andExpect(status().isOk()).andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.startsWith("data:image/png;base64,")));

@@ -1,6 +1,6 @@
 package com.knowflow.controller;
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.service.impl.AiServiceImpl;
+import com.knowflow.ai.service.impl.AiServiceImpl;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +16,29 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProductFeedbackHttpTest {
  @Autowired ObjectMapper json;@Autowired JdbcTemplate sql;@Autowired JwtUtils jwt;@MockBean AiServiceImpl ai;
  @org.springframework.boot.test.web.server.LocalServerPort int port;
- final java.net.http.HttpClient client=java.net.http.HttpClient.newHttpClient();long owner;
- JsonNode call(String method,String path,Object body,long user,int expected)throws Exception{var b=java.net.http.HttpRequest.newBuilder(java.net.URI.create("http://127.0.0.1:"+port+path)).timeout(java.time.Duration.ofSeconds(20)).header("Content-Type","application/json");if(user>0)b.header("Authorization","Bearer "+jwt.generateToken(user,"product03-"+user,user==owner+2?"ADMIN":"USER"));var r=client.send(b.method(method,body==null?java.net.http.HttpRequest.BodyPublishers.noBody():java.net.http.HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body))).build(),java.net.http.HttpResponse.BodyHandlers.ofString());assertEquals(expected,r.statusCode(),path+" "+r.body());var result=json.readTree(r.body());assertEquals(expected,result.path("code").asInt());return result.path("data");}
- @BeforeEach void setup()throws Exception{String name="p03"+UUID.randomUUID().toString().replace("-","");var user=call("POST","/api/auth/register",Map.of("username",name.substring(0,20),"password","SyntheticOnly!27","email",name+"@example.test"),0,200);owner=jwt.getUserIdFromToken(user.path("token").asText());when(ai.isConfigured(anyLong())).thenReturn(true);when(ai.currentScope(anyLong())).thenReturn("test:contract");}
+ final java.net.http.HttpClient client=java.net.http.HttpClient.newHttpClient();
+ long owner;
+ long otherUser;
+ long adminUser;
+ JsonNode call(String method,String path,Object body,long user,int expected)throws Exception{var b=java.net.http.HttpRequest.newBuilder(java.net.URI.create("http://127.0.0.1:"+port+path)).timeout(java.time.Duration.ofSeconds(20)).header("Content-Type","application/json");if(user>0)b.header("Authorization","Bearer "+jwt.generateToken(user,"product03-"+user,user==adminUser?"ADMIN":"USER"));var r=client.send(b.method(method,body==null?java.net.http.HttpRequest.BodyPublishers.noBody():java.net.http.HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body))).build(),java.net.http.HttpResponse.BodyHandlers.ofString());assertEquals(expected,r.statusCode(),path+" "+r.body());var result=json.readTree(r.body());assertEquals(expected,result.path("code").asInt());return result.path("data");}
+ @BeforeEach void setup() throws Exception {
+  owner = registerAccount();
+  otherUser = registerAccount();
+  adminUser = registerAccount();
+  // Authentication reads the current database role; a token claim cannot grant admin access.
+  assertEquals(1, sql.update("UPDATE sys_user SET role='ADMIN' WHERE id=? AND deleted=0", adminUser));
+  when(ai.isConfigured(anyLong())).thenReturn(true);
+  when(ai.currentScope(anyLong())).thenReturn("test:contract");
+ }
+
+ /** Create an independent persisted subject so cross-owner requests reach business authorization. */
+ private long registerAccount() throws Exception {
+  String name = "p03" + UUID.randomUUID().toString().replace("-", "");
+  var user = call("POST", "/api/auth/register",
+    Map.of("username", name.substring(0, 20), "password", "SyntheticOnly!27", "email", name + "@example.test"),
+    0, 200);
+  return jwt.getUserIdFromToken(user.path("token").asText());
+ }
  record Source(long note,long quiz,long attempt){}
  Source wrong()throws Exception{
   long note=call("POST","/api/notes",Map.of("title","MVCC合成资料","content","Read View用于判断版本可见性。快照读不同于当前读。"),owner,200).path("id").asLong();
@@ -29,7 +49,7 @@ class ProductFeedbackHttpTest {
   var source=wrong();when(ai.completeStructured(anyString(),anyString(),isNull(),eq(owner))).thenReturn("{\"labels\":[\"UNKNOWN\"],\"findings\":[{\"label\":\"UNKNOWN\",\"answerQuote\":\"false\",\"basisQuote\":\"Read View用于判断版本可见性。\",\"issue\":\"选择与题版依据冲突\",\"missingKnowledge\":\"Read View可见性\",\"practice\":\"对照概念后单题复练\"}],\"uncertainty\":\"仅选择题不能确定认知原因\",\"confidence\":\"LOW\"}");
   var input=Map.of("sourceType","PRIVATE_ATTEMPT","sourceId",source.attempt(),"questionIndex",0,"requestId",UUID.randomUUID().toString());var d=call("POST","/api/learning/error-annotations",input,owner,200);long id=d.path("id").asLong();assertEquals("UNKNOWN",d.path("original").path("labels").get(0).asText());assertEquals(id,call("POST","/api/learning/error-annotations",input,owner,200).path("id").asLong());verify(ai,times(1)).completeStructured(anyString(),anyString(),isNull(),eq(owner));
   var change=Map.of("expectedRevision",1,"requestId",UUID.randomUUID().toString(),"labels",List.of("CONCEPT","PRINCIPLE"),"note","我实际混淆了版本可见性与加锁读");d=call("POST","/api/learning/error-annotations/"+id+"/corrections",change,owner,200);assertEquals(2,d.path("revision").asInt());assertEquals(2,d.path("history").size());assertEquals("UNKNOWN",d.path("original").path("labels").get(0).asText());assertEquals(2,call("POST","/api/learning/error-annotations/"+id+"/corrections",change,owner,200).path("revision").asInt());
-  for(long user:new long[]{owner+1,owner+2})call("GET","/api/learning/error-annotations/"+id,null,user,404);
+  for(long user:new long[]{otherUser,adminUser})call("GET","/api/learning/error-annotations/"+id,null,user,404);
   var practice=call("GET","/api/learning/error-annotations/"+id+"/practice",null,owner,200);assertEquals(source.note(),practice.path("noteId").asLong());assertEquals(0,practice.path("completedCount").asInt());
   when(ai.completeStructured(anyString(),anyString(),isNull(),eq(owner))).thenReturn("{\"analogy\":\"像读历史账本\",\"concept\":\"Read View用于判断版本可见性\",\"sourceQuote\":\"Read View用于判断版本可见性。\"}");long micro=call("POST","/api/learning/micro-challenges",Map.of("noteId",source.note(),"quizId",source.quiz(),"questionIndex",0,"requestId",UUID.randomUUID().toString()),owner,200).path("id").asLong();
   call("POST","/api/learning/error-annotations/"+id+"/practice",Map.of("microId",micro),owner,409);call("POST","/api/learning/micro-challenges/"+micro+"/begin",Map.of(),owner,200);call("POST","/api/learning/micro-challenges/"+micro+"/submit",Map.of("answer","true"),owner,200);assertEquals(1,call("POST","/api/learning/error-annotations/"+id+"/practice",Map.of("microId",micro),owner,200).path("completedCount").asInt());assertEquals(1,call("POST","/api/learning/error-annotations/"+id+"/practice",Map.of("microId",micro),owner,200).path("completedCount").asInt());
@@ -46,7 +66,7 @@ class ProductFeedbackHttpTest {
   var confirmation=Map.of("expectedVersion",1,"variants",variants);var saved=call("POST","/api/learning/question-variants/"+id+"/confirm",confirmation,owner,200);assertFalse(saved.path("variants").get(0).path("question").has("answer"));call("POST","/api/learning/question-variants/"+id+"/confirm",confirmation,owner,200);
   String key=UUID.randomUUID().toString();var attempt=call("POST","/api/learning/question-variants/"+id+"/attempts",Map.of("requestId",key),owner,200);assertEquals(2,attempt.path("questions").size());assertFalse(attempt.path("questions").get(0).has("answer"));assertEquals(attempt.path("id"),call("POST","/api/learning/question-variants/"+id+"/attempts",Map.of("requestId",key),owner,200).path("id"));
   var result=call("POST","/api/learning/question-variants/"+id+"/submit",Map.of("attemptId",attempt.path("id").asLong(),"answers",List.of("true","false")),owner,200);assertEquals(100,result.path("score").asInt());assertEquals(0,call("GET","/api/learning/private-quizzes/attempts/"+source.attempt(),null,owner,200).path("score").asInt());assertEquals(1,call("GET","/api/learning/question-variants/"+id,null,owner,200).path("attempts").size());
-  for(long u:new long[]{owner+1,owner+2})call("GET","/api/learning/question-variants/"+id,null,u,404);call("GET","/api/learning/question-variants/"+id,null,0,401);
+  for(long u:new long[]{otherUser,adminUser})call("GET","/api/learning/question-variants/"+id,null,u,404);call("GET","/api/learning/question-variants/"+id,null,0,401);
  }
 
  @Test void optionOnlyAnswerCannotBecomeCertainCauseEvenWhenModelClaimsIt()throws Exception {

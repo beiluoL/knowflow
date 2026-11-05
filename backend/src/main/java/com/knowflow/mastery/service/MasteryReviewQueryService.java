@@ -1,8 +1,8 @@
 package com.knowflow.mastery.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.KnowledgeMastery;
-import com.knowflow.mapper.KnowledgeMasteryMapper;
+import com.knowflow.mastery.entity.KnowledgeMastery;
+import com.knowflow.mastery.mapper.KnowledgeMasteryMapper;
 import com.knowflow.mastery.contract.MasteryReviewQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

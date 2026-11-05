@@ -1,7 +1,7 @@
 package com.knowflow.techenglish;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.TechVocabConceptLink;
+import com.knowflow.techenglish.entity.TechVocabConceptLink;
 import com.knowflow.techenglish.mapper.TechVocabConceptLinkMapper;
 import com.knowflow.techenglish.mapper.TechVocabPronunciationMapper;
 import com.knowflow.techenglish.mapper.TechVocabTermMapper;

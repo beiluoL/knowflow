@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureMockMvc @ActiveProfiles("local")
 class CareerWorkflowHttpTest {
  @Autowired MockMvc mvc;@Autowired ObjectMapper json;@Autowired JwtUtils jwt;@Autowired JdbcTemplate jdbc;
- @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+ @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
  String token(long id){return "Bearer "+jwt.generateToken(id,"career-fixture",id==1?"ADMIN":"USER");}
  JsonNode post(String path,Object body,long user,int expected)throws Exception{
   var response=mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(path).header("Authorization",token(user)).contentType("application/json").content(json.writeValueAsString(body))).andExpect(status().is(expected)).andExpect(jsonPath("$.code").value(expected)).andReturn();

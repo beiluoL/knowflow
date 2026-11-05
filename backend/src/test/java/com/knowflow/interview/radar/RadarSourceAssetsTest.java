@@ -1,9 +1,9 @@
 package com.knowflow.interview.radar;
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.seed.InterviewRadarImportService;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.service.LearningService;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.Test;

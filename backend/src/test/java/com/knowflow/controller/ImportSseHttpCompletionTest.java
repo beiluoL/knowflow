@@ -1,8 +1,8 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.DocCategory;
-import com.knowflow.mapper.DocCategoryMapper;
-import com.knowflow.service.EmbeddingService;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.ai.service.EmbeddingService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ImportSseHttpCompletionTest {
     @Autowired TestRestTemplate http; @Autowired JwtUtils jwt; @Autowired DocCategoryMapper categories;
     @MockBean EmbeddingService embedding;
-    @org.springframework.boot.test.mock.mockito.SpyBean com.knowflow.service.KnowledgeService knowledge;
+    @org.springframework.boot.test.mock.mockito.SpyBean com.knowflow.knowledge.service.KnowledgeService knowledge;
     @Test void authenticatedMultipartStreamEndsWithCompleteEvent() {
         java.util.concurrent.atomic.AtomicReference<Long> extractionActor=new java.util.concurrent.atomic.AtomicReference<>();
         org.mockito.Mockito.doAnswer(call->{extractionActor.set(com.knowflow.common.SecurityUtils.getCurrentUserIdNullable());return call.callRealMethod();}).when(knowledge).extractDoc(org.mockito.ArgumentMatchers.anyLong());

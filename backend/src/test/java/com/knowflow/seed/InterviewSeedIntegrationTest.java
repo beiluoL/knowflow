@@ -1,7 +1,7 @@
 package com.knowflow.seed;
 
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;
@@ -118,12 +118,12 @@ class InterviewSeedIntegrationTest {
         jdbc.update("UPDATE resource_knowledge_mapping SET deleted=1 WHERE resource_type='FLASHCARD' AND resource_id=?",card);
         var error=assertThrows(com.knowflow.exception.BusinessException.class,()->depth.activate(owner.getId()));assertEquals(409,error.getCode());
     }
-    @Autowired com.knowflow.mapper.LearningPathMapper pathMapper;
-    @Autowired com.knowflow.mapper.LearningChapterMapper chapterMapper;
+    @Autowired com.knowflow.learning.mapper.LearningPathMapper pathMapper;
+    @Autowired com.knowflow.learning.mapper.LearningChapterMapper chapterMapper;
     @Test void chapterFavoritesAndNotesRejectForeignResourcesAndMismatchedContext() throws Exception {
         SysUser owner=user("USER"),other=user("USER");
-        var p=new com.knowflow.entity.LearningPath();p.setTitle("Private");p.setOwnerUserId(owner.getId());p.setStatus(1);pathMapper.insert(p);
-        var c=new com.knowflow.entity.LearningChapter();c.setPathId(p.getId());c.setTitle("Private chapter");c.setSortOrder(1);chapterMapper.insert(c);
+        var p=new com.knowflow.learning.entity.LearningPath();p.setTitle("Private");p.setOwnerUserId(owner.getId());p.setStatus(1);pathMapper.insert(p);
+        var c=new com.knowflow.learning.entity.LearningChapter();c.setPathId(p.getId());c.setTitle("Private chapter");c.setSortOrder(1);chapterMapper.insert(c);
         mvc.perform(post("/api/learning/chapters/"+c.getId()+"/favorite").header("Authorization",auth(other))).andExpect(status().isForbidden());
         mvc.perform(post("/api/learning/notes").header("Authorization",auth(other)).contentType("application/json").content("{\"title\":\"x\",\"chapterId\":"+c.getId()+",\"pathId\":"+p.getId()+"}")).andExpect(status().isForbidden());
         service.activate(owner.getId());long publicPath=jdbc.queryForObject("SELECT resource_id FROM interview_seed_resource WHERE seed_key=? AND resource_key='shared/java-core/path'",Long.class,InterviewSeedCatalog.KEY);
@@ -150,7 +150,7 @@ class InterviewSeedIntegrationTest {
             .andExpect(jsonPath("$.data.revision").doesNotExist());
         mvc.perform(post("/api/learning/seed/java-ai-v1/collections-depth").header("Authorization",auth(user("ADMIN")))).andExpect(status().isForbidden());
     }
-    @Autowired com.knowflow.service.UserService registration;
+    @Autowired com.knowflow.identity.service.UserService registration;
     @Autowired org.springframework.security.crypto.password.PasswordEncoder passwords;
 
     @Test void developmentAccountIsRegisteredWithPackOnceAndNoFakeHistory() throws Exception {
@@ -158,7 +158,7 @@ class InterviewSeedIntegrationTest {
         env.setActiveProfiles("local");env.setProperty("knowflow.seed.development-account.enabled","true");
         var bootstrap=new DevelopmentInterviewAccount(env,jdbc,users,registration,passwords,service);
         var before=history();bootstrap.run(null);
-        var login=new com.knowflow.dto.LoginDTO();login.setUsername("seed-personal-v1");login.setPassword("SeedInterview!2026");
+        var login=new com.knowflow.identity.dto.LoginDTO();login.setUsername("seed-personal-v1");login.setPassword("SeedInterview!2026");
         var authenticated=registration.login(login);
         Long actor=authenticated.getUser().getId();
         assertEquals("USER",authenticated.getUser().getRole());
@@ -228,7 +228,7 @@ class InterviewSeedIntegrationTest {
         Long chapter=jdbc.queryForObject("SELECT resource_id FROM interview_seed_resource WHERE resource_type='CHAPTER' ORDER BY resource_id LIMIT 1",Long.class);
         mvc.perform(get("/api/learning/seed/java-ai-v1/chapters/"+chapter).header("Authorization",auth(owner))).andExpect(status().isOk()).andExpect(jsonPath("$.data.questions.length()").value(3)).andExpect(jsonPath("$.data.notes.length()").value(3));
         var bundle=service.chapterResources(owner.getId(),chapter);
-        com.knowflow.entity.CodeQuestion exercise=(com.knowflow.entity.CodeQuestion)bundle.get("exercise");
+        com.knowflow.coding.entity.CodeQuestion exercise=(com.knowflow.coding.entity.CodeQuestion)bundle.get("exercise");
         mvc.perform(get("/api/code-questions/"+exercise.getId()).header("Authorization",auth(owner))).andExpect(status().isOk()).andExpect(jsonPath("$.data.language").value("java"));
         mvc.perform(get("/api/learning/seed/java-ai-v1/chapters/"+chapter).header("Authorization",auth(other))).andExpect(status().isOk()).andExpect(jsonPath("$.data.notes.length()").value(0));
     }

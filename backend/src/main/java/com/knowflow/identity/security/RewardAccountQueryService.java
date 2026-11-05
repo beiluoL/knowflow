@@ -1,7 +1,7 @@
 package com.knowflow.identity.security;
 
 import com.knowflow.identity.contract.RewardAccountQuery;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

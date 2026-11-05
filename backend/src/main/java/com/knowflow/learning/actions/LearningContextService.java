@@ -1,12 +1,31 @@
 package com.knowflow.learning.actions;
 
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.productivity.entity.Task;
+import com.knowflow.productivity.mapper.TaskMapper;
+
+
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.learning.entity.LearningUserPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.learning.mapper.LearningUserChapterMapper;
+import com.knowflow.learning.mapper.LearningUserPathMapper;
+import com.knowflow.mastery.contract.MasteryReviewQuery;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.*;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.*;
 import com.knowflow.security.DocumentAccessPolicy;
-import com.knowflow.service.LearningGoalService;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.service.LearningGoalService;
+import com.knowflow.learning.service.LearningService;
 import java.time.*;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +35,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class LearningContextService {
-    private final com.knowflow.service.ResourceKnowledgeService mappings;
+    private final com.knowflow.mastery.service.ResourceKnowledgeService mappings;
     private final LearningFlashcardMapper flashcards;
     private final com.knowflow.flashcards.FlashcardFsrsService fsrs;
-    private final KnowledgeMasteryMapper mastery;
+    private final MasteryReviewQuery mastery;
     private final KgEntityMapper knowledge;
     private final DocDocumentMapper docs;
     private final LearningUserPathMapper enrolled;
@@ -32,8 +51,8 @@ public class LearningContextService {
     private final LearningService learning;
     private final LearningGoalService goals;
     private final DocumentAccessPolicy access;
-    private final com.knowflow.exam.mapper.ExamAttemptMapper exams;
-    private final com.knowflow.interview.mapper.MockInterviewSessionMapper interviews;
+    private final com.knowflow.exam.contract.RecentExamActivityQuery exams;
+    private final com.knowflow.interview.contract.RecentInterviewActivityQuery interviews;
 
     public PlanModels.Context read(Long user, PlanModels.Request req) {
         if (user == null) throw new BusinessException(401, "未登录");
@@ -42,226 +61,17 @@ public class LearningContextService {
         List<PlanModels.Candidate> c = new ArrayList<>();
         List<String> missing = new ArrayList<>();
         Map<String, Object> facts = new LinkedHashMap<>();
-        var settings = fsrs.settings(user);
-        var now = Instant.now();
-        var dueCards =
-                flashcards.selectList(
-                        new LambdaQueryWrapper<LearningFlashcard>()
-                                .eq(LearningFlashcard::getUserId, user)
-                                .isNotNull(LearningFlashcard::getNextReviewTime)
-                                .le(
-                                        LearningFlashcard::getNextReviewTime,
-                                        LocalDateTime.ofInstant(now, ZoneId.systemDefault()))
-                                .orderByAsc(LearningFlashcard::getNextReviewTime)
-                                .orderByAsc(LearningFlashcard::getId)
-                                .last("LIMIT 50"));
-        facts.put("dueFlashcards", dueCards.size());
-        facts.put("dueFlashcardsBounded", dueCards.size() == 50);
-        facts.put("fsrsTimezone", settings.timezone());
-        facts.put("fsrsDayStartHour", settings.dayStartHour());
-        for (var card : dueCards.stream().limit(3).toList())
-            c.add(
-                    new PlanModels.Candidate(
-                            "flashcard:" + card.getId(),
-                            "到期主动回忆："
-                                    + card.getFront()
-                                            .replaceAll("\\s+", " ")
-                                            .substring(0, Math.min(60, card.getFront().replaceAll("\\s+", " ").length())),
-                            "REVIEW",
-                            "FLASHCARD",
-                            card.getId(),
-                            card.getPathId(),
-                            null,
-                            "本人原Card的next_review_time已到期（" + card.getNextReviewTime() + "）；下次时间由原FSRS四档评分决定",
-                            "先揭晓答案，再提交一次真实FSRS评分；自评不是客观正确率",
-                            -10));
+        var now = addDueFlashcards(user, c, facts);
         var goal = goals.activeGoal(user);
         if (goal == null) missing.add("学习目标");
         else facts.put("goal", Map.of("title", goal.getTitle()));
-        var mastered =
-                mastery.selectList(
-                        new LambdaQueryWrapper<KnowledgeMastery>()
-                                .eq(KnowledgeMastery::getUserId, user)
-                                .orderByAsc(KnowledgeMastery::getNextReviewAt)
-                                .last("LIMIT 20"));
-        int evidence = 0;
-        for (var m : mastered) {
-            if ((m.getLastLearnedAt() == null
-                            && m.getLastReviewedAt() == null
-                            && m.getLastAssessedAt() == null)
-                    || m.getConfidenceScore() == null
-                    || m.getConfidenceScore() <= 0) continue;
-            var k = knowledge.selectById(m.getKnowledgeId());
-            if (!readable(k, user)) continue;
-            evidence++;
-            boolean due =
-                    m.getNextReviewAt() != null
-                            && !m.getNextReviewAt().isAfter(LocalDateTime.ofInstant(now, ZoneId.systemDefault()));
-            boolean weak = "WEAK".equals(m.getLearningStatus()) && m.getConfidenceScore() >= 30;
-            if (due || weak)
-                c.add(
-                        new PlanModels.Candidate(
-                                "knowledge:" + k.getId(),
-                                (due ? "到期复习：" : "巩固：") + k.getName(),
-                                due ? "REVIEW" : "THEORY",
-                                "KNOWLEDGE",
-                                k.getId(),
-                                null,
-                                k.getId(),
-                                due ? "本人真实复习日期已到期" : "本人掌握记录标记WEAK且置信度≥30",
-                                "回忆后核对来源，记录不确定点",
-                                due ? 0 : 10));
-        }
-        if (evidence == 0) missing.add("有效掌握证据（没有数据不等于薄弱）；先提交客观练习建立初始诊断");
-        facts.put("masteryRecordsWithEvidence", evidence);
-        var paths =
-                enrolled.selectList(
-                        new LambdaQueryWrapper<LearningUserPath>()
-                                .eq(LearningUserPath::getUserId, user)
-                                .orderByDesc(LearningUserPath::getUpdateTime)
-                                .last("LIMIT 12"));
-        for (var p : paths) {
-            // Existing path ownership and publication checks remain authoritative.
-            com.knowflow.vo.LearningPathVO path;
-            try {
-                path = learning.getPathDetail(p.getPathId(), user);
-            } catch (BusinessException ex) {
-                if (ex.getCode() == 403 || ex.getCode() == 404) continue;
-                throw ex;
-            }
-            // Filter completed rows in SQL before LIMIT: long paths must not disappear after chapter
-            // twelve.
-            var pending =
-                    chapters.selectList(
-                            new LambdaQueryWrapper<LearningChapter>()
-                                    .eq(LearningChapter::getPathId, p.getPathId())
-                                    .apply(
-                                            "NOT EXISTS (SELECT 1 FROM learning_user_chapter uc WHERE"
-                                                    + " uc.chapter_id=learning_chapter.id AND uc.user_id={0} AND uc.deleted=0"
-                                                    + " AND uc.complete_time IS NOT NULL)",
-                                            user)
-                                    .orderByAsc(LearningChapter::getSortOrder)
-                                    .orderByAsc(LearningChapter::getId)
-                                    .last("LIMIT 12"));
-            if (!pending.isEmpty()) {
-                var ch = pending.get(0);
-                c.add(
-                        new PlanModels.Candidate(
-                                "chapter:" + ch.getId(),
-                                "学习：" + path.getTitle() + " · " + ch.getTitle(),
-                                "THEORY",
-                                "CHAPTER",
-                                ch.getId(),
-                                p.getPathId(),
-                                null,
-                                "本人已采用路径中的未完成章节",
-                                "阅读并复述关键概念、边界与例子",
-                                30));
-            }
-        }
-        if (paths.isEmpty()) missing.add("已采用学习路径");
-        var wrong =
-                mistakes.selectList(
-                        new LambdaQueryWrapper<LearningMistake>()
-                                .eq(LearningMistake::getUserId, user)
-                                .eq(LearningMistake::getMastered, 0)
-                                .orderByDesc(LearningMistake::getCreateTime)
-                                .last("LIMIT 5"));
-        for (var w : wrong) {
-            if (w.getQuestionId() == null) continue;
-            var q = questions.selectById(w.getQuestionId());
-            if (!readableQuestion(q, user)) continue;
-            c.add(
-                    new PlanModels.Candidate(
-                            "mistake:" + w.getId(),
-                            "复盘错题：" + q.getTitle(),
-                            "REVIEW",
-                            "QUIZ",
-                            q.getId(),
-                            null,
-                            knowledgeFor(q.getId(), user),
-                            "本人未掌握的真实错题，不推断未作答题的正确率",
-                            "重新作答并解释错误原因",
-                            5));
-        }
-        for (var w : wrong) {
-            if (w.getQuestionId() == null) continue;
-            var q = questions.selectById(w.getQuestionId());
-            if (!readableQuestion(q, user)) continue;
-            Long kid = knowledgeFor(q.getId(), user);
-            if (kid == null) continue;
-            var recall =
-                    flashcards.selectList(
-                            new LambdaQueryWrapper<LearningFlashcard>()
-                                    .eq(LearningFlashcard::getUserId, user)
-                                    .apply(
-                                            "EXISTS (SELECT 1 FROM resource_knowledge_mapping m WHERE"
-                                                    + " m.resource_type='FLASHCARD' AND m.resource_id=learning_flashcard.id"
-                                                    + " AND m.knowledge_id={0} AND m.status='ACCEPTED' AND m.deleted=0)",
-                                            kid)
-                                    .orderByAsc(LearningFlashcard::getId)
-                                    .last("LIMIT 1"));
-            for (var card : recall)
-                if (c.stream().noneMatch(x -> x.key().equals("flashcard:" + card.getId())))
-                    c.add(
-                            new PlanModels.Candidate(
-                                    "flashcard:" + card.getId(),
-                                    "主动回忆补救：" + q.getTitle(),
-                                    "REVIEW",
-                                    "FLASHCARD",
-                                    card.getId(),
-                                    card.getPathId(),
-                                    kid,
-                                    "本人真实错题 #" + w.getId() + " 与此卡共享已接受的知识映射；不推断未作答表现",
-                                    "揭晓后提交一次真实FSRS评分；任务完成不等于知识掌握",
-                                    6));
-        }
-        for (String type : List.of("TRUE_FALSE", "SINGLE_CHOICE", "SHORT_ANSWER", "CODE")) {
-            var pool =
-                    questions.selectList(
-                            new LambdaQueryWrapper<QuizQuestion>()
-                                    .eq(QuizQuestion::getQuestionType, type)
-                                    .eq(QuizQuestion::getStatus, 1)
-                                    .eq(QuizQuestion::getReviewStatus, "APPROVED")
-                                    .orderByAsc(QuizQuestion::getId)
-                                    .last("LIMIT 50"));
-            for (var q : pool) {
-                if (!readableQuestion(q, user) || !matchesFocus(q, req.getFocusTopics())) continue;
-                c.add(
-                        new PlanModels.Candidate(
-                                "question:" + q.getId(),
-                                ("CODE".equals(type) ? "代码练习：" : "练习：") + q.getTitle(),
-                                "CODE".equals(type) ? "CODE" : "PRACTICE",
-                                "QUIZ",
-                                q.getId(),
-                                null,
-                                knowledgeFor(q.getId(), user),
-                                "本人可读、已发布的真实题库资源",
-                                "实际作答并核对解析；打开页面不算完成",
-                                50));
-                break;
-            }
-        }
+        addMasteryCandidates(user, now, c, missing, facts);
+        addPathCandidates(user, c, missing);
+        var wrong = addMistakeCandidates(user, c);
+        addPracticeCandidates(user, req, c);
         if (wrong.isEmpty()) missing.add("错题记录");
         facts.put("unmasteredMistakes", wrong.size());
-        var recentExams =
-                exams.selectList(
-                        new LambdaQueryWrapper<com.knowflow.exam.entity.ExamAttempt>()
-                                .eq(com.knowflow.exam.entity.ExamAttempt::getUserId, user)
-                                .orderByDesc(com.knowflow.exam.entity.ExamAttempt::getCreateTime)
-                                .last("LIMIT 3"));
-        if (recentExams.isEmpty()) missing.add("近期考试记录");
-        facts.put(
-                "recentExamStatuses",
-                recentExams.stream().map(e -> Objects.toString(e.getStatus(), "UNKNOWN")).toList());
-        var recentInterviews =
-                interviews.selectList(
-                        new LambdaQueryWrapper<com.knowflow.interview.entity.MockInterviewSession>()
-                                .eq(com.knowflow.interview.entity.MockInterviewSession::getUserId, user)
-                                .orderByDesc(com.knowflow.interview.entity.MockInterviewSession::getCreateTime)
-                                .last("LIMIT 3"));
-        if (recentInterviews.isEmpty()) missing.add("近期模拟面试记录");
-        facts.put("recentInterviewCount", recentInterviews.size());
+        addRecentActivity(user, missing, facts);
         int today =
                 Math.toIntExact(
                         tasks.selectCount(
@@ -343,5 +153,219 @@ public class LearningContextService {
         } catch (DateTimeException ex) {
             throw new BusinessException(400, "无效时区");
         }
+    }
+
+    private Instant addDueFlashcards(Long user, List<PlanModels.Candidate> c, Map<String, Object> facts) {
+        var settings = fsrs.settings(user);
+        var now = Instant.now();
+        var dueCards =
+                flashcards.selectList(
+                        new LambdaQueryWrapper<LearningFlashcard>()
+                                .eq(LearningFlashcard::getUserId, user)
+                                .isNotNull(LearningFlashcard::getNextReviewTime)
+                                .le(
+                                        LearningFlashcard::getNextReviewTime,
+                                        LocalDateTime.ofInstant(now, ZoneId.systemDefault()))
+                                .orderByAsc(LearningFlashcard::getNextReviewTime)
+                                .orderByAsc(LearningFlashcard::getId)
+                                .last("LIMIT 50"));
+        facts.put("dueFlashcards", dueCards.size());
+        facts.put("dueFlashcardsBounded", dueCards.size() == 50);
+        facts.put("fsrsTimezone", settings.timezone());
+        facts.put("fsrsDayStartHour", settings.dayStartHour());
+        for (var card : dueCards.stream().limit(3).toList())
+            c.add(
+                    new PlanModels.Candidate(
+                            "flashcard:" + card.getId(),
+                            "到期主动回忆："
+                                    + card.getFront()
+                                            .replaceAll("\\s+", " ")
+                                            .substring(0, Math.min(60, card.getFront().replaceAll("\\s+", " ").length())),
+                            "REVIEW",
+                            "FLASHCARD",
+                            card.getId(),
+                            card.getPathId(),
+                            null,
+                            "本人原Card的next_review_time已到期（" + card.getNextReviewTime() + "）；下次时间由原FSRS四档评分决定",
+                            "先揭晓答案，再提交一次真实FSRS评分；自评不是客观正确率",
+                            -10));
+        return now;
+    }
+
+    private void addMasteryCandidates(Long user, Instant now, List<PlanModels.Candidate> c, List<String> missing, Map<String, Object> facts) {
+        var mastered = mastery.listCandidates(user);
+        int evidence = 0;
+        for (var m : mastered) {
+            if (!m.hasActivity() || m.confidenceScore() == null || m.confidenceScore() <= 0) continue;
+            var k = knowledge.selectById(m.knowledgeId());
+            if (!readable(k, user)) continue;
+            evidence++;
+            boolean due =
+                    m.nextReviewAt() != null
+                            && !m.nextReviewAt().isAfter(LocalDateTime.ofInstant(now, ZoneId.systemDefault()));
+            boolean weak = "WEAK".equals(m.learningStatus()) && m.confidenceScore() >= 30;
+            if (due || weak)
+                c.add(
+                        new PlanModels.Candidate(
+                                "knowledge:" + k.getId(),
+                                (due ? "到期复习：" : "巩固：") + k.getName(),
+                                due ? "REVIEW" : "THEORY",
+                                "KNOWLEDGE",
+                                k.getId(),
+                                null,
+                                k.getId(),
+                                due ? "本人真实复习日期已到期" : "本人掌握记录标记WEAK且置信度≥30",
+                                "回忆后核对来源，记录不确定点",
+                                due ? 0 : 10));
+        }
+        if (evidence == 0) missing.add("有效掌握证据（没有数据不等于薄弱）；先提交客观练习建立初始诊断");
+        facts.put("masteryRecordsWithEvidence", evidence);
+    }
+
+    private void addPathCandidates(Long user, List<PlanModels.Candidate> c, List<String> missing) {
+        var paths =
+                enrolled.selectList(
+                        new LambdaQueryWrapper<LearningUserPath>()
+                                .eq(LearningUserPath::getUserId, user)
+                                .orderByDesc(LearningUserPath::getUpdateTime)
+                                .last("LIMIT 12"));
+        for (var p : paths) {
+            // Existing path ownership and publication checks remain authoritative.
+            com.knowflow.learning.vo.LearningPathVO path;
+            try {
+                path = learning.getPathDetail(p.getPathId(), user);
+            } catch (BusinessException ex) {
+                if (ex.getCode() == 403 || ex.getCode() == 404) continue;
+                throw ex;
+            }
+            // Filter completed rows in SQL before LIMIT: long paths must not disappear after chapter
+            // twelve.
+            var pending =
+                    chapters.selectList(
+                            new LambdaQueryWrapper<LearningChapter>()
+                                    .eq(LearningChapter::getPathId, p.getPathId())
+                                    .apply(
+                                            "NOT EXISTS (SELECT 1 FROM learning_user_chapter uc WHERE"
+                                                    + " uc.chapter_id=learning_chapter.id AND uc.user_id={0} AND uc.deleted=0"
+                                                    + " AND uc.complete_time IS NOT NULL)",
+                                            user)
+                                    .orderByAsc(LearningChapter::getSortOrder)
+                                    .orderByAsc(LearningChapter::getId)
+                                    .last("LIMIT 12"));
+            if (!pending.isEmpty()) {
+                var ch = pending.get(0);
+                c.add(
+                        new PlanModels.Candidate(
+                                "chapter:" + ch.getId(),
+                                "学习：" + path.getTitle() + " · " + ch.getTitle(),
+                                "THEORY",
+                                "CHAPTER",
+                                ch.getId(),
+                                p.getPathId(),
+                                null,
+                                "本人已采用路径中的未完成章节",
+                                "阅读并复述关键概念、边界与例子",
+                                30));
+            }
+        }
+        if (paths.isEmpty()) missing.add("已采用学习路径");
+    }
+
+    private List<LearningMistake> addMistakeCandidates(Long user, List<PlanModels.Candidate> c) {
+        var wrong =
+                mistakes.selectList(
+                        new LambdaQueryWrapper<LearningMistake>()
+                                .eq(LearningMistake::getUserId, user)
+                                .eq(LearningMistake::getMastered, 0)
+                                .orderByDesc(LearningMistake::getCreateTime)
+                                .last("LIMIT 5"));
+        for (var w : wrong) {
+            if (w.getQuestionId() == null) continue;
+            var q = questions.selectById(w.getQuestionId());
+            if (!readableQuestion(q, user)) continue;
+            c.add(
+                    new PlanModels.Candidate(
+                            "mistake:" + w.getId(),
+                            "复盘错题：" + q.getTitle(),
+                            "REVIEW",
+                            "QUIZ",
+                            q.getId(),
+                            null,
+                            knowledgeFor(q.getId(), user),
+                            "本人未掌握的真实错题，不推断未作答题的正确率",
+                            "重新作答并解释错误原因",
+                            5));
+        }
+        for (var w : wrong) {
+            if (w.getQuestionId() == null) continue;
+            var q = questions.selectById(w.getQuestionId());
+            if (!readableQuestion(q, user)) continue;
+            Long kid = knowledgeFor(q.getId(), user);
+            if (kid == null) continue;
+            var recall =
+                    flashcards.selectList(
+                            new LambdaQueryWrapper<LearningFlashcard>()
+                                    .eq(LearningFlashcard::getUserId, user)
+                                    .apply(
+                                            "EXISTS (SELECT 1 FROM resource_knowledge_mapping m WHERE"
+                                                    + " m.resource_type='FLASHCARD' AND m.resource_id=learning_flashcard.id"
+                                                    + " AND m.knowledge_id={0} AND m.status='ACCEPTED' AND m.deleted=0)",
+                                            kid)
+                                    .orderByAsc(LearningFlashcard::getId)
+                                    .last("LIMIT 1"));
+            for (var card : recall)
+                if (c.stream().noneMatch(x -> x.key().equals("flashcard:" + card.getId())))
+                    c.add(
+                            new PlanModels.Candidate(
+                                    "flashcard:" + card.getId(),
+                                    "主动回忆补救：" + q.getTitle(),
+                                    "REVIEW",
+                                    "FLASHCARD",
+                                    card.getId(),
+                                    card.getPathId(),
+                                    kid,
+                                    "本人真实错题 #" + w.getId() + " 与此卡共享已接受的知识映射；不推断未作答表现",
+                                    "揭晓后提交一次真实FSRS评分；任务完成不等于知识掌握",
+                                    6));
+        }
+        return wrong;
+    }
+
+    private void addPracticeCandidates(Long user, PlanModels.Request req, List<PlanModels.Candidate> c) {
+        for (String type : List.of("TRUE_FALSE", "SINGLE_CHOICE", "SHORT_ANSWER", "CODE")) {
+            var pool =
+                    questions.selectList(
+                            new LambdaQueryWrapper<QuizQuestion>()
+                                    .eq(QuizQuestion::getQuestionType, type)
+                                    .eq(QuizQuestion::getStatus, 1)
+                                    .eq(QuizQuestion::getReviewStatus, "APPROVED")
+                                    .orderByAsc(QuizQuestion::getId)
+                                    .last("LIMIT 50"));
+            for (var q : pool) {
+                if (!readableQuestion(q, user) || !matchesFocus(q, req.getFocusTopics())) continue;
+                c.add(
+                        new PlanModels.Candidate(
+                                "question:" + q.getId(),
+                                ("CODE".equals(type) ? "代码练习：" : "练习：") + q.getTitle(),
+                                "CODE".equals(type) ? "CODE" : "PRACTICE",
+                                "QUIZ",
+                                q.getId(),
+                                null,
+                                knowledgeFor(q.getId(), user),
+                                "本人可读、已发布的真实题库资源",
+                                "实际作答并核对解析；打开页面不算完成",
+                                50));
+                break;
+            }
+        }
+    }
+
+    private void addRecentActivity(Long user, List<String> missing, Map<String, Object> facts) {
+        var recentExams = exams.statuses(user);
+        if (recentExams.isEmpty()) missing.add("近期考试记录");
+        facts.put("recentExamStatuses", recentExams);
+        int recentInterviews = interviews.boundedCount(user);
+        if (recentInterviews == 0) missing.add("近期模拟面试记录");
+        facts.put("recentInterviewCount", recentInterviews);
     }
 }

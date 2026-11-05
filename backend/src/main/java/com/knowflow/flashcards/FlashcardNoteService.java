@@ -1,9 +1,9 @@
 package com.knowflow.flashcards;
 
-import com.knowflow.dto.FlashcardSaveDTO;
+import com.knowflow.flashcards.dto.FlashcardSaveDTO;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.service.LearningService;
-import com.knowflow.vo.FlashcardVO;
+import com.knowflow.learning.service.LearningService;
+import com.knowflow.flashcards.vo.FlashcardVO;
 
 import jakarta.annotation.PostConstruct;
 
@@ -24,7 +24,7 @@ import java.util.*;
 public class FlashcardNoteService {
     private final JdbcTemplate jdbc;
     private final LearningService learning;
-    private final com.knowflow.mapper.LearningFlashcardMapper cardMapper;
+    private final com.knowflow.flashcards.mapper.LearningFlashcardMapper cardMapper;
 
     @Data
     public static class Input {
@@ -259,21 +259,21 @@ public class FlashcardNoteService {
                 learning.getMyFlashcard(cardId, uid);
                 var update =
                         new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<
-                                        com.knowflow.entity.LearningFlashcard>()
-                                .eq(com.knowflow.entity.LearningFlashcard::getId, cardId)
-                                .eq(com.knowflow.entity.LearningFlashcard::getUserId, uid)
+                                        com.knowflow.flashcards.entity.LearningFlashcard>()
+                                .eq(com.knowflow.flashcards.entity.LearningFlashcard::getId, cardId)
+                                .eq(com.knowflow.flashcards.entity.LearningFlashcard::getUserId, uid)
                                 .set(
-                                        com.knowflow.entity.LearningFlashcard::getFront,
+                                        com.knowflow.flashcards.entity.LearningFlashcard::getFront,
                                         dto.getFront())
-                                .set(com.knowflow.entity.LearningFlashcard::getBack, dto.getBack())
+                                .set(com.knowflow.flashcards.entity.LearningFlashcard::getBack, dto.getBack())
                                 .set(
-                                        com.knowflow.entity.LearningFlashcard::getCategory,
+                                        com.knowflow.flashcards.entity.LearningFlashcard::getCategory,
                                         input.getCategory() == null ? "" : input.getCategory())
                                 .set(
-                                        com.knowflow.entity.LearningFlashcard::getTags,
+                                        com.knowflow.flashcards.entity.LearningFlashcard::getTags,
                                         input.getTags() == null ? "" : input.getTags())
                                 .set(
-                                        com.knowflow.entity.LearningFlashcard::getUpdateTime,
+                                        com.knowflow.flashcards.entity.LearningFlashcard::getUpdateTime,
                                         java.time.LocalDateTime.now());
                 if (cardMapper.update(null, update) != 1)
                     throw new BusinessException(409, "复习卡已变化，请重新加载");

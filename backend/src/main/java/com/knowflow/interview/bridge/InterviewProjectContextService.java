@@ -1,8 +1,7 @@
 package com.knowflow.interview.bridge;
 
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.security.DocumentAccessPolicy;
+import com.knowflow.knowledge.contract.ProjectDocumentQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -11,8 +10,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class InterviewProjectContextService {
-    private final DocDocumentMapper documents;
-    private final DocumentAccessPolicy access;
+    private final ProjectDocumentQuery documents;
     public record Evidence(String sourceId, Long documentId, String title, String quote,
                            String verification, String claimScope) {}
     public record Snapshot(String userDescription, String userDescriptionSource, List<Evidence> evidence) {}
@@ -23,10 +21,9 @@ public class InterviewProjectContextService {
         List<Evidence> evidence = new ArrayList<>();
         for (Long id : new LinkedHashSet<>(documentIds == null ? List.<Long>of() : documentIds)) {
             if (id == null || id <= 0) throw new BusinessException(400, "文档 ID 无效");
-            var doc = documents.selectById(id);
-            access.requireRead(doc, actor);
-            String content = doc.getContent() == null ? "" : doc.getContent();
-            evidence.add(new Evidence("document:" + id, id, bounded(doc.getTitle(), 200), bounded(content, 2400),
+            var doc = documents.requireReadable(id, actor);
+            String content = doc.content() == null ? "" : doc.content();
+            evidence.add(new Evidence("document:" + id, id, bounded(doc.title(), 200), bounded(content, 2400),
                     "VERIFIED", "DOCUMENT_CONTENT_ONLY"));
         }
         return new Snapshot(userDescription == null ? "" : userDescription.trim(), "USER_REPORTED", List.copyOf(evidence));

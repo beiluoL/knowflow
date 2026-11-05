@@ -1,5 +1,9 @@
 package com.knowflow.coding.workspace;
 
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.coding.entity.*;
 import com.knowflow.coding.judge.*;
@@ -8,7 +12,6 @@ import com.knowflow.coding.service.CodeProblemService;
 import com.knowflow.coding.vo.CodingVos;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.actions.*;
-import com.knowflow.mapper.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
@@ -39,7 +42,7 @@ public class JavaPracticeService {
   private final ObjectMapper json;
   private final TransactionTemplate tx;
   private final CodeJudgeGateway gateway;
-  private final com.knowflow.service.NoteService notes;
+  private final com.knowflow.knowledge.service.NoteService notes;
   private final com.knowflow.learning.tutor.TutorContextService tutor;
 
   @org.springframework.beans.factory.annotation.Value(
@@ -522,7 +525,7 @@ public class JavaPracticeService {
       );
       if (note == null) {
         var source = tutorSource(user, id);
-        var dto = new com.knowflow.dto.LearningNoteDTO();
+        var dto = new com.knowflow.learning.dto.LearningNoteDTO();
         dto.setTitle(source.get("title").toString());
         dto.setContent(source.get("content").toString());
         dto.setSourceDocId(questions.selectById(s.getQuestionId()).getDocId());

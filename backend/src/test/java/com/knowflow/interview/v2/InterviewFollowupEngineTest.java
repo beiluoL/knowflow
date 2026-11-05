@@ -3,7 +3,7 @@ package com.knowflow.interview.v2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.ai.capability.AiCapabilityProperties;
 import com.knowflow.interview.core.InterviewQuestionBank;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,9 +1,9 @@
 package com.knowflow.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.GroupMessageSendDTO;
-import com.knowflow.service.StudyGroupService;
-import com.knowflow.vo.GroupMessageVO;
+import com.knowflow.community.dto.GroupMessageSendDTO;
+import com.knowflow.community.service.StudyGroupService;
+import com.knowflow.community.vo.GroupMessageVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

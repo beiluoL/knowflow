@@ -1,10 +1,30 @@
 package com.knowflow.seed;
 
+import com.knowflow.coding.entity.CodeQuestion;
+import com.knowflow.coding.mapper.CodeQuestionMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+
+
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningNote;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningNoteMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+
+
 import com.knowflow.common.persistence.BaseEntity;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
 import com.knowflow.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;

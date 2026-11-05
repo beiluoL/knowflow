@@ -3,10 +3,10 @@ package com.knowflow.knowledge.rag;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.knowflow.entity.DocDocument;
+import com.knowflow.knowledge.entity.DocDocument;
 import com.knowflow.knowledge.mapper.RagIndexRevisionMapper;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.service.DocChunkService;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.service.DocChunkService;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.h2.api.Trigger;

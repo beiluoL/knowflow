@@ -399,3 +399,7 @@ select.kf-form-control{padding-inline-end:var(--kf-space-8)}
   --kf-button-line-height: 20px;
   --kf-button-icon-slot: 18px;
 }
+
+:root {
+  --kf-chat-code-modal-radius: 12px;
+}

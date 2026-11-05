@@ -2,11 +2,11 @@ package com.knowflow.interview.bridge;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.TaskDTO;
+import com.knowflow.productivity.dto.TaskDTO;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.KgEntityMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
 import com.knowflow.security.DocumentAccessPolicy;
-import com.knowflow.service.TaskService;
+import com.knowflow.productivity.service.TaskService;
 import com.knowflow.interview.service.MockInterviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;

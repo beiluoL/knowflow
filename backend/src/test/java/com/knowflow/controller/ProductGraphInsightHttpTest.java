@@ -1,11 +1,27 @@
 package com.knowflow.controller;
+
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizAnswerRecord;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizAnswerRecordMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.entity.*;import com.knowflow.mapper.*;import com.knowflow.service.KnowledgeMasteryService;import com.knowflow.utils.JwtUtils;
+import com.knowflow.mastery.service.KnowledgeMasteryService;import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.test.context.ActiveProfiles;
 import java.util.*;import java.time.LocalDateTime;import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.adaptive-learning.enabled=true","server.address=127.0.0.1"}) @ActiveProfiles("local")
 class ProductGraphInsightHttpTest {
- @Autowired ObjectMapper json;@Autowired JwtUtils jwt;@Autowired SysUserMapper users;@Autowired DocCategoryMapper categories;@Autowired DocDocumentMapper docs;@Autowired KgEntityMapper knowledge;@Autowired QuizQuestionMapper questions;@Autowired QuizAnswerRecordMapper answers;@Autowired ResourceKnowledgeMappingMapper mappings;@Autowired KnowledgeMasteryService mastery;@Autowired com.knowflow.service.NoteService notes;
+ @Autowired ObjectMapper json;@Autowired JwtUtils jwt;@Autowired SysUserMapper users;@Autowired DocCategoryMapper categories;@Autowired DocDocumentMapper docs;@Autowired KgEntityMapper knowledge;@Autowired QuizQuestionMapper questions;@Autowired QuizAnswerRecordMapper answers;@Autowired ResourceKnowledgeMappingMapper mappings;@Autowired KnowledgeMasteryService mastery;@Autowired com.knowflow.knowledge.service.NoteService notes;
  @org.springframework.boot.test.web.server.LocalServerPort int port;
  final java.net.http.HttpClient client=java.net.http.HttpClient.newHttpClient();
  JsonNode get(long actor,String role,long id,int expected)throws Exception{var b=java.net.http.HttpRequest.newBuilder(java.net.URI.create("http://127.0.0.1:"+port+"/api/learning/graph-insights/"+id));if(actor>0)b.header("Authorization","Bearer "+jwt.generateToken(actor,"product04",role));var r=client.send(b.GET().build(),java.net.http.HttpResponse.BodyHandlers.ofString());assertEquals(expected,r.statusCode(),r.body());var body=json.readTree(r.body());assertEquals(expected,body.path("code").asInt());return body.path("data");}
@@ -15,7 +31,7 @@ class ProductGraphInsightHttpTest {
   var owner=user("USER");var other=user("USER");var admin=user("ADMIN");var category=new DocCategory();category.setName("第四批隔离合成");category.setCode("p04"+UUID.randomUUID());category.setOwnerId(owner.getId());category.setStatus(1);categories.insert(category);var doc=new DocDocument();doc.setCategoryId(category.getId());doc.setTitle("MVCC合成资料");doc.setContent("Read View用于判断版本可见性。");doc.setStatus(1);docs.insert(doc);
   long weak=kg(category.getId(),doc.getId(),"Read View",12,0,owner.getId()),strong=kg(category.getId(),doc.getId(),"并发",40,40,owner.getId()),unknown=kg(category.getId(),doc.getId(),"未评估",0,0,owner.getId());
   assertEquals("WEAK",get(owner.getId(),"USER",weak,200).path("mastery").path("learningStatus").asText());assertEquals("MASTERED",get(owner.getId(),"USER",strong,200).path("mastery").path("learningStatus").asText());assertEquals("NOT_STARTED",get(owner.getId(),"USER",unknown,200).path("mastery").path("learningStatus").asText());
-  var dto=new com.knowflow.dto.LearningNoteDTO();dto.setTitle("Read View同名未映射笔记");dto.setContent("Read View用于判断版本可见性。");dto.setSourceDocId(doc.getId());long note=notes.create(owner.getId(),dto).getId();assertEquals(0,get(owner.getId(),"USER",weak,200).path("practiceNotes").size());
+  var dto=new com.knowflow.learning.dto.LearningNoteDTO();dto.setTitle("Read View同名未映射笔记");dto.setContent("Read View用于判断版本可见性。");dto.setSourceDocId(doc.getId());long note=notes.create(owner.getId(),dto).getId();assertEquals(0,get(owner.getId(),"USER",weak,200).path("practiceNotes").size());
   var mapping=new ResourceKnowledgeMapping();mapping.setKnowledgeId(weak);mapping.setResourceType("DOC");mapping.setResourceId(doc.getId());mapping.setSource("MANUAL");mapping.setStatus("ACCEPTED");mappings.insert(mapping);var insight=get(owner.getId(),"USER",weak,200);assertEquals(note,insight.path("practiceNotes").get(0).path("id").asLong());assertTrue(insight.path("evidence").path("items").isEmpty());
   get(0,"USER",weak,401);get(other.getId(),"USER",weak,403);get(admin.getId(),"ADMIN",weak,403);docs.deleteById(doc.getId());get(owner.getId(),"USER",weak,403);
  }

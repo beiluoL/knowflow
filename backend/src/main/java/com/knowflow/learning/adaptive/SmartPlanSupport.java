@@ -1,13 +1,13 @@
 package com.knowflow.learning.adaptive;
 
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.dto.TaskDTO;
-import com.knowflow.entity.Task;
+import com.knowflow.productivity.dto.TaskDTO;
+import com.knowflow.productivity.entity.Task;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.actions.*;
 import com.knowflow.learning.actions.PlanModels.*;
-import com.knowflow.mapper.TaskMapper;
-import com.knowflow.service.TaskService;
+import com.knowflow.productivity.mapper.TaskMapper;
+import com.knowflow.productivity.service.TaskService;
 import java.time.*;
 import java.util.*;
 import java.util.function.*;
@@ -84,22 +84,7 @@ public class SmartPlanSupport {
             throw new BusinessException(400, "时长设置包含不属于今日待办的任务");
         var rank = new HashMap<Long, Integer>();
         var reasons = new HashMap<Long, String>();
-        if (r.getPathId() != null) {
-            if (adaptive == null) throw new BusinessException(409, "当前配置未启用路径建议");
-            int index = 0;
-            for (var f : adaptive.facts(user, r.getPathId())) {
-                if (f.get("knowledgeId") instanceof Number n) {
-                    rank.putIfAbsent(n.longValue(), index++);
-                    reasons.put(n.longValue(), f.get("reason").toString());
-                }
-            }
-        } else {
-            for (var c : context.read(user, r).candidates())
-                if (c.knowledgeId() != null) {
-                    rank.merge(c.knowledgeId(), c.rank(), Math::min);
-                    reasons.putIfAbsent(c.knowledgeId(), c.reason());
-                }
-        }
+        collectRanking(user, r, rank, reasons);
         var costs = new HashMap<Long, Integer>();
         var pinned = new ArrayList<Task>();
         var optional = new ArrayList<Task>();
@@ -145,6 +130,36 @@ public class SmartPlanSupport {
                             costs.get(t.getId()),
                             "锁定或截止约束"));
         }
+        allocateOptional(r, optional, metadata, priority, costs, reasons, remaining, selected, changes);
+        warnings.add("只调整预览中的既有任务，不创建新任务；锁定/定时/已到期记录保持不变；部分时间安排不代表完成。确认前无日程写入。");
+        return new Changes(List.copyOf(selected), List.copyOf(changes), List.copyOf(warnings));
+    }
+
+
+    private void collectRanking(
+            long user, Request r, Map<Long, Integer> rank, Map<Long, String> reasons) {
+        if (r.getPathId() != null) {
+            if (adaptive == null) throw new BusinessException(409, "当前配置未启用路径建议");
+            int index = 0;
+            for (var f : adaptive.facts(user, r.getPathId())) {
+                if (f.get("knowledgeId") instanceof Number n) {
+                    rank.putIfAbsent(n.longValue(), index++);
+                    reasons.put(n.longValue(), f.get("reason").toString());
+                }
+            }
+        } else {
+            for (var c : context.read(user, r).candidates())
+                if (c.knowledgeId() != null) {
+                    rank.merge(c.knowledgeId(), c.rank(), Math::min);
+                    reasons.putIfAbsent(c.knowledgeId(), c.reason());
+                }
+        }
+    }
+
+    private void allocateOptional(
+            Request r, List<Task> optional, Function<Task, Item> metadata,
+            Function<Task, String> priority, Map<Long, Integer> costs, Map<Long, String> reasons,
+            int remaining, List<Item> selected, List<TaskChange> changes) {
         for (var t : optional) {
             var old = metadata.apply(t);
             int cost = costs.get(t.getId()), before = minutes(t, old);
@@ -180,8 +195,6 @@ public class SmartPlanSupport {
                             assigned,
                             reason + (assigned < before ? "；本次只安排部分时间，不表示内容已完成" : "")));
         }
-        warnings.add("只调整预览中的既有任务，不创建新任务；锁定/定时/已到期记录保持不变；部分时间安排不代表完成。确认前无日程写入。");
-        return new Changes(List.copyOf(selected), List.copyOf(changes), List.copyOf(warnings));
     }
 
     private Item item(Task t, Item old, String priority, int cost, String reason) {

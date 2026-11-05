@@ -1,5 +1,25 @@
 package com.knowflow.learning.product;
-import com.fasterxml.jackson.databind.*;import com.knowflow.entity.*;import com.knowflow.mapper.*;import com.knowflow.support.FakeAiConfiguration;
+
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+
+
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+
+import com.fasterxml.jackson.databind.*;import com.knowflow.support.FakeAiConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.context.annotation.Import;import org.junit.jupiter.api.*;import org.junit.jupiter.api.condition.EnabledIfSystemProperty;import org.springframework.security.crypto.password.PasswordEncoder;import org.springframework.jdbc.core.JdbcTemplate;
 import java.nio.file.*;import java.util.*;import java.util.concurrent.TimeUnit;import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"server.address=127.0.0.1","knowflow.datasource.h2.url=jdbc:h2:mem:hashmap_browser;MODE=MySQL;DB_CLOSE_DELAY=-1"})

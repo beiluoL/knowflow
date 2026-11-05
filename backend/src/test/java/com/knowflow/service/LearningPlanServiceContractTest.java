@@ -1,9 +1,12 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.LearningPlanService;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.PlanGenerateDTO;
+import com.knowflow.learning.dto.PlanGenerateDTO;
 import com.knowflow.learning.entity.LearningPlan;
-import com.knowflow.vo.LearningPlanVO;
+import com.knowflow.learning.vo.LearningPlanVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +31,7 @@ class LearningPlanServiceContractTest {
 
     @BeforeEach
     void loadServiceClass() throws ClassNotFoundException {
-        serviceCls = Class.forName("com.knowflow.service.LearningPlanService");
+        serviceCls = Class.forName("com.knowflow.learning.service.LearningPlanService");
         mapper = new ObjectMapper()
                 .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
                 .disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.agent.ToolContext;
-import com.knowflow.entity.AgentToolCall;
-import com.knowflow.entity.AgentToolConfig;
-import com.knowflow.mapper.AgentToolCallMapper;
-import com.knowflow.mapper.AgentToolConfigMapper;
+import com.knowflow.agent.entity.AgentToolCall;
+import com.knowflow.agent.entity.AgentToolConfig;
+import com.knowflow.agent.mapper.AgentToolCallMapper;
+import com.knowflow.agent.mapper.AgentToolConfigMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

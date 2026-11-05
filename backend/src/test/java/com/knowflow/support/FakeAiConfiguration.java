@@ -2,8 +2,8 @@ package com.knowflow.support;
 
 import com.knowflow.ai.capability.AiCapabilityException;
 import com.knowflow.ai.capability.AiFailureKind;
-import com.knowflow.entity.DocDocument;
-import com.knowflow.service.AiService;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.ai.service.AiService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;

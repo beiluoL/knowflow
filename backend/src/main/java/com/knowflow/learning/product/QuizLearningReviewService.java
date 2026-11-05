@@ -1,14 +1,32 @@
 package com.knowflow.learning.product;
 
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizAnswerRecord;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizAnswerRecordMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+
+
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.dto.FlashcardSaveDTO;
-import com.knowflow.entity.*;
+import com.knowflow.flashcards.dto.FlashcardSaveDTO;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.flashcards.FlashcardScheduler;
 import com.knowflow.learning.actions.*;
-import com.knowflow.mapper.*;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.service.LearningService;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -153,31 +171,7 @@ public class QuizLearningReviewService {
                 && snapshot(latest).has("baselineAnswerRecordId"))
             baseline = owned(snapshot(latest).path("baselineAnswerRecordId").asLong(), uid);
         var kids = usable ? acceptedKnowledge("QUIZ", qid, uid) : List.<Long>of();
-        var refs = new ArrayList<Map<String, Object>>();
-        if (!kids.isEmpty())
-            for (var c :
-                    cards.selectList(
-                            new LambdaQueryWrapper<LearningFlashcard>()
-                                    .eq(LearningFlashcard::getUserId, uid)
-                                    .orderByAsc(LearningFlashcard::getId))) {
-                if (!personal.category(c.getCategoryId(), uid)
-                        || (c.getDocId() != null && !personal.document(docs.selectById(c.getDocId()), uid)))
-                    continue;
-                var common =
-                        acceptedKnowledge("FLASHCARD", c.getId(), uid).stream().filter(kids::contains).toList();
-                if (common.isEmpty()) continue;
-                refs.add(
-                        Map.of(
-                                "cardId",
-                                c.getId(),
-                                "front",
-                                c.getFront(),
-                                "knowledgeId",
-                                common.get(0),
-                                "mappingStatus",
-                                "ACCEPTED"));
-                if (refs.size() == 20) break;
-            }
+        var refs = relatedCards(uid, kids);
         long from = baseline == null ? 0 : answerEvent(uid, baseline.getId(), stream),
                 to =
                         latest == null || baseline == null || Objects.equals(latest.getId(), baseline.getId())
@@ -189,61 +183,8 @@ public class QuizLearningReviewService {
             if (original != null)
                 original.path("knowledgeIds").forEach(n -> historicalKids.add(n.asLong()));
         }
-        var reviews = new ArrayList<Map<String, Object>>();
-        if (from > 0 && to > 0)
-            for (var e : stream) {
-                if (e.getId() <= from
-                        || e.getId() >= to
-                        || !"FLASHCARD_REVIEWED".equals(e.getEventType())
-                        || !"FLASHCARD".equals(e.getResourceType())) continue;
-                var m = meta(e);
-                if (e.getResourceId() == null
-                        || !FlashcardScheduler.VERSION.equals(m.path("algorithm").asText())
-                        || !historicalKids.contains(m.path("knowledgeId").asLong())) continue;
-                reviews.add(
-                        Map.of(
-                                "eventId",
-                                e.getId(),
-                                "cardId",
-                                e.getResourceId(),
-                                "knowledgeId",
-                                m.path("knowledgeId").asLong(),
-                                "rating",
-                                m.path("rating").asInt(),
-                                "algorithm",
-                                m.path("algorithm").asText(),
-                                "reviewedAt",
-                                Objects.toString(e.getCreateTime()),
-                                "dueAt",
-                                m.path("dueAt").asText()));
-            }
-        var comparison = new LinkedHashMap<String, Object>();
-        boolean paired =
-                baseline != null
-                        && latest != null
-                        && !Objects.equals(baseline.getId(), latest.getId())
-                        && snapshot(latest) != null
-                        && snapshot(latest).path("baselineAnswerRecordId").asLong() == baseline.getId();
-        boolean same =
-                paired
-                        && Objects.equals(
-                                snapshot(baseline).path("contentHash"), snapshot(latest).path("contentHash"))
-                        && Objects.equals(
-                                snapshot(baseline).path("gradingRule"), snapshot(latest).path("gradingRule"))
-                        && Objects.equals(
-                                snapshot(baseline).path("conditions"), snapshot(latest).path("conditions"));
-        comparison.put("paired", paired);
-        comparison.put("comparable", same);
-        comparison.put("reviewConfirmed", !reviews.isEmpty());
-        comparison.put(
-                "note",
-                same ? "同题、同版本摘要、同规则、均为无时限且可查看答案的练习；仅比较本次作答，不代表能力提升。" : "本次测验与上次条件不完全一致，或尚无成对快照；以下仅供参考。");
-        if (paired) {
-            comparison.put("firstAnswerRecordId", baseline.getId());
-            comparison.put("secondAnswerRecordId", latest.getId());
-            comparison.put("firstCorrect", Integer.valueOf(1).equals(baseline.getIsCorrect()));
-            comparison.put("secondCorrect", Integer.valueOf(1).equals(latest.getIsCorrect()));
-        }
+        var reviews = reviewsBetween(stream, from, to, historicalKids);
+        var comparison = compareAttempts(baseline, latest, reviews);
         Long chapterId = null;
         if (usable && q.getDocId() != null)
             for (var ch : chapters.selectList(null)) {
@@ -292,6 +233,101 @@ public class QuizLearningReviewService {
         result.put("knowledgeIds", kids);
         result.put("historyLimit", 50);
         return result;
+    }
+
+
+    private List<Map<String, Object>> relatedCards(long uid, List<Long> kids) {
+        var refs = new ArrayList<Map<String, Object>>();
+        if (!kids.isEmpty())
+            for (var c :
+                    cards.selectList(
+                            new LambdaQueryWrapper<LearningFlashcard>()
+                                    .eq(LearningFlashcard::getUserId, uid)
+                                    .orderByAsc(LearningFlashcard::getId))) {
+                if (!personal.category(c.getCategoryId(), uid)
+                        || (c.getDocId() != null && !personal.document(docs.selectById(c.getDocId()), uid)))
+                    continue;
+                var common =
+                        acceptedKnowledge("FLASHCARD", c.getId(), uid).stream().filter(kids::contains).toList();
+                if (common.isEmpty()) continue;
+                refs.add(
+                        Map.of(
+                                "cardId",
+                                c.getId(),
+                                "front",
+                                c.getFront(),
+                                "knowledgeId",
+                                common.get(0),
+                                "mappingStatus",
+                                "ACCEPTED"));
+                if (refs.size() == 20) break;
+            }
+        return refs;
+    }
+
+    private List<Map<String, Object>> reviewsBetween(
+            List<LearningEvent> stream, long from, long to, Set<Long> historicalKids) {
+        var reviews = new ArrayList<Map<String, Object>>();
+        if (from > 0 && to > 0)
+            for (var e : stream) {
+                if (e.getId() <= from
+                        || e.getId() >= to
+                        || !"FLASHCARD_REVIEWED".equals(e.getEventType())
+                        || !"FLASHCARD".equals(e.getResourceType())) continue;
+                var m = meta(e);
+                if (e.getResourceId() == null
+                        || !FlashcardScheduler.VERSION.equals(m.path("algorithm").asText())
+                        || !historicalKids.contains(m.path("knowledgeId").asLong())) continue;
+                reviews.add(
+                        Map.of(
+                                "eventId",
+                                e.getId(),
+                                "cardId",
+                                e.getResourceId(),
+                                "knowledgeId",
+                                m.path("knowledgeId").asLong(),
+                                "rating",
+                                m.path("rating").asInt(),
+                                "algorithm",
+                                m.path("algorithm").asText(),
+                                "reviewedAt",
+                                Objects.toString(e.getCreateTime()),
+                                "dueAt",
+                                m.path("dueAt").asText()));
+            }
+        return reviews;
+    }
+
+    private Map<String, Object> compareAttempts(
+            QuizAnswerRecord baseline, QuizAnswerRecord latest, List<Map<String, Object>> reviews) {
+        var comparison = new LinkedHashMap<String, Object>();
+        boolean paired =
+                baseline != null
+                        && latest != null
+                        && !Objects.equals(baseline.getId(), latest.getId())
+                        && snapshot(latest) != null
+                        && snapshot(latest).path("baselineAnswerRecordId").asLong() == baseline.getId();
+        boolean same =
+                paired
+                        && Objects.equals(
+                                snapshot(baseline).path("contentHash"), snapshot(latest).path("contentHash"))
+                        && Objects.equals(
+                                snapshot(baseline).path("gradingRule"), snapshot(latest).path("gradingRule"))
+                        && Objects.equals(
+                                snapshot(baseline).path("conditions"), snapshot(latest).path("conditions"));
+        comparison.put("paired", paired);
+        comparison.put("comparable", same);
+        comparison.put("reviewConfirmed", !reviews.isEmpty());
+        comparison.put(
+                "note",
+                same ? "同题、同版本摘要、同规则、均为无时限且可查看答案的练习；仅比较本次作答，不代表能力提升。" : "本次测验与上次条件不完全一致，或尚无成对快照；以下仅供参考。");
+        if (paired) {
+            comparison.put("firstAnswerRecordId", baseline.getId());
+            comparison.put("secondAnswerRecordId", latest.getId());
+            comparison.put("firstCorrect", Integer.valueOf(1).equals(baseline.getIsCorrect()));
+            comparison.put("secondCorrect", Integer.valueOf(1).equals(latest.getIsCorrect()));
+        }
+        return comparison;
     }
 
     @Transactional

@@ -1,13 +1,18 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.LearningFeynmanService;
+import com.knowflow.learning.service.LearningFirstPrinciplesService;
+import com.knowflow.learning.service.LearningScenarioService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.dto.FeynmanSubmitDTO;
-import com.knowflow.dto.FirstPrinciplesSubmitDTO;
-import com.knowflow.dto.ScenarioSubmitDTO;
-import com.knowflow.entity.LearningEvent;
-import com.knowflow.entity.LearningScenario;
-import com.knowflow.mapper.LearningEventMapper;
-import com.knowflow.mapper.LearningScenarioMapper;
+import com.knowflow.learning.dto.FeynmanSubmitDTO;
+import com.knowflow.learning.dto.FirstPrinciplesSubmitDTO;
+import com.knowflow.learning.dto.ScenarioSubmitDTO;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.learning.entity.LearningScenario;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.learning.mapper.LearningScenarioMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

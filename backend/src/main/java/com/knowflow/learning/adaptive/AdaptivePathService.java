@@ -1,14 +1,26 @@
 package com.knowflow.learning.adaptive;
 
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.knowledge.service.NoteService;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+import com.knowflow.productivity.mapper.TaskMapper;
+
+
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+import com.knowflow.learning.service.LearningService;
+import com.knowflow.learning.vo.LearningChapterVO;
+import com.knowflow.mastery.service.KnowledgeMasteryService;
+
+
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.entity.*;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.actions.LearningWriteGuard;
 import com.knowflow.learning.evidence.LearningEvidenceSources;
 import com.knowflow.learning.feedback.*;
-import com.knowflow.mapper.*;
-import com.knowflow.service.*;
-import com.knowflow.vo.*;
 import jakarta.validation.constraints.*;
 import java.security.MessageDigest;
 import java.util.*;
@@ -49,7 +61,7 @@ public class AdaptivePathService {
     private final com.knowflow.security.DocumentAccessPolicy access;
     private final DocDocumentMapper docs;
     private final LearningChapterMapper chapterMapper;
-    private final com.knowflow.mapper.TaskMapper taskMapper;
+    private final com.knowflow.productivity.mapper.TaskMapper taskMapper;
     private final NoteService notes;
     private final com.knowflow.learning.actions.LearningContextService resourceAccess;
     private final AdaptivePathOrder personalOrder;
@@ -210,6 +222,65 @@ public class AdaptivePathService {
         var byId = new LinkedHashMap<Long, KgEntity>();
         nodes.forEach(k -> byId.put(k.getId(), k));
         var candidates = new LinkedHashMap<String, Map<String, Object>>();
+        collectAnnotationCandidates(user, chapters, byId, candidates);
+        for (var k : nodes) {
+            var m = mastery.getDetail(user, k.getId());
+            if (!Set.of("WEAK", "REVIEW_REQUIRED").contains(m.getLearningStatus())) continue;
+            var item =
+                    item(
+                            k,
+                            chapters,
+                            user,
+                            "原掌握度状态：" + m.getLearningStatus() + "；" + Objects.toString(m.getReason(), "证据有限"),
+                            List.of(Map.of("type", "KNOWLEDGE_MASTERY", "id", k.getId())),
+                            null);
+            candidates.putIfAbsent(item.get("key").toString(), item);
+        }
+        for (var task :
+                sql.queryForList(
+                        "SELECT id,title,learning_metadata FROM task WHERE user_id=? AND deleted=0 AND status=0"
+                                + " AND scheduled_date<=CURRENT_DATE ORDER BY scheduled_date,id LIMIT 50",
+                        user)) {
+            if (task.get("learning_metadata") == null) continue;
+            var meta = read(task.get("learning_metadata"));
+            var k = byId.get(meta.path("knowledgeId").asLong());
+            if (k == null) continue;
+            var item =
+                    item(
+                            k,
+                            chapters,
+                            user,
+                            "到期未完成任务：" + task.get("title"),
+                            List.of(Map.of("type", "TASK", "id", n(task, "id"))),
+                            null);
+            candidates.putIfAbsent(item.get("key").toString(), item);
+        }
+        var out = new ArrayList<Map<String, Object>>();
+        for (var item : candidates.values())
+            if (!deferred.contains(item.get("key")) && item.get("chapterId") != null) out.add(item);
+        for (var ch : chapters)
+            if (out.size() < 3
+                    && !Boolean.TRUE.equals(ch.getCompleted())
+                    && !Boolean.TRUE.equals(ch.getLocked())
+                    && readable(ch, user)
+                    && !deferred.contains("chapter:" + ch.getId())
+                    && out.stream().noneMatch(i -> Objects.equals(i.get("chapterId"), ch.getId()))) {
+                var item = new LinkedHashMap<String, Object>();
+                item.put("key", "chapter:" + ch.getId());
+                item.put("chapterId", ch.getId());
+                item.put("title", ch.getTitle());
+                item.put("reason", "原路径顺序中的可学习章节；无充分证据时采用明确冷启动，不推断薄弱");
+                item.put("method", "阅读与复述");
+                item.put("sourceRefs", List.of(Map.of("type", "CHAPTER", "id", ch.getId())));
+                out.add(item);
+            }
+        return out.stream().limit(3).toList();
+    }
+
+
+    private void collectAnnotationCandidates(
+            long user, List<LearningChapterVO> chapters, Map<Long, KgEntity> byId,
+            Map<String, Map<String, Object>> candidates) {
         for (long annotation :
                 sql.queryForList(
                         "SELECT id FROM learning_error_annotation WHERE owner_id=? AND state='SUCCEEDED' ORDER"
@@ -264,58 +335,6 @@ public class AdaptivePathService {
                 if (!Set.of(403, 404, 409).contains(e.getCode())) throw e;
             }
         }
-        for (var k : nodes) {
-            var m = mastery.getDetail(user, k.getId());
-            if (!Set.of("WEAK", "REVIEW_REQUIRED").contains(m.getLearningStatus())) continue;
-            var item =
-                    item(
-                            k,
-                            chapters,
-                            user,
-                            "原掌握度状态：" + m.getLearningStatus() + "；" + Objects.toString(m.getReason(), "证据有限"),
-                            List.of(Map.of("type", "KNOWLEDGE_MASTERY", "id", k.getId())),
-                            null);
-            candidates.putIfAbsent(item.get("key").toString(), item);
-        }
-        for (var task :
-                sql.queryForList(
-                        "SELECT id,title,learning_metadata FROM task WHERE user_id=? AND deleted=0 AND status=0"
-                                + " AND scheduled_date<=CURRENT_DATE ORDER BY scheduled_date,id LIMIT 50",
-                        user)) {
-            if (task.get("learning_metadata") == null) continue;
-            var meta = read(task.get("learning_metadata"));
-            var k = byId.get(meta.path("knowledgeId").asLong());
-            if (k == null) continue;
-            var item =
-                    item(
-                            k,
-                            chapters,
-                            user,
-                            "到期未完成任务：" + task.get("title"),
-                            List.of(Map.of("type", "TASK", "id", n(task, "id"))),
-                            null);
-            candidates.putIfAbsent(item.get("key").toString(), item);
-        }
-        var out = new ArrayList<Map<String, Object>>();
-        for (var item : candidates.values())
-            if (!deferred.contains(item.get("key")) && item.get("chapterId") != null) out.add(item);
-        for (var ch : chapters)
-            if (out.size() < 3
-                    && !Boolean.TRUE.equals(ch.getCompleted())
-                    && !Boolean.TRUE.equals(ch.getLocked())
-                    && readable(ch, user)
-                    && !deferred.contains("chapter:" + ch.getId())
-                    && out.stream().noneMatch(i -> Objects.equals(i.get("chapterId"), ch.getId()))) {
-                var item = new LinkedHashMap<String, Object>();
-                item.put("key", "chapter:" + ch.getId());
-                item.put("chapterId", ch.getId());
-                item.put("title", ch.getTitle());
-                item.put("reason", "原路径顺序中的可学习章节；无充分证据时采用明确冷启动，不推断薄弱");
-                item.put("method", "阅读与复述");
-                item.put("sourceRefs", List.of(Map.of("type", "CHAPTER", "id", ch.getId())));
-                out.add(item);
-            }
-        return out.stream().limit(3).toList();
     }
 
     private Map<String, Object> item(

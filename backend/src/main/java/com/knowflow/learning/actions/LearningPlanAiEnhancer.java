@@ -4,7 +4,7 @@ import static com.knowflow.learning.actions.PlanModels.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.ai.ModelAdapter;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import jakarta.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.*;

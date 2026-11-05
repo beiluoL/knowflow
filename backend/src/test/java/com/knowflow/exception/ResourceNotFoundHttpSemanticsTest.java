@@ -1,8 +1,11 @@
 package com.knowflow.exception;
 
-import com.knowflow.entity.CodeChallenge;
-import com.knowflow.mapper.CodeChallengeMapper;
+import com.knowflow.coding.entity.CodeChallenge;
+import com.knowflow.coding.mapper.CodeChallengeMapper;
 import com.knowflow.support.FakeAiConfiguration;
+import com.knowflow.support.ActiveIdentityFixtures;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.jdbc.core.JdbcTemplate;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,11 +55,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "knowflow.datasource.h2.url=jdbc:h2:mem:knowflow_p1d3_404;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL")
 class ResourceNotFoundHttpSemanticsTest {
 
-    /** 资源所有者；JwtAuthenticationFilter 只解析 token 不查库，故普通用户无需预先插入用户行。 */
+    /** 资源所有者；认证必须对应真实、未删除的数据库账号。 */
     private static final Long OWNER = 97611L;
     /** 另一个用户（用于「他人资源仍 403」的回归）。 */
     private static final Long OTHER = 97612L;
-    /** 系统管理员（{@code SecurityConfig} 的 {@code /api/admin/**} 角色门禁 + {@code isAdminUser()} 均按 token 角色判定）。 */
+    /** 系统管理员；管理端角色门禁使用数据库中的真实 ADMIN 角色。 */
     private static final Long ADMIN = 97613L;
 
     /** 全局不可能存在的资源 ID。 */
@@ -72,6 +75,16 @@ class ResourceNotFoundHttpSemanticsTest {
 
     @Autowired
     private CodeChallengeMapper codeChallengeMapper;
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @BeforeEach
+    void activeAccounts() {
+        ActiveIdentityFixtures.ensureActive(jdbc, OWNER, "p1d3-" + OWNER, "USER");
+        ActiveIdentityFixtures.ensureActive(jdbc, OTHER, "p1d3-" + OTHER, "USER");
+        ActiveIdentityFixtures.ensureActive(jdbc, ADMIN, "p1d3-admin", "ADMIN");
+    }
 
     // ============================ 工具 ============================
 

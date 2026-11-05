@@ -1,6 +1,14 @@
 package com.knowflow.learning.product;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
+
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;
@@ -17,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties="knowflow.datasource.h2.url=jdbc:h2:mem:learning_product_resources;MODE=MySQL;DB_CLOSE_DELAY=-1")
 @AutoConfigureMockMvc @Import(FakeAiConfiguration.class)
 class LearningProductResourceSafetyTest {
- @Autowired com.knowflow.service.LearningService learning;
+ @Autowired com.knowflow.learning.service.LearningService learning;
  @Autowired MockMvc http;@Autowired SysUserMapper users;@Autowired JwtUtils jwt;@Autowired QuizQuestionMapper questions;@Autowired DocCategoryMapper categories;@Autowired DocDocumentMapper docs;@Autowired JdbcTemplate db;
  long user(){var u=new SysUser();u.setUsername("resource-"+UUID.randomUUID());u.setPassword("test-only");u.setRole("USER");users.insert(u);return u.getId();}
  String token(long id){return "Bearer "+jwt.generateToken(id,"resource-test","USER");}
@@ -34,7 +42,7 @@ class LearningProductResourceSafetyTest {
  }
  @Test void updatingAnOwnedCardCannotAttachOthersPrivateSource()throws Exception{
   long owner=user(),actor=user();var c=new DocCategory();c.setName("私有编辑来源");c.setOwnerId(owner);c.setStatus(1);categories.insert(c);var d=new DocDocument();d.setCategoryId(c.getId());d.setTitle("私有文档");d.setStatus(1);docs.insert(d);
-  var input=new com.knowflow.dto.FlashcardSaveDTO();input.setFront("my front");input.setBack("my back");long id=learning.createMyFlashcard(actor,input).getId();
+  var input=new com.knowflow.flashcards.dto.FlashcardSaveDTO();input.setFront("my front");input.setBack("my back");long id=learning.createMyFlashcard(actor,input).getId();
   http.perform(put("/api/learning/my/flashcards/"+id).header("Authorization",token(actor)).contentType("application/json").content("{\"docId\":"+d.getId()+"}")).andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));
   assertNull(db.queryForObject("SELECT doc_id FROM learning_flashcard WHERE id=?",Long.class,id));
  }

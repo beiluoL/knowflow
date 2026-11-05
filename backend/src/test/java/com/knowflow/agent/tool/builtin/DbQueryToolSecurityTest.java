@@ -73,15 +73,15 @@ class DbQueryToolSecurityTest {
 
     @Test
     void registryRejectsDisabledOrUnapprovedDangerousToolBeforeSql() {
-        var configMapper = mock(com.knowflow.mapper.AgentToolConfigMapper.class);
-        var callMapper = mock(com.knowflow.mapper.AgentToolCallMapper.class);
+        var configMapper = mock(com.knowflow.agent.mapper.AgentToolConfigMapper.class);
+        var callMapper = mock(com.knowflow.agent.mapper.AgentToolCallMapper.class);
         JdbcTemplate jdbc = mock(JdbcTemplate.class);
         ObjectMapper json = new ObjectMapper();
         var tool = new DbQueryTool(jdbc, json);
         var registry = new com.knowflow.agent.tool.ToolRegistry(java.util.List.of(tool), configMapper, callMapper, json);
         var context = ToolContext.builder().userId(1L).sessionId(1L).build();
         assertFalse(registry.invoke("db_query", json.createObjectNode().put("sql", "select code from question_topic"), context).isSuccess());
-        var config = new com.knowflow.entity.AgentToolConfig();
+        var config = new com.knowflow.agent.entity.AgentToolConfig();
         config.setEnabled(1);
         config.setAllowWrite(0);
         when(configMapper.selectOne(any())).thenReturn(config);

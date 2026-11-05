@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("local")
 class CareerBrowserHarnessTest {
  @Autowired JdbcTemplate jdbc;@Autowired ObjectMapper json;
- @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+ @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
  @Test void browserUsesRealAuthenticationPersistenceAndOriginalInterview()throws Exception{
   String url=jdbc.execute((org.springframework.jdbc.core.ConnectionCallback<String>)c->c.getMetaData().getURL());
   assertNotNull(url);assertTrue(url.startsWith("jdbc:h2:mem:"));

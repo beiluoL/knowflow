@@ -1,7 +1,7 @@
 package com.knowflow.security;
 
-import com.knowflow.entity.DocDocument;
-import com.knowflow.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.jdbc.core.JdbcTemplate;

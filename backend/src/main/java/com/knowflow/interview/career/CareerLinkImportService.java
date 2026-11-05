@@ -1,7 +1,7 @@
 package com.knowflow.interview.career;
 
 import com.knowflow.exception.BusinessException;
-import com.knowflow.service.DocumentTextExtractor;
+import com.knowflow.knowledge.service.DocumentTextExtractor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

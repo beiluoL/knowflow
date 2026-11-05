@@ -106,12 +106,25 @@ class LocalDeveloperToolsAccessTest {
                 .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));
     }
 
-    @Test void deletedJwtSubjectAndForgedRoleAreRejected() throws Exception {
+    @Test void deletedJwtSubjectIsUnauthenticated() throws Exception {
+        String token = jwt.generateToken(98002L, "seed-personal-v1", "USER");
+        mvc.perform(get("/api-docs").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
         jdbc.update("UPDATE sys_user SET deleted=1 WHERE id=98002");
-        for (String token : new String[]{jwt.generateToken(98002L, "seed-personal-v1", "USER"),
-                jwt.generateToken(98003L, "tools-other", "ADMIN")}) {
-            mvc.perform(get("/api-docs").header("Authorization", "Bearer " + token))
-                    .andExpect(status().isForbidden());
+        for (String path : new String[]{"/api-docs", "/api/auth/me"}) {
+            mvc.perform(get(path).header("Authorization", "Bearer " + token))
+                    .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value(401));
+        }
+    }
+
+    @Test void activeOrdinarySubjectCannotForgeAdminRole() throws Exception {
+        String token = jwt.generateToken(98003L, "tools-other", "ADMIN");
+        // The same active subject is authenticated; its database USER role controls authorization.
+        mvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200));
+        for (String path : new String[]{"/api-docs", "/api/admin/users"}) {
+            mvc.perform(get(path).header("Authorization", "Bearer " + token))
+                    .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));
         }
     }
 }

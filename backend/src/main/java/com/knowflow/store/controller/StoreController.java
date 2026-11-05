@@ -2,7 +2,7 @@ package com.knowflow.store.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.dto.PurchaseRequest;
+import com.knowflow.store.dto.PurchaseRequest;
 import com.knowflow.store.EntitlementService;
 import com.knowflow.store.ProductService;
 import com.knowflow.store.PurchaseService;

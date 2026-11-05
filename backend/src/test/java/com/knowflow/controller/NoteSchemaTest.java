@@ -1,5 +1,5 @@
 package com.knowflow.controller;
-import com.knowflow.service.NoteSchema;
+import com.knowflow.knowledge.service.NoteSchema;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import static org.junit.jupiter.api.Assertions.*;

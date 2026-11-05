@@ -1,11 +1,16 @@
 package com.knowflow.service;
 
-import com.knowflow.entity.DocChunk;
-import com.knowflow.entity.DocDocument;
-import com.knowflow.entity.DocCategory;
-import com.knowflow.mapper.DocChunkMapper;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.service.impl.DocChunkServiceImpl;
+import com.knowflow.ai.service.EmbeddingService;
+import com.knowflow.knowledge.service.CategoryService;
+import com.knowflow.knowledge.service.KbMemberService;
+
+
+import com.knowflow.knowledge.entity.DocChunk;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.mapper.DocChunkMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.service.impl.DocChunkServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import org.junit.jupiter.api.Test;
 

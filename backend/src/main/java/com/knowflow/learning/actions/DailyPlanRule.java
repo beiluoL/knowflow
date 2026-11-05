@@ -17,45 +17,7 @@ public class DailyPlanRule {
         if (budget < 1 || budget > 720) throw new BusinessException(400, "学习时长必须为1至720分钟");
         List<String> focus = req.getFocusTopics() == null ? List.of() : req.getFocusTopics();
         String topic = focus.isEmpty() ? "学习基础" : String.join(" / ", focus);
-        List<PlanModels.Candidate> all = new ArrayList<>(context.candidates());
-        all.add(
-                new PlanModels.Candidate(
-                        "foundation",
-                        "梳理" + topic,
-                        "THEORY",
-                        "TOOL",
-                        null,
-                        null,
-                        null,
-                        "缺少充分证据时先建立基础学习记录，不视为薄弱或已掌握",
-                        "写出概念、适用条件与一个例子",
-                        100));
-        if (Boolean.TRUE.equals(req.getIncludePractice()))
-            all.add(
-                    new PlanModels.Candidate(
-                            "practice",
-                            "练习并核对" + topic,
-                            "PRACTICE",
-                            "TOOL",
-                            null,
-                            null,
-                            null,
-                            "通过真实作答检验理解，成绩以实际提交为准",
-                            "完成练习并记录错误原因",
-                            110));
-        if (Boolean.TRUE.equals(req.getIncludeInterview()))
-            all.add(
-                    new PlanModels.Candidate(
-                            "interview",
-                            "模拟面试：" + topic,
-                            "INTERVIEW",
-                            "TOOL",
-                            null,
-                            null,
-                            null,
-                            "练习解释机制与工程边界，不伪造回答或评分",
-                            "完成一轮真实回答并复盘",
-                            120));
+        List<PlanModels.Candidate> all = candidates(req, context, topic);
         all.removeIf(
                 c ->
                         (!Boolean.TRUE.equals(req.getIncludePractice())
@@ -109,6 +71,10 @@ public class DailyPlanRule {
                     .ifPresent(picked::add);
         if (Boolean.TRUE.equals(req.getIncludeInterview()) && picked.size() < max)
             all.stream().filter(c -> c.type().equals("INTERVIEW")).findFirst().ifPresent(picked::add);
+        return allocateBudget(picked, budget);
+    }
+
+    private List<PlanModels.Item> allocateBudget(List<PlanModels.Candidate> picked, int budget) {
         int n = picked.size(), base = budget / n, remaining = budget % n;
         List<PlanModels.Item> result = new ArrayList<>();
         for (int i = 0; i < n; i++) {
@@ -131,5 +97,48 @@ public class DailyPlanRule {
                             null));
         }
         return List.copyOf(result);
+    }
+
+    private List<PlanModels.Candidate> candidates(PlanModels.Request req, PlanModels.Context context, String topic) {
+        List<PlanModels.Candidate> all = new ArrayList<>(context.candidates());
+        all.add(
+                new PlanModels.Candidate(
+                        "foundation",
+                        "梳理" + topic,
+                        "THEORY",
+                        "TOOL",
+                        null,
+                        null,
+                        null,
+                        "缺少充分证据时先建立基础学习记录，不视为薄弱或已掌握",
+                        "写出概念、适用条件与一个例子",
+                        100));
+        if (Boolean.TRUE.equals(req.getIncludePractice()))
+            all.add(
+                    new PlanModels.Candidate(
+                            "practice",
+                            "练习并核对" + topic,
+                            "PRACTICE",
+                            "TOOL",
+                            null,
+                            null,
+                            null,
+                            "通过真实作答检验理解，成绩以实际提交为准",
+                            "完成练习并记录错误原因",
+                            110));
+        if (Boolean.TRUE.equals(req.getIncludeInterview()))
+            all.add(
+                    new PlanModels.Candidate(
+                            "interview",
+                            "模拟面试：" + topic,
+                            "INTERVIEW",
+                            "TOOL",
+                            null,
+                            null,
+                            null,
+                            "练习解释机制与工程边界，不伪造回答或评分",
+                            "完成一轮真实回答并复盘",
+                            120));
+        return all;
     }
 }

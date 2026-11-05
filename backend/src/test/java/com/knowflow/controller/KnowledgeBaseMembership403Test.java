@@ -1,15 +1,15 @@
 package com.knowflow.controller;
 
-import com.knowflow.controller.admin.AdminCategoryController;
-import com.knowflow.controller.admin.AdminKbMemberController;
-import com.knowflow.entity.DocCategory;
+import com.knowflow.knowledge.controller.admin.AdminCategoryController;
+import com.knowflow.knowledge.controller.admin.AdminKbMemberController;
+import com.knowflow.knowledge.entity.DocCategory;
 import com.knowflow.knowledge.entity.KbMember;
-import com.knowflow.entity.SysUser;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.service.CategoryService;
-import com.knowflow.service.DocService;
-import com.knowflow.service.KbMemberService;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.service.CategoryService;
+import com.knowflow.knowledge.service.DocService;
+import com.knowflow.knowledge.service.KbMemberService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;

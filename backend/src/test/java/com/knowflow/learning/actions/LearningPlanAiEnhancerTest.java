@@ -1,6 +1,6 @@
 package com.knowflow.learning.actions;
 import com.knowflow.ai.ModelAdapter;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import java.util.*;

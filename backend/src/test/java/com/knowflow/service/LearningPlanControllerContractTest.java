@@ -1,5 +1,8 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.LearningPlanService;
+
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Task 3 RED→GREEN Controller 契约基线测试（只跑存在性/方法签名，不跑集成）。
  * <p>
- * RED：ClassNotFound com.knowflow.controller.LearningPlanController。
+ * RED：ClassNotFound com.knowflow.learning.controller.LearningPlanController。
  * GREEN：Controller 存在；3 条方法签名、注解 @RequestMapping / @Tag 齐全。
  */
 class LearningPlanControllerContractTest {
@@ -21,7 +24,7 @@ class LearningPlanControllerContractTest {
 
     @BeforeEach
     void load() throws ClassNotFoundException {
-        cls = Class.forName("com.knowflow.controller.LearningPlanController");
+        cls = Class.forName("com.knowflow.learning.controller.LearningPlanController");
     }
 
     @Test

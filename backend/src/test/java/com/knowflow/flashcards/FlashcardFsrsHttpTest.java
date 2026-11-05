@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.support.FakeAiConfiguration;
+import com.knowflow.support.ActiveIdentityFixtures;
+import org.junit.jupiter.api.BeforeEach;
 import com.knowflow.utils.JwtUtils;
 
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,14 @@ class FlashcardFsrsHttpTest {
     @Autowired MockMvc mvc;
     @Autowired JwtUtils jwt;
     @Autowired ObjectMapper json;
+
+    @BeforeEach
+    void activeAccounts() {
+        for (long user : new long[] {98771, 98772, 98773, 98774, 98775, 98776, 98777, 98783}) {
+            ActiveIdentityFixtures.ensureActive(jdbc, user, "fsrs-test" + user, "USER");
+        }
+        ActiveIdentityFixtures.ensureActive(jdbc, 98784, "fsrs-test-admin", "ADMIN");
+    }
 
     String auth(long id) {
         return "Bearer " + jwt.generateToken(id, "fsrs-test" + id, "USER");
@@ -272,7 +282,7 @@ class FlashcardFsrsHttpTest {
                         get("/api/learning/flashcards/" + id + "/schedule")
                                 .header(
                                         "Authorization",
-                                        "Bearer " + jwt.generateToken(1L, "admin", "ADMIN")))
+                                        "Bearer " + jwt.generateToken(98784L, "fsrs-test-admin", "ADMIN")))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value(403));
     }

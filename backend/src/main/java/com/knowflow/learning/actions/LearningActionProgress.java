@@ -1,7 +1,7 @@
 package com.knowflow.learning.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.LearningEvent;
+import com.knowflow.learning.entity.LearningEvent;
 import java.sql.Timestamp;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,7 @@ public class LearningActionProgress {
                                 && item.path("resourceId").asLong(-1) == e.getResourceId();
                 if (!same) continue;
                 long id = ((Number) row.get("id")).longValue();
-                var task = new com.knowflow.entity.Task();
+                var task = new com.knowflow.productivity.entity.Task();
                 task.setId(id);
                 task.setUserId(e.getUserId());
                 task.setLearningMetadata((String) row.get("learning_metadata"));

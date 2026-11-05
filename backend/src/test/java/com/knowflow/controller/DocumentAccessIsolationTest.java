@@ -1,8 +1,29 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
-import com.knowflow.service.*;
+import com.knowflow.ai.service.EmbeddingService;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocChunk;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocChunkMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.knowledge.service.DocChunkService;
+import com.knowflow.knowledge.service.DocService;
+import com.knowflow.knowledge.service.KbMemberService;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
+
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+
+
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;

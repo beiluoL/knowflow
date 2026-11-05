@@ -1,10 +1,11 @@
 package com.knowflow.controller;
+import com.knowflow.support.ActiveIdentityFixtures;
 
-import com.knowflow.entity.LearningTask;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.entity.LearningTask;
+import com.knowflow.learning.service.LearningService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
-import com.knowflow.vo.LearningTaskVO;
+import com.knowflow.learning.vo.LearningTaskVO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "knowflow.datasource.h2.url=jdbc:h2:mem:knowflow_p1c_task;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL")
 class LearningTaskPermissionTest {
 
-    /** 本类专属用户；JwtAuthenticationFilter 只解析 token 不查库，故无需预先插入用户行。 */
+    /** 本类专属用户；签发JWT前创建真实活动主体，经过完整认证与任务归属检查。 */
     private static final Long OWNER = 97401L;
     private static final Long INTRUDER = 97402L;
 
@@ -70,7 +71,11 @@ class LearningTaskPermissionTest {
     @Autowired
     private LearningService learningService;
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
     private String token(Long userId) {
+        ActiveIdentityFixtures.ensureActive(jdbcTemplate, userId, "p1c-task-" + userId, "USER");
         return jwtUtils.generateToken(userId, "p1c-task-" + userId, "USER");
     }
 

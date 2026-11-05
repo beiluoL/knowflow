@@ -1,9 +1,21 @@
 package com.knowflow.learning.actions;
+
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+
+
+import com.knowflow.mastery.entity.KnowledgeMastery;
+import com.knowflow.mastery.mapper.KnowledgeMasteryMapper;
+
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
-import com.knowflow.dto.TaskDTO;
-import com.knowflow.service.TaskService;
+import com.knowflow.productivity.dto.TaskDTO;
+import com.knowflow.productivity.service.TaskService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;

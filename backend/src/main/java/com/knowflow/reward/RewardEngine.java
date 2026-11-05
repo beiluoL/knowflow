@@ -1,7 +1,7 @@
 package com.knowflow.reward;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.LearningEvent;
+import com.knowflow.learning.contract.LearningRewardEvent;
 import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.reward.entity.Wallet;
 import java.time.LocalDate;
@@ -32,7 +32,7 @@ public class RewardEngine {
 
   /** 事件入账入口（由 LearningEventServiceImpl 在事件落库后调用）。 */
   @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-  public void onEvent(LearningEvent event) {
+  public void onEvent(LearningRewardEvent event) {
     if (event == null || event.getId() == null || event.getUserId() == null) {
       return;
     }
@@ -92,7 +92,7 @@ public class RewardEngine {
     }
   }
 
-  private Map<?, ?> readMetadata(LearningEvent event) {
+  private Map<?, ?> readMetadata(LearningRewardEvent event) {
     try {
       return MAPPER.readValue(event.getMetadata(), Map.class);
     } catch (com.fasterxml.jackson.core.JsonProcessingException exception) {
@@ -112,7 +112,7 @@ public class RewardEngine {
   }
 
   /** CODE_SUBMITTED 事件 metadata：{"passed": true} 或 {"passCount": N, "total": N} */
-  private boolean isCodePassed(LearningEvent event) {
+  private boolean isCodePassed(LearningRewardEvent event) {
     String metadata = event.getMetadata();
     if (metadata == null || metadata.isBlank()) {
       return false;

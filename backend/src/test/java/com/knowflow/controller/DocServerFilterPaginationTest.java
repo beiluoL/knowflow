@@ -2,8 +2,8 @@ package com.knowflow.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.DocDocument;
-import com.knowflow.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;

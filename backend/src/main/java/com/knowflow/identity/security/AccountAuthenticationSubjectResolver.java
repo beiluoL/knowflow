@@ -1,9 +1,9 @@
 package com.knowflow.identity.security;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.SysUser;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.framework.security.AuthenticationSubjectResolver;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

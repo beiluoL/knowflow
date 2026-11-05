@@ -1,9 +1,12 @@
 package com.knowflow.controller;
 
-import com.knowflow.dto.FocusSessionEndDTO;
-import com.knowflow.entity.FocusSession;
-import com.knowflow.mapper.FocusSessionMapper;
-import com.knowflow.mapper.UserPetMapper;
+import com.knowflow.productivity.controller.FocusSessionController;
+
+
+import com.knowflow.productivity.dto.FocusSessionEndDTO;
+import com.knowflow.productivity.entity.FocusSession;
+import com.knowflow.productivity.mapper.FocusSessionMapper;
+import com.knowflow.reward.mapper.UserPetMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +29,13 @@ class FocusSessionTransactionTest {
     @Autowired FocusSessionMapper sessions;
     @SpyBean UserPetMapper pets;
 
-    @Autowired com.knowflow.mapper.SysUserMapper users;
+    @Autowired com.knowflow.identity.mapper.SysUserMapper users;
 
     @org.junit.jupiter.api.BeforeEach
     void seedOwners() {
         for (long owner : new long[]{991871L, 991872L, 991873L}) {
             if (users.selectById(owner) != null) continue;
-            var user = new com.knowflow.entity.SysUser();
+            var user = new com.knowflow.identity.entity.SysUser();
             user.setId(owner);
             user.setUsername("focus-owner-" + owner);
             user.setEmail("focus-owner-" + owner + "@test.invalid");
@@ -51,7 +54,7 @@ class FocusSessionTransactionTest {
         session.setDurationMin(0);
         sessions.insert(session);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(owner, "", List.of()));
-        doThrow(new IllegalStateException("injected pet persistence failure")).when(pets).insert(any(com.knowflow.entity.UserPet.class));
+        doThrow(new IllegalStateException("injected pet persistence failure")).when(pets).insert(any(com.knowflow.reward.entity.UserPet.class));
         FocusSessionEndDTO request = new FocusSessionEndDTO();
         request.setDurationMin(25);
         try {
@@ -78,7 +81,7 @@ class FocusSessionTransactionTest {
         try {
             controller.end(session.getId(), request);
             controller.end(session.getId(), request);
-            var pet = pets.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.UserPet>().eq(com.knowflow.entity.UserPet::getUserId, owner));
+            var pet = pets.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.reward.entity.UserPet>().eq(com.knowflow.reward.entity.UserPet::getUserId, owner));
             assertEquals(25, pet.getTotalFocusMinutes());
         } finally { SecurityContextHolder.clearContext(); }
     }
@@ -105,7 +108,7 @@ class FocusSessionTransactionTest {
                 } finally { SecurityContextHolder.clearContext(); }
             }));
             for (var job : jobs) job.get(30, java.util.concurrent.TimeUnit.SECONDS);
-            var pet = pets.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.UserPet>().eq(com.knowflow.entity.UserPet::getUserId, owner));
+            var pet = pets.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.reward.entity.UserPet>().eq(com.knowflow.reward.entity.UserPet::getUserId, owner));
             assertEquals(25, pet.getTotalFocusMinutes());
         } finally { pool.shutdownNow(); }
     }

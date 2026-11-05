@@ -1,19 +1,22 @@
 package com.knowflow.controller;
 
+import com.knowflow.learning.controller.LearningController;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.learning.contract.LearningEventType;
-import com.knowflow.entity.LearningEvent;
-import com.knowflow.entity.LearningFlashcard;
-import com.knowflow.entity.LearningPath;
-import com.knowflow.mapper.LearningEventMapper;
-import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.mapper.LearningPathMapper;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+import com.knowflow.learning.service.LearningService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
-import com.knowflow.vo.FlashcardVO;
+import com.knowflow.flashcards.vo.FlashcardVO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

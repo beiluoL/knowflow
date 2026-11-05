@@ -1,7 +1,8 @@
 package com.knowflow.controller;
+import com.knowflow.support.ActiveIdentityFixtures;
 
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc @ActiveProfiles("local")
 class PrivateQuizHttpTest {
  @Autowired MockMvc mvc; @Autowired ObjectMapper json; @Autowired JwtUtils jwt; @Autowired JdbcTemplate sql;
- @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+ @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
  final long owner=98301;
- String auth(long user){return "Bearer "+jwt.generateToken(user,"private-"+user,user==98303?"ADMIN":"USER");}
+ @BeforeEach void activeActors() {
+  for (long user : new long[]{98301, 98302, 98303, 98310, 98311, 98312}) {
+   ActiveIdentityFixtures.ensureActive(sql, user, "private-" + user, user == 98303 ? "ADMIN" : "USER");
+  }
+ }
+ String auth(long user){
+  return "Bearer "+jwt.generateToken(user,"private-"+user,user==98303?"ADMIN":"USER");}
  JsonNode call(String method,String path,Object body,long user,int expected)throws Exception{
   var req=method.equals("POST")?post(path):get(path);
   return json.readTree(mvc.perform(req.header("Authorization",auth(user)).contentType("application/json").content(body==null?"":json.writeValueAsString(body)))

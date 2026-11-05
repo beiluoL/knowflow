@@ -179,10 +179,10 @@ public class DataSourceManager {
                 runScript(conn, item.getDataLocation(), type, "data");
             }
             // Always migrate the target connection before publication, including existing auto/never databases.
-            com.knowflow.service.ChatManagementSchema.migrate(conn);
-            com.knowflow.service.NoteSchema.migrate(conn);
+            com.knowflow.ai.service.ChatManagementSchema.migrate(conn);
+            com.knowflow.knowledge.service.NoteSchema.migrate(conn);
             // 技术英语 P0：存量 H2/MySQL 库同样需要增量建表
-            com.knowflow.service.TechVocabSchema.migrate(conn);
+            com.knowflow.techenglish.service.TechVocabSchema.migrate(conn);
             runScript(conn, "db/" + type.getCode() + "/migration/V20261104__identity_oauth_state.sql",
                     type, "identity-oauth-state");
             runScript(conn, "db/" + type.getCode() + "/migration/V20261105__ai_billing.sql",

@@ -1,11 +1,12 @@
 package com.knowflow.controller;
+import com.knowflow.support.ActiveIdentityFixtures;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.service.LearningService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
-import com.knowflow.vo.CategoryMasteryVO;
+import com.knowflow.mastery.vo.CategoryMasteryVO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -95,6 +96,7 @@ class CategoryMasteryQueryTest {
     private ObjectMapper objectMapper;
 
     private String token(Long userId) {
+        ActiveIdentityFixtures.ensureActive(jdbcTemplate, userId, "p1c-mastery-" + userId, "USER");
         return jwtUtils.generateToken(userId, "p1c-mastery-" + userId, "USER");
     }
 

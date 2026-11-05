@@ -1,8 +1,24 @@
 package com.knowflow.learning.product;
 
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+
+
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;

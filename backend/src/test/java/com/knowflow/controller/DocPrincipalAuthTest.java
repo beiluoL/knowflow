@@ -1,14 +1,17 @@
 package com.knowflow.controller;
 
+import com.knowflow.knowledge.controller.DocController;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.entity.DocDocument;
-import com.knowflow.entity.LearningFlashcard;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.flashcards.entity.LearningFlashcard;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.mapper.LearningFlashcardMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -121,9 +124,9 @@ class DocPrincipalAuthTest {
     }
     /** Auth regression positives now use a genuinely writable knowledge base, not an unowned document. */
     private long writableCategory() {
-        com.knowflow.entity.DocCategory c=new com.knowflow.entity.DocCategory();c.setName("auth-writable");c.setOwnerId(USER_A);c.setParentId(0L);c.setStatus(1);categoryMapper.insert(c);return c.getId();
+        com.knowflow.knowledge.entity.DocCategory c=new com.knowflow.knowledge.entity.DocCategory();c.setName("auth-writable");c.setOwnerId(USER_A);c.setParentId(0L);c.setStatus(1);categoryMapper.insert(c);return c.getId();
     }
-    @Autowired private com.knowflow.mapper.DocCategoryMapper categoryMapper;
+    @Autowired private com.knowflow.knowledge.mapper.DocCategoryMapper categoryMapper;
 
     /** 建一篇已发布文档；返回其 id。 */
     private long newDoc(String title) {

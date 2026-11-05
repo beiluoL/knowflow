@@ -1,8 +1,8 @@
 package com.knowflow.config;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.security.JwtAccessDeniedHandler;
 import com.knowflow.security.JwtAuthenticationEntryPoint;
 import com.knowflow.framework.security.JwtAuthenticationFilter;

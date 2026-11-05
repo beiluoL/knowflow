@@ -1,8 +1,8 @@
 package com.knowflow.config.datasource;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.knowflow.dto.DbSwitchDTO;
-import com.knowflow.service.impl.DatabaseAdminServiceImpl;
+import com.knowflow.administration.dto.DbSwitchDTO;
+import com.knowflow.administration.service.impl.DatabaseAdminServiceImpl;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Test;
 import java.sql.DriverManager;

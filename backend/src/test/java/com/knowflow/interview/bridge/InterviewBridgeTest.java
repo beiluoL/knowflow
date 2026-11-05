@@ -1,13 +1,19 @@
 package com.knowflow.interview.bridge;
 
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.TaskDTO;
-import com.knowflow.entity.*;
+import com.knowflow.productivity.dto.TaskDTO;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.interview.service.MockInterviewService;
-import com.knowflow.mapper.*;
 import com.knowflow.security.DocumentAccessPolicy;
-import com.knowflow.service.TaskService;
+import com.knowflow.productivity.service.TaskService;
 import org.junit.jupiter.api.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -64,7 +70,7 @@ class InterviewBridgeTest {
     }
     @Test void actualPolicyAllowsOwnerEditorReaderAdminAndRejectsOther() {
         var categories=mock(DocCategoryMapper.class);
-        var members=mock(com.knowflow.service.KbMemberService.class);
+        var members=mock(com.knowflow.knowledge.service.KbMemberService.class);
         var docs=mock(DocDocumentMapper.class);
         var policy=new DocumentAccessPolicy(categories,members,docs);
         var category=new DocCategory();category.setId(20L);category.setOwnerId(7L);category.setStatus(1);
@@ -84,7 +90,8 @@ class InterviewBridgeTest {
     @Test void contextBoundsAndDelegatesEveryDocumentAuthorization() {
         DocDocumentMapper docs=mock(DocDocumentMapper.class);
         DocDocument doc=new DocDocument();doc.setId(4L);doc.setTitle("Project");doc.setContent("x".repeat(3000));when(docs.selectById(4L)).thenReturn(doc);
-        var context=new InterviewProjectContextService(docs,access);
+        var context=new InterviewProjectContextService(
+                new com.knowflow.knowledge.service.query.ProjectDocumentQueryService(docs,access));
         var snapshot=context.resolve(7L,List.of(4L,4L),"user claim");
         assertEquals("USER_REPORTED",snapshot.userDescriptionSource());assertEquals(2400,snapshot.evidence().get(0).quote().length());
         assertEquals("DOCUMENT_CONTENT_ONLY",snapshot.evidence().get(0).claimScope());verify(access).requireRead(doc,7L);

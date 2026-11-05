@@ -24,13 +24,13 @@ import com.knowflow.coding.vo.CodingVos;
 import com.knowflow.ai.capability.AiCapabilityException;
 import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.common.PageResult;
-import com.knowflow.entity.LearningMistake;
-import com.knowflow.entity.QuizQuestion;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.learning.entity.QuizQuestion;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.QuizQuestionMapper;
-import com.knowflow.service.AiService;
-import com.knowflow.service.LearningEventService;
-import com.knowflow.service.MistakeService;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.ai.service.AiService;
+import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.service.MistakeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -70,7 +70,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
     @org.springframework.beans.factory.annotation.Value("${knowflow.product.java-practice.enabled:false}")
     private boolean javaPracticeEnabled;
     private final com.knowflow.learning.actions.PersonalLearningResourceScope personalScope;
-    private final com.knowflow.mapper.DocDocumentMapper sourceDocuments;
+    private final com.knowflow.knowledge.mapper.DocDocumentMapper sourceDocuments;
 
     /** 所有用户入口共享个人学习资格；ADMIN管理权限不能用来旁路私人来源。 */
     private QuizQuestion requirePersonalQuestion(Long questionId, Long userId) {

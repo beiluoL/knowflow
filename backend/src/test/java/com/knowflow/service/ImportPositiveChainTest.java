@@ -1,9 +1,22 @@
 package com.knowflow.service;
 
-import com.knowflow.dto.*;
-import com.knowflow.entity.*;
+import com.knowflow.ai.service.EmbeddingService;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.dto.KnowledgeImportOptionsDTO;
+import com.knowflow.knowledge.dto.ObsidianImportDTO;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.service.KbMemberService;
+import com.knowflow.knowledge.service.KnowledgeImportService;
+import com.knowflow.knowledge.service.ObsidianImportService;
+
+
+import com.knowflow.learning.mapper.LearningPathMapper;
+
+
 import com.knowflow.knowledge.entity.KbMember;
-import com.knowflow.mapper.*;
 import com.knowflow.security.HostCapabilityProperties;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.*;

@@ -1,7 +1,7 @@
 package com.knowflow.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.FlashcardSaveDTO;
+import com.knowflow.flashcards.dto.FlashcardSaveDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package com.knowflow.exam.engine;
 
-import com.knowflow.entity.QuizQuestion;
+import com.knowflow.learning.entity.QuizQuestion;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

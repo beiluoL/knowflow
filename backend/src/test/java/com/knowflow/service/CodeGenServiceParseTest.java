@@ -1,6 +1,9 @@
 package com.knowflow.service;
 
-import com.knowflow.vo.GeneratedFileVO;
+import com.knowflow.ai.service.CodeGenService;
+
+
+import com.knowflow.ai.vo.GeneratedFileVO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

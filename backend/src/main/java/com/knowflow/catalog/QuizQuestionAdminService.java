@@ -1,6 +1,6 @@
 package com.knowflow.catalog;
-import com.knowflow.entity.QuizQuestion;
-import com.knowflow.mapper.QuizQuestionMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.exception.BusinessException;
 import lombok.RequiredArgsConstructor;

@@ -416,7 +416,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   width: min(1000px, 100%);
   max-height: 86vh;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
+  border-radius: var(--kf-chat-code-modal-radius);
   overflow: hidden;
   background: var(--kf-content-code-background);
 }

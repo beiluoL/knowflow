@@ -2,10 +2,10 @@ package com.knowflow.flashcards;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.LearningFlashcard;
+import com.knowflow.flashcards.entity.LearningFlashcard;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.service.LearningEventService;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.service.LearningEventService;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

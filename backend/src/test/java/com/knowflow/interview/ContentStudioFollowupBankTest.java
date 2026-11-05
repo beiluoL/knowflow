@@ -1,7 +1,10 @@
 package com.knowflow.interview;
+
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
 import com.knowflow.interview.core.*;
-import com.knowflow.entity.QuizQuestion;
-import com.knowflow.mapper.*;
+import com.knowflow.learning.entity.QuizQuestion;
 import com.knowflow.security.DocumentAccessPolicy;
 import com.knowflow.exception.BusinessException;
 import org.junit.jupiter.api.Test;

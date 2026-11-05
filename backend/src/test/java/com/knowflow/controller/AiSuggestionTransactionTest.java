@@ -1,7 +1,10 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.UserPet;
-import com.knowflow.mapper.UserPetMapper;
+import com.knowflow.learning.controller.AiLearningSuggestionController;
+
+
+import com.knowflow.reward.entity.UserPet;
+import com.knowflow.reward.mapper.UserPetMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +25,19 @@ import static org.mockito.Mockito.*;
 class AiSuggestionTransactionTest {
     @Autowired AiLearningSuggestionController controller;
     @Autowired JdbcTemplate jdbc;
-    @SpyBean com.knowflow.mapper.AiLearningSuggestionMapper suggestions;
+    @SpyBean com.knowflow.learning.mapper.AiLearningSuggestionMapper suggestions;
 
     @Test
     void failedReplacementKeepsPreviousCachedSuggestion() {
         long owner = 991883L;
         jdbc.update("INSERT INTO sys_user(id, username, password, deleted) VALUES (?, ?, ?, 0)", owner, "suggestion_atomic_owner", "test");
-        var cached = new com.knowflow.entity.AiLearningSuggestion();
+        var cached = new com.knowflow.learning.entity.AiLearningSuggestion();
         cached.setUserId(owner);
         cached.setPeriod("week");
         cached.setSuggestions("[]");
         suggestions.insert(cached);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(owner, "", List.of()));
-        doThrow(new IllegalStateException("insert failure")).when(suggestions).insert(any(com.knowflow.entity.AiLearningSuggestion.class));
+        doThrow(new IllegalStateException("insert failure")).when(suggestions).insert(any(com.knowflow.learning.entity.AiLearningSuggestion.class));
         try {
             assertThrows(RuntimeException.class, () -> controller.regenerate("week", null));
             assertNotNull(suggestions.selectById(cached.getId()));

@@ -2,8 +2,8 @@ package com.knowflow.learning.contract;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.mapper.LearningScenarioMapper;
-import com.knowflow.mapper.QuizQuestionMapper;
+import com.knowflow.learning.mapper.LearningScenarioMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;

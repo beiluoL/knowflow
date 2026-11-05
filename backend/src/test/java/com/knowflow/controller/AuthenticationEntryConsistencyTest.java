@@ -1,5 +1,8 @@
 package com.knowflow.controller;
 
+import com.knowflow.identity.controller.UserController;
+
+
 import com.knowflow.exception.GlobalExceptionHandler;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.AfterEach;

@@ -1,7 +1,10 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.UserPet;
-import com.knowflow.mapper.UserPetMapper;
+import com.knowflow.ai.controller.AiConfigController;
+
+
+import com.knowflow.reward.entity.UserPet;
+import com.knowflow.reward.mapper.UserPetMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +25,14 @@ import static org.mockito.Mockito.*;
 class AiConfigTransactionTest {
     @Autowired AiConfigController controller;
     @Autowired JdbcTemplate jdbc;
-    @SpyBean com.knowflow.mapper.UserAiConfigMapper configs;
+    @SpyBean com.knowflow.ai.mapper.UserAiConfigMapper configs;
 
     @Test
     void failedActivationRetainsPreviousActiveConfig() {
         long owner = 991882L;
         jdbc.update("INSERT INTO sys_user(id, username, password, deleted) VALUES (?, ?, ?, 0)", owner, "config_atomic_owner", "test");
-        com.knowflow.entity.UserAiConfig first = config(owner, 1);
-        com.knowflow.entity.UserAiConfig second = config(owner, 0);
+        com.knowflow.ai.entity.UserAiConfig first = config(owner, 1);
+        com.knowflow.ai.entity.UserAiConfig second = config(owner, 0);
         configs.insert(first);
         configs.insert(second);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(owner, "", List.of()));
@@ -44,8 +47,8 @@ class AiConfigTransactionTest {
         } finally { reset(configs); SecurityContextHolder.clearContext(); }
     }
 
-    private com.knowflow.entity.UserAiConfig config(long owner, int active) {
-        var config = new com.knowflow.entity.UserAiConfig();
+    private com.knowflow.ai.entity.UserAiConfig config(long owner, int active) {
+        var config = new com.knowflow.ai.entity.UserAiConfig();
         config.setUserId(owner);
         config.setProvider("openai");
         config.setApiKey("test");

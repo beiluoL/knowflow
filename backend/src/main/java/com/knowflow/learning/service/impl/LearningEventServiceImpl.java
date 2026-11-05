@@ -1,0 +1,145 @@
+package com.knowflow.learning.service.impl;
+
+
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.knowflow.learning.contract.LearningEventType;
+import com.knowflow.common.SecurityUtils;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.mastery.service.KnowledgeMasteryService;
+import com.knowflow.learning.service.LearningEventService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+
+/**
+ * 学习行为事件服务实现（Learning Event System，Phase 1）。
+ * <p>
+ * 关键：{@code record} 方法运行在独立事务（REQUIRES_NEW）中，且与主业务完全解耦——
+ * 即便调用方事务回滚，事件仍会落库；即便事件写入异常，也被吞掉仅告警，绝不外抛。
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, LearningEvent> implements LearningEventService {
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    /** 掌握度引擎：事件落库后触发（独立 try/catch，失败仅告警，不阻断业务）。 */
+    private final KnowledgeMasteryService knowledgeMasteryService;
+
+    /** 奖励引擎（Architecture-2）：事件是奖励的唯一行为输入（§13/§19），失败不影响主流程。 */
+    private final com.knowflow.reward.RewardEngine rewardEngine;
+    private final org.springframework.transaction.PlatformTransactionManager transactionManager;
+    private final org.springframework.context.ApplicationEventPublisher publisher;
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void record(Long userId, String eventType, String resourceType, Long resourceId, Map<String, Object> metadata) {
+        doRecord(userId, eventType, resourceType, resourceId, metadata);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void record(Long userId, LearningEventType eventType, String resourceType, Long resourceId, Map<String, Object> metadata) {
+        doRecord(userId, eventType == null ? null : eventType.name(), resourceType, resourceId, metadata);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void record(Long userId, String eventType, String resourceType, Long resourceId) {
+        doRecord(userId, eventType, resourceType, resourceId, null);
+    }
+
+    private void doRecord(Long userId, String eventType, String resourceType, Long resourceId, Map<String, Object> metadata) {
+        try {
+            Long uid = userId != null ? userId : SecurityUtils.getCurrentUserIdNullable();
+            if (uid == null) {
+                return;
+            }
+            if (eventType == null || eventType.isBlank()) {
+                return;
+            }
+            LearningEvent event = new LearningEvent();
+            event.setUserId(uid);
+            event.setEventType(eventType);
+            event.setResourceType(resourceType);
+            event.setResourceId(resourceId);
+            event.setMetadata(serialize(metadata));
+            this.save(event);
+            publisher.publishEvent(new com.knowflow.learning.actions.LearningActionProgress.Committed(event));
+            try {
+                knowledgeMasteryService.processEvent(event);
+            } catch (Exception ex) {
+                log.warn("掌握度引擎处理事件失败（已忽略，不影响主流程）: eventId={}, err={}", event.getId(), ex.getMessage());
+            }
+            try {
+                rewardEngine.onEvent(event);
+            } catch (Exception ex) {
+                log.warn("奖励引擎处理事件失败（已忽略，不影响主流程）: eventId={}, err={}", event.getId(), ex.getMessage());
+            }
+        } catch (Exception ex) {
+            log.warn("记录学习事件失败（已忽略，不影响主流程）: type={}, err={}", eventType, ex.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void recordRequired(Long userId, String eventType, String resourceType, Long resourceId, Map<String, Object> metadata) {
+        LearningEvent event = new LearningEvent();
+        event.setUserId(java.util.Objects.requireNonNull(userId));
+        event.setEventType(eventType);
+        event.setResourceType(resourceType);
+        event.setResourceId(resourceId);
+        try { event.setMetadata(MAPPER.writeValueAsString(metadata)); }
+        catch (com.fasterxml.jackson.core.JsonProcessingException ex) { throw new IllegalStateException("Cannot serialize learning event", ex); }
+        if (!save(event)) throw new IllegalStateException("Cannot persist learning event");
+        // Downstream engines must read the committed card, without holding the review row lock.
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+            new org.springframework.transaction.support.TransactionSynchronization() {
+                @Override public void afterCommit() {
+                    try {
+                        var transaction = new org.springframework.transaction.support.TransactionTemplate(transactionManager);
+                        transaction.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+                        transaction.executeWithoutResult(status -> knowledgeMasteryService.processEvent(event));
+                    }
+                    catch (Exception ex) { log.warn("Mastery processing failed for committed event {}", event.getId(), ex); }
+                    try { rewardEngine.onEvent(event); }
+                    catch (Exception ex) { log.warn("Reward processing failed for committed event {}", event.getId(), ex); }
+                }
+            });
+        publisher.publishEvent(new com.knowflow.learning.actions.LearningActionProgress.Committed(event));
+    }
+
+    private String serialize(Map<String, Object> metadata) {
+        if (metadata == null || metadata.isEmpty()) {
+            return null;
+        }
+        try {
+            return MAPPER.writeValueAsString(metadata);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public IPage<LearningEvent> pageEvents(Long userId, String eventType, int current, int size) {
+        Page<LearningEvent> page = new Page<>(Math.max(current, 1), Math.max(size, 1));
+        LambdaQueryWrapper<LearningEvent> wrapper = new LambdaQueryWrapper<LearningEvent>()
+                .eq(LearningEvent::getUserId, userId)
+                .orderByDesc(LearningEvent::getCreateTime);
+        if (eventType != null && !eventType.isBlank()) {
+            wrapper.eq(LearningEvent::getEventType, eventType);
+        }
+        return this.page(page, wrapper);
+    }
+}

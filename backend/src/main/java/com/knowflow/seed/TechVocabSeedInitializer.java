@@ -2,9 +2,9 @@ package com.knowflow.seed;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.TechVocabConceptLink;
-import com.knowflow.entity.TechVocabPronunciation;
-import com.knowflow.entity.TechVocabTerm;
+import com.knowflow.techenglish.entity.TechVocabConceptLink;
+import com.knowflow.techenglish.entity.TechVocabPronunciation;
+import com.knowflow.techenglish.entity.TechVocabTerm;
 import com.knowflow.techenglish.mapper.TechVocabConceptLinkMapper;
 import com.knowflow.techenglish.mapper.TechVocabPronunciationMapper;
 import com.knowflow.techenglish.mapper.TechVocabTermMapper;

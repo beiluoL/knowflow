@@ -1,6 +1,9 @@
 package com.knowflow.controller;
 
-import com.knowflow.service.ChatService;
+import com.knowflow.ai.controller.ChatController;
+
+
+import com.knowflow.ai.service.ChatService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;

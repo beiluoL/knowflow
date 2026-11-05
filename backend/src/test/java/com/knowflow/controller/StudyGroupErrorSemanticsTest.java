@@ -3,17 +3,17 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.config.UploadConfigProperties;
-import com.knowflow.dto.GroupInviteDTO;
-import com.knowflow.dto.StudyGroupCreateDTO;
-import com.knowflow.entity.StudyGroup;
-import com.knowflow.entity.StudyGroupMember;
-import com.knowflow.entity.StudyGroupMessage;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.StudyGroupMapper;
-import com.knowflow.mapper.StudyGroupMemberMapper;
-import com.knowflow.mapper.StudyGroupMessageMapper;
-import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.service.StudyGroupService;
+import com.knowflow.community.dto.GroupInviteDTO;
+import com.knowflow.community.dto.StudyGroupCreateDTO;
+import com.knowflow.community.entity.StudyGroup;
+import com.knowflow.community.entity.StudyGroupMember;
+import com.knowflow.community.entity.StudyGroupMessage;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.community.mapper.StudyGroupMapper;
+import com.knowflow.community.mapper.StudyGroupMemberMapper;
+import com.knowflow.community.mapper.StudyGroupMessageMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.community.service.StudyGroupService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * P1-D5：{@link com.knowflow.service.impl.StudyGroupServiceImpl} 的 HTTP 错误语义收敛测试。
+ * P1-D5：{@link com.knowflow.community.service.impl.StudyGroupServiceImpl} 的 HTTP 错误语义收敛测试。
  *
  * <p><b>缺陷背景</b>：{@code StudyGroupServiceImpl} 原有 <b>22 处</b>裸 {@code RuntimeException}，
  * 全部是「用户请求本身触发、用户可理解」的业务错误，却经 {@code GlobalExceptionHandler} 兜底
@@ -171,8 +171,8 @@ class StudyGroupErrorSemanticsTest {
                 buildMessageDto(groupId, "P1D5-" + userId + "-" + System.nanoTime()), userId).getId();
     }
 
-    private com.knowflow.dto.GroupMessageSendDTO buildMessageDto(Long groupId, String content) {
-        com.knowflow.dto.GroupMessageSendDTO dto = new com.knowflow.dto.GroupMessageSendDTO();
+    private com.knowflow.community.dto.GroupMessageSendDTO buildMessageDto(Long groupId, String content) {
+        com.knowflow.community.dto.GroupMessageSendDTO dto = new com.knowflow.community.dto.GroupMessageSendDTO();
         dto.setGroupId(groupId);
         dto.setContent(content);
         return dto;

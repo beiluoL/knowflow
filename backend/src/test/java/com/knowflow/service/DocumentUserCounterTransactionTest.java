@@ -1,9 +1,12 @@
 package com.knowflow.service;
 
-import com.knowflow.entity.DocDocument;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.service.UserService;
+
+
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;

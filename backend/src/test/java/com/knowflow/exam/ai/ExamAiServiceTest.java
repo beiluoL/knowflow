@@ -3,7 +3,7 @@ package com.knowflow.exam.ai;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.exam.ai.ExamAiService.AiGrade;
 import com.knowflow.exam.ai.ExamAiService.GradeInput;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

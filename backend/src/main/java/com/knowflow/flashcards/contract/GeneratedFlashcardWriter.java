@@ -1,7 +1,7 @@
 package com.knowflow.flashcards.contract;
 
-import com.knowflow.entity.LearningFlashcard;
-import com.knowflow.mapper.LearningFlashcardMapper;
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;

@@ -1,25 +1,28 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.LearningContentService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.LearningContentAcceptRequest;
-import com.knowflow.dto.LearningContentGenerateRequest;
-import com.knowflow.entity.KgEntity;
-import com.knowflow.entity.LearningChapter;
-import com.knowflow.entity.LearningEvent;
-import com.knowflow.entity.LearningFlashcard;
-import com.knowflow.entity.LearningGoal;
-import com.knowflow.entity.LearningScenario;
+import com.knowflow.learning.dto.LearningContentAcceptRequest;
+import com.knowflow.learning.dto.LearningContentGenerateRequest;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.learning.entity.LearningGoal;
+import com.knowflow.learning.entity.LearningScenario;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.KgEntityMapper;
-import com.knowflow.mapper.LearningChapterMapper;
-import com.knowflow.mapper.LearningEventMapper;
-import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.mapper.LearningGoalMapper;
-import com.knowflow.mapper.LearningScenarioMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.mapper.LearningGoalMapper;
+import com.knowflow.learning.mapper.LearningScenarioMapper;
 import com.knowflow.support.FakeAiConfiguration;
-import com.knowflow.vo.LearningContentAcceptResultVO;
-import com.knowflow.vo.LearningContentGenerationResultVO;
+import com.knowflow.learning.vo.LearningContentAcceptResultVO;
+import com.knowflow.learning.vo.LearningContentGenerationResultVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -65,8 +68,8 @@ class LearningContentServiceTest {
     @Autowired private LearningGoalMapper goalMapper;
     @Autowired private LearningEventMapper eventMapper;
     @Autowired private ObjectMapper objectMapper;
-    @Autowired private com.knowflow.mapper.DocDocumentMapper documents;
-    @Autowired private com.knowflow.mapper.LearningPathMapper paths;
+    @Autowired private com.knowflow.knowledge.mapper.DocDocumentMapper documents;
+    @Autowired private com.knowflow.learning.mapper.LearningPathMapper paths;
 
     @BeforeEach
     void setUp() {
@@ -78,7 +81,7 @@ class LearningContentServiceTest {
     private KgEntity entity(Long id, String name, String description) {
         KgEntity e = new KgEntity();
         e.setId(id);
-        com.knowflow.entity.DocDocument source=new com.knowflow.entity.DocDocument();source.setId(id);source.setTitle(name);source.setContent(description);source.setStatus(1);documents.insert(source);
+        com.knowflow.knowledge.entity.DocDocument source=new com.knowflow.knowledge.entity.DocDocument();source.setId(id);source.setTitle(name);source.setContent(description);source.setStatus(1);documents.insert(source);
         e.setDocId(id); // Real published public source for document authorization.
         e.setName(name);
         e.setType("CONCEPT");
@@ -88,7 +91,7 @@ class LearningContentServiceTest {
     }
 
     private LearningChapter chapter(Long id, Long pathId, String title) {
-        com.knowflow.entity.LearningPath path=new com.knowflow.entity.LearningPath();path.setId(pathId);path.setTitle(title);path.setOwnerUserId(0L);path.setStatus(1);paths.insert(path);
+        com.knowflow.learning.entity.LearningPath path=new com.knowflow.learning.entity.LearningPath();path.setId(pathId);path.setTitle(title);path.setOwnerUserId(0L);path.setStatus(1);paths.insert(path);
         LearningChapter c = new LearningChapter();
         c.setId(id);
         c.setPathId(pathId);

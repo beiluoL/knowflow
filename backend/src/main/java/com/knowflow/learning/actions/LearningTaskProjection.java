@@ -1,9 +1,9 @@
 package com.knowflow.learning.actions;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.Task;
-import com.knowflow.mapper.TaskMapper;
-import com.knowflow.vo.LearningTaskVO;
+import com.knowflow.productivity.entity.Task;
+import com.knowflow.productivity.mapper.TaskMapper;
+import com.knowflow.learning.vo.LearningTaskVO;
 import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;

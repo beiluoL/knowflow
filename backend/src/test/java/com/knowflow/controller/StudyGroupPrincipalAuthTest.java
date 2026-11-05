@@ -1,16 +1,19 @@
 package com.knowflow.controller;
 
+import com.knowflow.community.controller.StudyGroupController;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.GroupInviteDTO;
-import com.knowflow.dto.StudyGroupCreateDTO;
-import com.knowflow.entity.StudyGroup;
-import com.knowflow.entity.StudyGroupMember;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.StudyGroupMapper;
-import com.knowflow.mapper.StudyGroupMemberMapper;
-import com.knowflow.mapper.StudyGroupMessageMapper;
-import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.service.StudyGroupService;
+import com.knowflow.community.dto.GroupInviteDTO;
+import com.knowflow.community.dto.StudyGroupCreateDTO;
+import com.knowflow.community.entity.StudyGroup;
+import com.knowflow.community.entity.StudyGroupMember;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.community.mapper.StudyGroupMapper;
+import com.knowflow.community.mapper.StudyGroupMemberMapper;
+import com.knowflow.community.mapper.StudyGroupMessageMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.community.service.StudyGroupService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;

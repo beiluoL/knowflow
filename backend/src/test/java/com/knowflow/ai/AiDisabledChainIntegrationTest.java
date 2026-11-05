@@ -2,17 +2,17 @@ package com.knowflow.ai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.knowflow.ai.capability.AiCapabilityExecutor;
-import com.knowflow.entity.LearningMistake;
-import com.knowflow.entity.QuizQuestion;
-import com.knowflow.entity.SysUser;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.exam.dto.ExamRequests;
-import com.knowflow.mapper.LearningMistakeMapper;
-import com.knowflow.mapper.QuizQuestionMapper;
-import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.service.LearningAnalyticsService;
-import com.knowflow.service.QuizService;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.learning.service.LearningAnalyticsService;
+import com.knowflow.learning.service.QuizService;
 import com.knowflow.utils.JwtUtils;
-import com.knowflow.vo.LearningAnalyticsVO;
+import com.knowflow.learning.vo.LearningAnalyticsVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -187,8 +187,8 @@ class AiDisabledChainIntegrationTest {
         QuizQuestion q = insert(QuizQuestion.TYPE_SINGLE_CHOICE, "B");
 
         // 在线答题（错误答案）→ 客观题确定性判分
-        com.knowflow.dto.QuizSubmitDTO dto = new com.knowflow.dto.QuizSubmitDTO();
-        com.knowflow.dto.QuizSubmitDTO.Item item = new com.knowflow.dto.QuizSubmitDTO.Item();
+        com.knowflow.learning.dto.QuizSubmitDTO dto = new com.knowflow.learning.dto.QuizSubmitDTO();
+        com.knowflow.learning.dto.QuizSubmitDTO.Item item = new com.knowflow.learning.dto.QuizSubmitDTO.Item();
         item.setQuestionId(q.getId());
         item.setUserAnswer("A");
         dto.setAnswers(List.of(item));

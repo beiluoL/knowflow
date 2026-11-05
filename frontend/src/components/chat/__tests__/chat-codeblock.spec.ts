@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, expect, it, afterEach, vi, beforeEach } from 'vitest'
+import { describe, expect, it, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import ChatCodeBlock from '../ChatCodeBlock.vue'
@@ -30,7 +30,7 @@ function decodedCopyData(wrapper: ReturnType<typeof mount>): string {
 
 /** 模拟「格式化」：去掉多余空白并补尾换行，便于断言 displayCode 已被更新 */
 function fakeFormat(src: string): string {
-  return src.replace(/\s*=\s*/g, ' = ').trimEnd() + '\n'
+  return src.replace(/\b(const|let|var)\s+/g, '$1 ').replace(/\s*=\s*/g, ' = ').trimEnd() + '\n'
 }
 
 afterEach(() => {

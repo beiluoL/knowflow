@@ -1,7 +1,7 @@
 package com.knowflow.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.controller.admin.AdminUserController;
+import com.knowflow.identity.controller.admin.AdminUserController;
 import com.knowflow.exception.GlobalExceptionHandler;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;

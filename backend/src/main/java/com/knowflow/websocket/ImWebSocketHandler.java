@@ -1,11 +1,11 @@
 package com.knowflow.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.PrivateMessageSendDTO;
-import com.knowflow.entity.PrivateConversation;
-import com.knowflow.mapper.PrivateConversationMapper;
-import com.knowflow.service.PrivateMessageService;
-import com.knowflow.vo.PrivateMessageVO;
+import com.knowflow.community.dto.PrivateMessageSendDTO;
+import com.knowflow.community.entity.PrivateConversation;
+import com.knowflow.community.mapper.PrivateConversationMapper;
+import com.knowflow.community.service.PrivateMessageService;
+import com.knowflow.community.vo.PrivateMessageVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

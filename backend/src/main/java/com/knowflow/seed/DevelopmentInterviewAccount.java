@@ -1,11 +1,11 @@
 package com.knowflow.seed;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.dto.RegisterDTO;
-import com.knowflow.entity.SysUser;
+import com.knowflow.identity.dto.RegisterDTO;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.service.UserService;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.identity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

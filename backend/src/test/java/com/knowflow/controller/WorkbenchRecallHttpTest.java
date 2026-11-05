@@ -3,9 +3,12 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.WbRecallSession;
-import com.knowflow.mapper.WbRecallSessionMapper;
+import com.knowflow.workbench.entity.WbRecallSession;
+import com.knowflow.workbench.mapper.WbRecallSessionMapper;
 import com.knowflow.support.FakeAiConfiguration;
+import com.knowflow.support.ActiveIdentityFixtures;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.jdbc.core.JdbcTemplate;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,6 +67,16 @@ class WorkbenchRecallHttpTest {
 
     @Autowired
     private WbRecallSessionMapper recallMapper;
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @BeforeEach
+    void activeAccounts() {
+        for (long user = 120001; user <= 120018; user++) {
+            ActiveIdentityFixtures.ensureActive(jdbc, user, "recall-" + user, "USER");
+        }
+    }
 
     private String auth(Long userId) {
         return "Bearer " + jwtUtils.generateToken(userId, "recall-" + userId, "USER");

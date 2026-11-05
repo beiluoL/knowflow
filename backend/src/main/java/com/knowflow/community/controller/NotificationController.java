@@ -1,0 +1,65 @@
+package com.knowflow.community.controller;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.knowflow.common.PageResult;
+import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
+import com.knowflow.community.service.NotificationService;
+import com.knowflow.community.vo.NotificationVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+/** 消息通知 REST 接口，提供通知列表、已读标记与未读计数。 */
+@Tag(name = "消息通知接口")
+@RestController
+@RequestMapping("/api/notifications")
+@RequiredArgsConstructor
+public class NotificationController {
+
+    private final NotificationService notificationService;
+
+    @Operation(summary = "消息列表")
+    @GetMapping
+    public Result<PageResult<NotificationVO>> list(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Integer isRead,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            Authentication authentication) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        IPage<NotificationVO> page = notificationService.getNotificationPage(userId, type, isRead, pageNum, pageSize);
+        return Result.success(PageResult.of(page));
+    }
+
+    @Operation(summary = "标记已读")
+    @PutMapping("/{id}/read")
+    public Result<Void> markAsRead(@PathVariable Long id, Authentication authentication) {
+        if (authentication == null) {
+            return Result.error(401, "请先登录");
+        }
+        Long userId = SecurityUtils.getCurrentUserId();
+        notificationService.markAsRead(id, userId);
+        return Result.success();
+    }
+
+    @Operation(summary = "全部已读")
+    @PutMapping("/read-all")
+    public Result<Void> markAllAsRead(Authentication authentication) {
+        if (authentication == null) {
+            return Result.error(401, "请先登录");
+        }
+        Long userId = SecurityUtils.getCurrentUserId();
+        notificationService.markAllAsRead(userId);
+        return Result.success();
+    }
+
+    @Operation(summary = "未读数量")
+    @GetMapping("/unread-count")
+    public Result<Integer> unreadCount(Authentication authentication) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return Result.success(notificationService.getUnreadCount(userId));
+    }
+}

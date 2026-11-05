@@ -6,11 +6,11 @@ import com.knowflow.ai.ModelAdapter;
 import com.knowflow.agent.tool.ToolPermission;
 import com.knowflow.agent.tool.ToolRegistry;
 import com.knowflow.agent.tool.ToolResult;
-import com.knowflow.entity.AgentMessage;
-import com.knowflow.entity.AgentSession;
-import com.knowflow.mapper.AgentMessageMapper;
-import com.knowflow.mapper.AgentSessionMapper;
-import com.knowflow.service.AiService;
+import com.knowflow.agent.entity.AgentMessage;
+import com.knowflow.agent.entity.AgentSession;
+import com.knowflow.agent.mapper.AgentMessageMapper;
+import com.knowflow.agent.mapper.AgentSessionMapper;
+import com.knowflow.ai.service.AiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class AgentRuntimeService {
     private final AgentMessageMapper messageMapper;
     private final AgentContextManager contextManager;
     private final ObjectMapper objectMapper;
-    private final com.knowflow.service.AgentWorkflowService workflowService;
+    private final com.knowflow.agent.service.AgentWorkflowService workflowService;
 
     /**
      * Agent 运行过程事件监听：由调用方（SSE 控制器）实现，用于实时推送。

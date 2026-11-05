@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.*;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.actions.LearningWriteGuard;
 import com.knowflow.learning.tutor.TutorMicroService;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import jakarta.validation.constraints.*;
 import java.util.*;
 import lombok.RequiredArgsConstructor;

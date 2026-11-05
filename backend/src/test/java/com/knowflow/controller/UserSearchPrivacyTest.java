@@ -1,7 +1,10 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.controller.UserSearchController;
+
+
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -18,7 +21,7 @@ class UserSearchPrivacyTest {
         user.setEmail("private@example.com");
         user.setPassword("secret");
         when(mapper.selectList(any())).thenReturn(List.of(user));
-        var result = new UserSearchController(new com.knowflow.service.UserSearchService(mapper)).search("public", null);
+        var result = new UserSearchController(new com.knowflow.identity.service.UserSearchService(mapper)).search("public", null);
         assertNull(result.getData().get(0).getEmail());
     }
 }

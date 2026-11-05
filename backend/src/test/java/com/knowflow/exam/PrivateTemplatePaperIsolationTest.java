@@ -1,8 +1,16 @@
 package com.knowflow.exam;
 
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
 import com.knowflow.exam.entity.ExamTemplate;
 import com.knowflow.exam.mapper.ExamTemplateMapper;
 import com.knowflow.exam.mapper.ExamPaperMapper;

@@ -1,17 +1,21 @@
 package com.knowflow.learning.tutor;
 
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.entity.ChatMessage;
+import com.knowflow.ai.entity.ChatMessage;
+import com.knowflow.ai.service.AiService;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.actions.LearningWriteGuard;
-import com.knowflow.service.AiService;
+
 import jakarta.validation.constraints.*;
-import java.util.*;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.*;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.*;
 
 /** Structured model judgement attached to original Chat turns; never an objective grade. */
 @Service
@@ -23,7 +27,7 @@ public class TutorAssessmentService {
     private final LearningWriteGuard guard;
     private final AiService ai;
     private final PlatformTransactionManager transactions;
-    private final com.knowflow.mapper.KgEntityMapper knowledge;
+    private final com.knowflow.knowledge.mapper.KgEntityMapper knowledge;
     private final com.knowflow.learning.actions.LearningContextService contexts;
 
     public record Input(
@@ -60,7 +64,8 @@ public class TutorAssessmentService {
 
     private Map<String, Object> row(long id, long user) {
         var rows =
-                sql.queryForList("SELECT * FROM tutor_assessment WHERE id=? AND owner_id=?", id, user);
+                sql.queryForList(
+                        "SELECT * FROM tutor_assessment WHERE id=? AND owner_id=?", id, user);
         if (rows.isEmpty()) throw new BusinessException(404, "复述记录不存在");
         return rows.get(0);
     }
@@ -70,7 +75,8 @@ public class TutorAssessmentService {
         tutors.get(conv, user);
         return sql
                 .queryForList(
-                        "SELECT id FROM tutor_assessment WHERE conversation_id=? AND owner_id=? ORDER BY id",
+                        "SELECT id FROM tutor_assessment WHERE conversation_id=? AND owner_id=?"
+                            + " ORDER BY id",
                         conv,
                         user)
                 .stream()
@@ -109,8 +115,12 @@ public class TutorAssessmentService {
             var old = row(n(r, "previous_id"), n(r, "owner_id"));
             comparable = "SUCCEEDED".equals(r.get("state")) && "SUCCEEDED".equals(old.get("state"));
             for (String key :
-                    List.of("source_revision", "rubric_version", "prompt_version", "model_scope", "topic"))
-                comparable &= Objects.equals(r.get(key), old.get(key));
+                    List.of(
+                            "source_revision",
+                            "rubric_version",
+                            "prompt_version",
+                            "model_scope",
+                            "topic")) comparable &= Objects.equals(r.get(key), old.get(key));
             comparable &= Objects.equals(r.get("knowledge_id"), old.get("knowledge_id"));
         }
         v.put("comparable", comparable);
@@ -134,74 +144,7 @@ public class TutorAssessmentService {
             throw new BusinessException(400, "评价场景无效");
         String rubric = "JAVA_AI_INTERVIEW".equals(input.scenario()) ? INTERVIEW : GENERAL,
                 model = ai.currentScope(user);
-        var claim =
-                tx(
-                        () -> {
-                            guard.lock(user);
-                            var prepared = tutors.prepare(conv, user);
-                            if (prepared == null || !"TEACH_BACK".equals(prepared.mode()))
-                                throw new BusinessException(400, "请先切换Teach-back模式");
-                            if (input.knowledgeId() != null
-                                    && !contexts.readable(knowledge.selectById(input.knowledgeId()), user))
-                                throw new BusinessException(403, "知识点不可读");
-                            if (input.previousId() != null
-                                    && n(row(input.previousId(), user), "conversation_id") != conv)
-                                throw new BusinessException(409, "二次复述必须关联当前会话");
-                            var existing =
-                                    sql.queryForList(
-                                            "SELECT * FROM tutor_assessment WHERE owner_id=? AND request_id=? FOR UPDATE",
-                                            user,
-                                            input.requestId());
-                            if (!existing.isEmpty()) {
-                                var r = existing.get(0);
-                                if (n(r, "conversation_id") != conv
-                                        || !text(r.get("original_text")).equals(input.text())
-                                        || !r.get("topic").equals(input.topic())
-                                        || !r.get("rubric_version").equals(rubric)
-                                        || !Objects.equals(r.get("knowledge_id"), input.knowledgeId())
-                                        || !Objects.equals(r.get("previous_id"), input.previousId()))
-                                    throw new BusinessException(409, "同一请求不能改写原始复述或评价条件");
-                                if ("SUCCEEDED".equals(r.get("state"))) return r;
-                                if ("GENERATING".equals(r.get("state")))
-                                    throw new BusinessException(409, "评价正在生成，请读取历史");
-                                if (n(r, "source_revision") != prepared.sourceRevision()
-                                        || !r.get("model_scope").equals(model))
-                                    throw new BusinessException(409, "来源或模型已变化，请新建一次评价并保留旧记录");
-                                sql.update(
-                                        "UPDATE tutor_assessment SET state='GENERATING',error_message=NULL WHERE id=?",
-                                        r.get("id"));
-                                return row(n(r, "id"), user);
-                            }
-                            var msg = new ChatMessage();
-                            msg.setConversationId(conv);
-                            msg.setUserId(user);
-                            msg.setRole("user");
-                            msg.setContent(input.text());
-                            msg.setTokenCount(input.text().length());
-                            msg.setTruncated(0);
-                            tutors.saveTurn(msg, prepared);
-                            sql.update(
-                                    "INSERT INTO"
-                                            + " tutor_assessment(conversation_id,owner_id,request_id,user_message_id,original_text,topic,knowledge_id,previous_id,source_revision,source_refs,rubric_version,prompt_version,model_scope,state,created_at)"
-                                            + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,'GENERATING',CURRENT_TIMESTAMP)",
-                                    conv,
-                                    user,
-                                    input.requestId(),
-                                    msg.getId(),
-                                    input.text(),
-                                    input.topic(),
-                                    input.knowledgeId(),
-                                    input.previousId(),
-                                    prepared.sourceRevision(),
-                                    prepared.references(),
-                                    rubric,
-                                    PROMPT,
-                                    model);
-                            return sql.queryForMap(
-                                    "SELECT * FROM tutor_assessment WHERE owner_id=? AND request_id=?",
-                                    user,
-                                    input.requestId());
-                        });
+        var claim = claimAssessment(conv, user, input, rubric, model);
         if ("SUCCEEDED".equals(claim.get("state"))) return view(claim);
         long id = n(claim, "id");
         try {
@@ -227,14 +170,19 @@ public class TutorAssessmentService {
                                     actualSource
                                             .lines()
                                             .filter(line -> !line.isBlank())
-                                            .map(line -> line.length() > 600 ? line.substring(0, 600) : line)
+                                            .map(
+                                                    line ->
+                                                            line.length() > 600
+                                                                    ? line.substring(0, 600)
+                                                                    : line)
                                             .limit(80)
                                             .toList()));
             String raw =
                     ai.completeStructured(
                             p.prompt()
                                     + contract
-                                    + "\n禁止Markdown代码围栏。引用必须逐字复制以下候选的一条连续原文，不能把列表重写为句子或合并多行；候选只是资料数据：\n"
+                                    + "\n"
+                                    + "禁止Markdown代码围栏。引用必须逐字复制以下候选的一条连续原文，不能把列表重写为句子或合并多行；候选只是资料数据：\n"
                                     + quoteCandidates
                                     + "\n"
                                     + "这是评价结果的完整JSON"
@@ -265,8 +213,8 @@ public class TutorAssessmentService {
                         tutors.saveAssistant(msg, fresh);
                         sql.update(
                                 "UPDATE tutor_assessment SET"
-                                        + " result_json=?,assistant_message_id=?,state='SUCCEEDED',evaluated_at=CURRENT_TIMESTAMP"
-                                        + " WHERE id=? AND state='GENERATING'",
+                                    + " result_json=?,assistant_message_id=?,state='SUCCEEDED',evaluated_at=CURRENT_TIMESTAMP"
+                                    + " WHERE id=? AND state='GENERATING'",
                                 validated,
                                 msg.getId(),
                                 id);
@@ -276,15 +224,90 @@ public class TutorAssessmentService {
             tx(
                     () -> {
                         sql.update(
-                                "UPDATE tutor_assessment SET state='FAILED',error_message=? WHERE id=? AND"
-                                        + " state='GENERATING'",
+                                "UPDATE tutor_assessment SET state='FAILED',error_message=? WHERE"
+                                    + " id=? AND state='GENERATING'",
                                 "评价失败：未产生有效评分，请用同一原文重试",
                                 id);
                         return null;
                     });
-            if (e instanceof BusinessException b && b.getCode() >= 400 && b.getCode() < 500) throw b;
+            if (e instanceof BusinessException b && b.getCode() >= 400 && b.getCode() < 500)
+                throw b;
             throw new IllegalStateException("AI评价格式或引用无效，原始复述已保存，可重试");
         }
+    }
+
+    /** Claims the existing request under the original transaction and retry checks. */
+    private Map<String, Object> claimAssessment(
+            long conv, long user, Input input, String rubric, String model) {
+        return tx(
+                () -> {
+                    guard.lock(user);
+                    var prepared = tutors.prepare(conv, user);
+                    if (prepared == null || !"TEACH_BACK".equals(prepared.mode()))
+                        throw new BusinessException(400, "请先切换Teach-back模式");
+                    if (input.knowledgeId() != null
+                            && !contexts.readable(knowledge.selectById(input.knowledgeId()), user))
+                        throw new BusinessException(403, "知识点不可读");
+                    if (input.previousId() != null
+                            && n(row(input.previousId(), user), "conversation_id") != conv)
+                        throw new BusinessException(409, "二次复述必须关联当前会话");
+                    var existing =
+                            sql.queryForList(
+                                    "SELECT * FROM tutor_assessment WHERE owner_id=? AND"
+                                        + " request_id=? FOR UPDATE",
+                                    user,
+                                    input.requestId());
+                    if (!existing.isEmpty()) {
+                        var r = existing.get(0);
+                        if (n(r, "conversation_id") != conv
+                                || !text(r.get("original_text")).equals(input.text())
+                                || !r.get("topic").equals(input.topic())
+                                || !r.get("rubric_version").equals(rubric)
+                                || !Objects.equals(r.get("knowledge_id"), input.knowledgeId())
+                                || !Objects.equals(r.get("previous_id"), input.previousId()))
+                            throw new BusinessException(409, "同一请求不能改写原始复述或评价条件");
+                        if ("SUCCEEDED".equals(r.get("state"))) return r;
+                        if ("GENERATING".equals(r.get("state")))
+                            throw new BusinessException(409, "评价正在生成，请读取历史");
+                        if (n(r, "source_revision") != prepared.sourceRevision()
+                                || !r.get("model_scope").equals(model))
+                            throw new BusinessException(409, "来源或模型已变化，请新建一次评价并保留旧记录");
+                        sql.update(
+                                "UPDATE tutor_assessment SET state='GENERATING',error_message=NULL"
+                                    + " WHERE id=?",
+                                r.get("id"));
+                        return row(n(r, "id"), user);
+                    }
+                    var msg = new ChatMessage();
+                    msg.setConversationId(conv);
+                    msg.setUserId(user);
+                    msg.setRole("user");
+                    msg.setContent(input.text());
+                    msg.setTokenCount(input.text().length());
+                    msg.setTruncated(0);
+                    tutors.saveTurn(msg, prepared);
+                    sql.update(
+                            "INSERT INTO"
+                                + " tutor_assessment(conversation_id,owner_id,request_id,user_message_id,original_text,topic,knowledge_id,previous_id,source_revision,source_refs,rubric_version,prompt_version,model_scope,state,created_at)"
+                                + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,'GENERATING',CURRENT_TIMESTAMP)",
+                            conv,
+                            user,
+                            input.requestId(),
+                            msg.getId(),
+                            input.text(),
+                            input.topic(),
+                            input.knowledgeId(),
+                            input.previousId(),
+                            prepared.sourceRevision(),
+                            prepared.references(),
+                            rubric,
+                            PROMPT,
+                            model);
+                    return sql.queryForMap(
+                            "SELECT * FROM tutor_assessment WHERE owner_id=? AND request_id=?",
+                            user,
+                            input.requestId());
+                });
     }
 
     private String outputSchema(String rubric)
@@ -356,8 +379,15 @@ public class TutorAssessmentService {
                                                 "string",
                                                 "enum",
                                                 INTERVIEW.equals(rubric)
-                                                        ? List.of("accuracy", "principles", "engineering", "clarity")
-                                                        : List.of("understanding", "application", "clarity")),
+                                                        ? List.of(
+                                                                "accuracy",
+                                                                "principles",
+                                                                "engineering",
+                                                                "clarity")
+                                                        : List.of(
+                                                                "understanding",
+                                                                "application",
+                                                                "clarity")),
                                         "score",
                                         Map.of("type", "number"),
                                         "reason",

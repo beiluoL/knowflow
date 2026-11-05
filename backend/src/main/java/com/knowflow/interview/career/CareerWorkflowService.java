@@ -21,7 +21,7 @@ public class CareerWorkflowService {
  private final InterviewV2Service interviews;
  private final CareerMatchProperties matchPolicy;
  private final com.knowflow.interview.skill.InterviewSkillRegistry registry;
- private final com.knowflow.mapper.KgEntityMapper knowledge;
+ private final com.knowflow.knowledge.mapper.KgEntityMapper knowledge;
  private final com.knowflow.security.DocumentAccessPolicy access;
  public record MatchRequest(long resumeId,int resumeVersion,long jobId,int jobVersion,String requestId){}
  public record PlanRequest(long matchId,int projectCount,int coreCount,int gapCount,int designCount,int durationMinutes,String difficulty,List<String> focusSkills,String interviewType,String projectDepth,String requestId){}
@@ -71,12 +71,12 @@ public class CareerWorkflowService {
   result.put("score",dimensions.isEmpty()?null:Math.round(dimensions.stream().filter(d->"MATCHED".equals(d.matchStatus())).count()*10000.0/dimensions.size())/100.0);
   result.put("policyVersion","confirmed-skill-coverage-v1");result.put("scoreMeaning","已确认必须技能的简历证据覆盖率，不是熟练度或招聘成功率");
   var names=claims(job,"requiredSkills").stream().map(CareerMatcher.Claim::value).distinct().toList();
-  var entities=names.isEmpty()?List.<com.knowflow.entity.KgEntity>of():knowledge.selectList(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.KgEntity>().in(com.knowflow.entity.KgEntity::getName,names));
+  var entities=names.isEmpty()?List.<com.knowflow.knowledge.entity.KgEntity>of():knowledge.selectList(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.knowledge.entity.KgEntity>().in(com.knowflow.knowledge.entity.KgEntity::getName,names));
   var mappings=new ArrayList<Map<String,Object>>();
   for(String name:names){
    String canonical=CareerMatcher.canonical(name);
    var skills=registry.list().stream().filter(skill->CareerMatcher.canonical(skill.id()).equals(canonical)||skill.tags().stream().anyMatch(tag->CareerMatcher.canonical(tag).equals(canonical))||("java-concurrency".equals(canonical)&&"JAVA_CONCURRENCY".equals(skill.trackCode()))).map(com.knowflow.interview.skill.InterviewSkillRegistry.Skill::id).toList();
-   var nodes=entities.stream().filter(entity->entity.getName().equalsIgnoreCase(name)&&access.canReadKnowledge(entity,user)).map(com.knowflow.entity.KgEntity::getId).toList();
+   var nodes=entities.stream().filter(entity->entity.getName().equalsIgnoreCase(name)&&access.canReadKnowledge(entity,user)).map(com.knowflow.knowledge.entity.KgEntity::getId).toList();
    mappings.add(Map.of("requirement",name,"skillIds",skills,"knowledgeIds",nodes,"mappingStatus",skills.size()==1?"REGISTERED":skills.isEmpty()?"UNMAPPED":"NEEDS_CONFIRMATION"));
   }
   result.put("skillMappings",mappings);

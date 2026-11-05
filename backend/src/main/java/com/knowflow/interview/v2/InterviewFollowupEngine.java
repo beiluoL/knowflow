@@ -2,7 +2,7 @@ package com.knowflow.interview.v2;
 
 import com.fasterxml.jackson.databind.*;
 import com.knowflow.interview.core.InterviewQuestionBank.SeedQuestion;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import com.knowflow.ai.capability.AiCapabilityProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;

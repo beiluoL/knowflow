@@ -1,11 +1,11 @@
 package com.knowflow.service;
 
-import com.knowflow.dto.PlanGenerateDTO;
+import com.knowflow.learning.dto.PlanGenerateDTO;
 import com.knowflow.learning.entity.LearningPlan;
 import com.knowflow.learning.mapper.LearningPlanMapper;
-import com.knowflow.vo.LearningPlanVO;
-import com.knowflow.vo.PlanBlockVO;
-import com.knowflow.vo.PlanItemVO;
+import com.knowflow.learning.vo.LearningPlanVO;
+import com.knowflow.learning.vo.PlanBlockVO;
+import com.knowflow.learning.vo.PlanItemVO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -51,15 +51,15 @@ class LearningPlanBaselineTest {
     @Test
     @DisplayName("RED3: VO 嵌套结构 LearningPlanVO(blocks) / PlanBlockVO(items) / PlanItemVO")
     void voNestedStructure() throws Exception {
-        Class<?> voCls = Class.forName("com.knowflow.vo.LearningPlanVO");
+        Class<?> voCls = Class.forName("com.knowflow.learning.vo.LearningPlanVO");
         assertField(voCls, "blocks", List.class);
         assertField(voCls, "completedRatio", BigDecimal.class);
 
-        Class<?> blockCls = Class.forName("com.knowflow.vo.PlanBlockVO");
+        Class<?> blockCls = Class.forName("com.knowflow.learning.vo.PlanBlockVO");
         assertField(blockCls, "items", List.class);
         assertField(blockCls, "timeSlot", String.class);
 
-        Class<?> itemCls = Class.forName("com.knowflow.vo.PlanItemVO");
+        Class<?> itemCls = Class.forName("com.knowflow.learning.vo.PlanItemVO");
         assertField(itemCls, "type", String.class);
         assertField(itemCls, "title", String.class);
         assertField(itemCls, "completed", Boolean.class);
@@ -69,7 +69,7 @@ class LearningPlanBaselineTest {
     @Test
     @DisplayName("RED4: PlanGenerateDTO 入参 startDate/force 存在")
     void planGenerateDtoFields() throws Exception {
-        Class<?> cls = Class.forName("com.knowflow.dto.PlanGenerateDTO");
+        Class<?> cls = Class.forName("com.knowflow.learning.dto.PlanGenerateDTO");
         assertField(cls, "startDate", LocalDate.class);
         assertField(cls, "force", Boolean.class);
     }

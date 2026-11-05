@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class CodeCompleteTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
-    private final com.knowflow.service.AiService aiService;
+    private final com.knowflow.ai.service.AiService aiService;
 
     @Override
     public String name() {

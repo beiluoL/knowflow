@@ -5,12 +5,12 @@ import static com.knowflow.learning.actions.PlanModels.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.TaskDTO;
-import com.knowflow.entity.Task;
+import com.knowflow.productivity.dto.TaskDTO;
+import com.knowflow.productivity.entity.Task;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.TaskMapper;
-import com.knowflow.service.LearningService;
-import com.knowflow.service.TaskService;
+import com.knowflow.productivity.mapper.TaskMapper;
+import com.knowflow.learning.service.LearningService;
+import com.knowflow.productivity.service.TaskService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.*;
@@ -37,7 +37,7 @@ public class DailyLearningPlanService {
     private final ObjectMapper json;
     private final PlanClock clock;
     private final LearningPlanAiEnhancer enhancer;
-    private final com.knowflow.mapper.LearningTaskMapper legacyTasks;
+    private final com.knowflow.learning.mapper.LearningTaskMapper legacyTasks;
 
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.knowflow.learning.adaptive.SmartPlanSupport smart;
@@ -300,18 +300,7 @@ public class DailyLearningPlanService {
     public Draft confirm(Long user, String id, ConfirmRequest request) {
         var d = drafts.lockOwned(id, user);
         requireOwned(d);
-        if (request == null
-                || request.getVersion() == null
-                || !request.getVersion().equals(d.getVersion()))
-            throw new BusinessException(409, "草案版本已变化");
-        if (request.getConfirmationToken() == null
-                || !MessageDigest.isEqual(
-                        token(d).getBytes(StandardCharsets.UTF_8),
-                        request.getConfirmationToken().getBytes(StandardCharsets.UTF_8)))
-            throw new BusinessException(403, "缺少有效确认令牌");
-        if (request.getIdempotencyKey() == null
-                || !request.getIdempotencyKey().matches("[A-Za-z0-9_-]{8,80}"))
-            throw new BusinessException(400, "无效幂等键");
+        LearningActionConfirmationRules.validate(request, d.getVersion(), () -> token(d));
         var frozen = read(d.getPayload(), Stored.class);
         if (smartPlan(frozen)) validateSmartSources(user, frozen);
         String hash = digest(write(request.getTasks()));
@@ -327,101 +316,8 @@ public class DailyLearningPlanService {
         if (smart != null && "UPDATE".equals(s.action()) && !smartPlan(s))
             throw new BusinessException(409, "旧调整草案需重新预览以校验任务保护");
         var selected = validateEdits(s, request.getTasks());
-        // STATUS LEARNING也先锁owner，随后才取任务锁，与LearningService保持顺序。
-        guard.lock(user);
-        // Acquire existing task locks in stable order; prevent lost updates after a stale preview.
-        selected.stream()
-                .filter(i -> i.existingTaskId() != null && "TASK".equals(i.existingSource()))
-                .sorted(Comparator.comparing(Item::existingTaskId))
-                .forEach(
-                        i -> {
-                            if (tasks.lockOwned(i.existingTaskId(), user) == null)
-                                throw new BusinessException(404, "任务不存在");
-                        });
-        selected.stream()
-                .filter(i -> i.existingTaskId() != null && "LEARNING".equals(i.existingSource()))
-                .sorted(Comparator.comparing(Item::existingTaskId))
-                .forEach(
-                        i -> {
-                            if (legacyTasks.lockOwned(i.existingTaskId(), user) == null)
-                                throw new BusinessException(404, "任务不存在");
-                        });
-        for (var i : selected)
-            if (i.existingTaskId() != null
-                    && !Objects.equals(s.revisions().get(i.key()), existingRevision(user, i)))
-                throw new BusinessException(409, "任务已发生变化，请重新预览");
-        List<TaskRef> result = new ArrayList<>();
-        int order = 0;
-        for (var item : selected) {
-            if (!"STATUS".equals(s.action())) context.validateResource(item, user);
-            Long taskId;
-            if ("STATUS".equals(s.action())) {
-                taskId = item.existingTaskId();
-                verifyExisting(user, item);
-                if ("TASK".equals(item.existingSource()))
-                    taskService.setStatus(user, taskId, s.targetStatus());
-                else {
-                    // Chat确认也使用同一行锁/主事务状态合同；手动活动不生成知识证明。
-                    learning.updateTaskStatus(taskId, user, s.targetStatus());
-                }
-                result.add(new TaskRef(taskId, item.existingSource(), item.title(), s.targetStatus()));
-                continue;
-            }
-            if ("CREATE".equals(s.action())) {
-                Long duplicate = guard.task(user, s.request().getDate(), guard.identity(item));
-                if (duplicate != null) {
-                    var existing = ownedTask(user, duplicate);
-                    result.add(
-                            new TaskRef(existing.getId(), "TASK", existing.getTitle(), existing.getStatus()));
-                    continue;
-                }
-            }
-            if (smartPlan(s) && s.request().getProtectedTaskIds().contains(item.existingTaskId())) {
-                var protectedTask = ownedTask(user, item.existingTaskId());
-                result.add(
-                        new TaskRef(
-                                protectedTask.getId(),
-                                "TASK",
-                                protectedTask.getTitle(),
-                                protectedTask.getStatus()));
-                continue;
-            }
-            TaskDTO dto = new TaskDTO();
-            dto.setTitle(item.title());
-            dto.setScheduledDate(s.request().getDate());
-            dto.setDueDate(
-                    smartPlan(s)
-                            ? ownedTask(user, item.existingTaskId()).getDueDate()
-                            : s.request().getDate());
-            dto.setImportant(item.priority().equals("LOW") ? 0 : 1);
-            dto.setUrgent(item.priority().equals("HIGH") ? 1 : 0);
-            if (smartPlan(s)) {
-                var prior = ownedTask(user, item.existingTaskId());
-                dto.setImportant(prior.getImportant());
-                dto.setUrgent(prior.getUrgent());
-                int slot = smart.freeOrder(user, s.request(), order);
-                dto.setSortOrder(slot);
-                order = slot + 1;
-            } else dto.setSortOrder(order++);
-            // Durations remain metadata: no fake start/finish times or completed progress.
-            if ("UPDATE".equals(s.action())) {
-                verifyExisting(user, item);
-                taskId = item.existingTaskId();
-                taskService.updateTask(user, taskId, dto);
-            } else {
-                dto.setNotes(item.reason() + "\n完成条件：" + item.completionCondition());
-                taskId = taskService.createTask(user, dto);
-            }
-            Task persisted = ownedTask(user, taskId);
-            String metadata = guard.taskMetadata(persisted, item);
-            persisted.setLearningPlanRef(d.getId());
-            persisted.setLearningMetadata(metadata);
-            if (tasks.updateById(persisted) != 1) throw new BusinessException(409, "任务写入失败");
-            if ("UPDATE".equals(s.action())) guard.moveTask(user, taskId, s.request().getDate());
-            if ("CREATE".equals(s.action()))
-                guard.rememberTask(user, s.request().getDate(), guard.identity(item), taskId);
-            result.add(new TaskRef(taskId, "TASK", item.title(), persisted.getStatus()));
-        }
+        lockAndValidateSelected(user, s, selected);
+        List<TaskRef> result = persistSelectedTasks(user, d, s, selected);
         if (smartPlan(s))
             smart.deferred(
                     user,
@@ -789,5 +685,107 @@ public class DailyLearningPlanService {
         } catch (Exception ex) {
             throw new BusinessException(500, "计划结果损坏");
         }
+    }
+
+    private void lockAndValidateSelected(Long user, Stored s, List<Item> selected) {
+        // STATUS LEARNING也先锁owner，随后才取任务锁，与LearningService保持顺序。
+        guard.lock(user);
+        // Acquire existing task locks in stable order; prevent lost updates after a stale preview.
+        selected.stream()
+                .filter(i -> i.existingTaskId() != null && "TASK".equals(i.existingSource()))
+                .sorted(Comparator.comparing(Item::existingTaskId))
+                .forEach(
+                        i -> {
+                            if (tasks.lockOwned(i.existingTaskId(), user) == null)
+                                throw new BusinessException(404, "任务不存在");
+                        });
+        selected.stream()
+                .filter(i -> i.existingTaskId() != null && "LEARNING".equals(i.existingSource()))
+                .sorted(Comparator.comparing(Item::existingTaskId))
+                .forEach(
+                        i -> {
+                            if (legacyTasks.lockOwned(i.existingTaskId(), user) == null)
+                                throw new BusinessException(404, "任务不存在");
+                        });
+        for (var i : selected)
+            if (i.existingTaskId() != null
+                    && !Objects.equals(s.revisions().get(i.key()), existingRevision(user, i)))
+                throw new BusinessException(409, "任务已发生变化，请重新预览");
+    }
+
+    private List<TaskRef> persistSelectedTasks(Long user, LearningActionDraft d, Stored s, List<Item> selected) {
+        List<TaskRef> result = new ArrayList<>();
+        int order = 0;
+        for (var item : selected) {
+            if (!"STATUS".equals(s.action())) context.validateResource(item, user);
+            Long taskId;
+            if ("STATUS".equals(s.action())) {
+                taskId = item.existingTaskId();
+                verifyExisting(user, item);
+                if ("TASK".equals(item.existingSource()))
+                    taskService.setStatus(user, taskId, s.targetStatus());
+                else {
+                    // Chat确认也使用同一行锁/主事务状态合同；手动活动不生成知识证明。
+                    learning.updateTaskStatus(taskId, user, s.targetStatus());
+                }
+                result.add(new TaskRef(taskId, item.existingSource(), item.title(), s.targetStatus()));
+                continue;
+            }
+            if ("CREATE".equals(s.action())) {
+                Long duplicate = guard.task(user, s.request().getDate(), guard.identity(item));
+                if (duplicate != null) {
+                    var existing = ownedTask(user, duplicate);
+                    result.add(
+                            new TaskRef(existing.getId(), "TASK", existing.getTitle(), existing.getStatus()));
+                    continue;
+                }
+            }
+            if (smartPlan(s) && s.request().getProtectedTaskIds().contains(item.existingTaskId())) {
+                var protectedTask = ownedTask(user, item.existingTaskId());
+                result.add(
+                        new TaskRef(
+                                protectedTask.getId(),
+                                "TASK",
+                                protectedTask.getTitle(),
+                                protectedTask.getStatus()));
+                continue;
+            }
+            TaskDTO dto = new TaskDTO();
+            dto.setTitle(item.title());
+            dto.setScheduledDate(s.request().getDate());
+            dto.setDueDate(
+                    smartPlan(s)
+                            ? ownedTask(user, item.existingTaskId()).getDueDate()
+                            : s.request().getDate());
+            dto.setImportant(item.priority().equals("LOW") ? 0 : 1);
+            dto.setUrgent(item.priority().equals("HIGH") ? 1 : 0);
+            if (smartPlan(s)) {
+                var prior = ownedTask(user, item.existingTaskId());
+                dto.setImportant(prior.getImportant());
+                dto.setUrgent(prior.getUrgent());
+                int slot = smart.freeOrder(user, s.request(), order);
+                dto.setSortOrder(slot);
+                order = slot + 1;
+            } else dto.setSortOrder(order++);
+            // Durations remain metadata: no fake start/finish times or completed progress.
+            if ("UPDATE".equals(s.action())) {
+                verifyExisting(user, item);
+                taskId = item.existingTaskId();
+                taskService.updateTask(user, taskId, dto);
+            } else {
+                dto.setNotes(item.reason() + "\n完成条件：" + item.completionCondition());
+                taskId = taskService.createTask(user, dto);
+            }
+            Task persisted = ownedTask(user, taskId);
+            String metadata = guard.taskMetadata(persisted, item);
+            persisted.setLearningPlanRef(d.getId());
+            persisted.setLearningMetadata(metadata);
+            if (tasks.updateById(persisted) != 1) throw new BusinessException(409, "任务写入失败");
+            if ("UPDATE".equals(s.action())) guard.moveTask(user, taskId, s.request().getDate());
+            if ("CREATE".equals(s.action()))
+                guard.rememberTask(user, s.request().getDate(), guard.identity(item), taskId);
+            result.add(new TaskRef(taskId, "TASK", item.title(), persisted.getStatus()));
+        }
+        return result;
     }
 }

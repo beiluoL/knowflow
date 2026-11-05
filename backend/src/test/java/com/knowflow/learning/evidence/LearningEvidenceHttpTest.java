@@ -129,7 +129,7 @@ class LearningEvidenceHttpTest {
   assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM learning_evidence_receipt WHERE source_id=97170",Integer.class));
  }
 
- @Autowired com.knowflow.service.KbMemberService members;
+ @Autowired com.knowflow.knowledge.service.KbMemberService members;
  @Autowired com.knowflow.security.DocumentAccessPolicy access;
  @Test void adminContextDoesNotGrantAnonymousOrOtherUsersAdministratorRights() {
   jdbc.update("INSERT INTO doc_category(id,name,owner_id,status) VALUES(97160,'身份隔离库',97101,1)");

@@ -1,13 +1,16 @@
 package com.knowflow.learning.feedback;
 
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
+
 import com.fasterxml.jackson.databind.*;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.evidence.LearningEvidenceSources;
 import com.knowflow.learning.privatequiz.PrivateQuizService;
 import com.knowflow.learning.tutor.TutorAssessmentService;
-import com.knowflow.mapper.*;
 import com.knowflow.security.DocumentAccessPolicy;
-import com.knowflow.service.NoteService;
+import com.knowflow.knowledge.service.NoteService;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

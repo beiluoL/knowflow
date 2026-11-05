@@ -14,8 +14,8 @@ import java.util.Map;
  * AI 模型提供商统一注册表。
  * <p>
  * 作为项目内 11 个云端提供商 + 4 类本地推理服务的唯一权威来源，
- * 供 {@link com.knowflow.controller.AiConfigController#platformModels} 与
- * 编程 Agent（{@link com.knowflow.controller.CodeAgentController}）共用，
+ * 供 {@link com.knowflow.ai.controller.AiConfigController#platformModels} 与
+ * 编程 Agent（{@link com.knowflow.agent.controller.CodeAgentController}）共用，
  * 消除此前「前端 Chat.vue 11 个、后端 4 个」的不一致。
  * <p>
  * 提供商分类：

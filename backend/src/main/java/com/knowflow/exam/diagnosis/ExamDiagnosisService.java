@@ -2,12 +2,12 @@ package com.knowflow.exam.diagnosis;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.QuizQuestion;
+import com.knowflow.learning.entity.QuizQuestion;
 import com.knowflow.exam.engine.PaperComposer;
 import com.knowflow.exam.service.ExamService;
 import com.knowflow.exam.vo.ExamVos;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.KgEntityMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
 import com.knowflow.security.DocumentAccessPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;

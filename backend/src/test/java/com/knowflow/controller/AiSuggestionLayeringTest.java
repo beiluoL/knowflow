@@ -1,5 +1,8 @@
 package com.knowflow.controller;
 
+import com.knowflow.learning.controller.AiLearningSuggestionController;
+
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

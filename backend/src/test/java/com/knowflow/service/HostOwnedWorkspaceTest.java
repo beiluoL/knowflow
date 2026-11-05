@@ -1,5 +1,5 @@
 package com.knowflow.service;
-import com.knowflow.service.impl.CodeWorkspaceServiceImpl;
+import com.knowflow.coding.service.impl.CodeWorkspaceServiceImpl;
 import com.knowflow.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

@@ -1,6 +1,9 @@
 package com.knowflow.service;
 
-import com.knowflow.service.impl.SrsServiceImpl;
+import com.knowflow.flashcards.service.SrsService;
+
+
+import com.knowflow.flashcards.service.impl.SrsServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

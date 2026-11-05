@@ -5,7 +5,7 @@ import com.knowflow.ai.capability.*;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.interview.service.MockInterviewService;
 import com.knowflow.interview.vo.InterviewVos.*;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import jakarta.annotation.PreDestroy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;

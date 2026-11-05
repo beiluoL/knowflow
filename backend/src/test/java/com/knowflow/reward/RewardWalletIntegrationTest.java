@@ -2,13 +2,13 @@ package com.knowflow.reward;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.knowflow.entity.LearningEvent;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.reward.entity.Wallet;
 import com.knowflow.reward.mapper.RewardLedgerMapper;
 import com.knowflow.reward.mapper.WalletMapper;
-import com.knowflow.vo.WalletVO;
+import com.knowflow.reward.vo.WalletVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

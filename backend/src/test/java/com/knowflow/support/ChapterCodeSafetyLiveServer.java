@@ -1,10 +1,10 @@
 package com.knowflow.support;
 
 import com.knowflow.KnowFlowApplication;
-import com.knowflow.entity.LearningChapter;
-import com.knowflow.entity.LearningPath;
-import com.knowflow.mapper.LearningChapterMapper;
-import com.knowflow.mapper.LearningPathMapper;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.jdbc.core.JdbcTemplate;
 

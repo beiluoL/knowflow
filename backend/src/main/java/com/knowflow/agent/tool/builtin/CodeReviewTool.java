@@ -31,7 +31,7 @@ public class CodeReviewTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
     private final com.knowflow.security.HostCapabilityGuard hostGuard;
-    private final com.knowflow.service.AiService aiService;
+    private final com.knowflow.ai.service.AiService aiService;
 
     @Override
     public String name() {

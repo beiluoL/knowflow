@@ -41,7 +41,7 @@ class CareerWorkspaceHttpTest {
     @Autowired ObjectMapper json;
     @Autowired JwtUtils jwt;
     @Autowired JdbcTemplate jdbc;
-    @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+    @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
 
     private String token(long id) {
         return "Bearer " + jwt.generateToken(id, "career-workspace-fixture", id == 1 ? "ADMIN" : "USER");

@@ -1,8 +1,11 @@
 package com.knowflow.service;
 
+import com.knowflow.techenglish.service.TechVocabService;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.TechVocabDtos;
-import com.knowflow.entity.TechVocabPronunciation;
+import com.knowflow.techenglish.dto.TechVocabDtos;
+import com.knowflow.techenglish.entity.TechVocabPronunciation;
 import com.knowflow.techenglish.mapper.TechVocabPronunciationMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

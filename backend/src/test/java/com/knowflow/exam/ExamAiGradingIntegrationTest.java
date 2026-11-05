@@ -2,14 +2,14 @@ package com.knowflow.exam;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.SysUser;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.exam.dto.ExamRequests;
 import com.knowflow.exam.entity.ExamPaper;
 import com.knowflow.exam.entity.ExamPaperQuestion;
 import com.knowflow.exam.mapper.ExamPaperMapper;
 import com.knowflow.exam.mapper.ExamPaperQuestionMapper;
 import com.knowflow.exam.service.ExamService;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;

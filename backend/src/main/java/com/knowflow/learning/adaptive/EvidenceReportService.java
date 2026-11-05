@@ -6,7 +6,7 @@ import com.knowflow.learning.evidence.*;
 import com.knowflow.learning.feedback.*;
 import com.knowflow.learning.privatequiz.PrivateQuizService;
 import com.knowflow.learning.tutor.*;
-import com.knowflow.service.KnowledgeMasteryService;
+import com.knowflow.mastery.service.KnowledgeMasteryService;
 import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
@@ -165,7 +165,58 @@ public class EvidenceReportService {
                     },
                     u);
         }
-        var queries =
+        var queries = reportQueries(u);
+        for (var q : queries) {
+            var rows =
+                    q.kind().equals("INTERVIEW_RETEST")
+                            ? sql.queryForList(q.query(), u, from, from)
+                            : sql.queryForList(q.query(), u, from);
+            bounds.put(q.kind(), rows.size() > 100);
+            for (var r : rows.stream().limit(100).toList())
+                add(
+                        items,
+                        unavailable,
+                        q.kind(),
+                        n(r, "id"),
+                        r.get("at"),
+                        List.of(),
+                        "ORIGINAL_RECORD",
+                        () -> q.load().apply(r),
+                        u);
+        }
+        // Resolve only explicit identities. A session's manual topic association never rewrites T02 or
+        // Mastery.
+        var resolved = resolveItems(u, filter, items, unavailable);
+        resolved.sort(Comparator.comparing(Item::at).reversed());
+        var counts = new LinkedHashMap<String, Long>();
+        for (var i : resolved) counts.merge(i.kind(), 1L, Long::sum);
+        var masteries = new ArrayList<Object>();
+        if (filter != null) masteries.add(mastery.getDetail(u, filter));
+        else
+            for (var m : mastery.listAll(u).stream().limit(100).toList())
+                try {
+                    scope.requireKnowledge(m.getKnowledgeId(), u);
+                    masteries.add(mastery.getDetail(u, m.getKnowledgeId()));
+                } catch (BusinessException e) {
+                    if (!Set.of(403, 404, 409).contains(e.getCode())) throw e;
+                }
+        return Map.ofEntries(
+                Map.entry("from", from.toInstant().toString()),
+                Map.entry("until", until.toString()),
+                Map.entry("days", 7),
+                Map.entry("items", resolved),
+                Map.entry("counts", counts),
+                Map.entry("boundedByKind", bounds),
+                Map.entry("unavailableCount", unavailable.size()),
+                Map.entry("mastery", masteries),
+                Map.entry("firstAttemptRef", "UNKNOWN_UNLESS_ORIGINAL_T02_PROVES_IT"),
+                Map.entry(
+                        "semantics",
+                        "READ_ONLY_LAST_7_DAYS_MAX_100_PER_KIND;COUNTS_OVERLAP_NOT_UNIQUE_ACTIVITIES;MASTERY_CURRENT_SNAPSHOT;NO_REGRADING;NO_IMPROVEMENT_PERCENT"));
+    }
+
+    private List<Query> reportQueries(long u) {
+        return
                 List.of(
                         new Query(
                                 "PRIVATE_ATTEMPT",
@@ -234,26 +285,10 @@ public class EvidenceReportService {
                                 "SELECT id,completed_at AS at FROM interleaved_session WHERE owner_id=? AND"
                                         + " state='COMPLETED' AND completed_at>=? ORDER BY completed_at DESC LIMIT 101",
                                 r -> interleaved.get(u, n(r, "id"))));
-        for (var q : queries) {
-            var rows =
-                    q.kind().equals("INTERVIEW_RETEST")
-                            ? sql.queryForList(q.query(), u, from, from)
-                            : sql.queryForList(q.query(), u, from);
-            bounds.put(q.kind(), rows.size() > 100);
-            for (var r : rows.stream().limit(100).toList())
-                add(
-                        items,
-                        unavailable,
-                        q.kind(),
-                        n(r, "id"),
-                        r.get("at"),
-                        List.of(),
-                        "ORIGINAL_RECORD",
-                        () -> q.load().apply(r),
-                        u);
-        }
-        // Resolve only explicit identities. A session's manual topic association never rewrites T02 or
-        // Mastery.
+    }
+
+    private List<Item> resolveItems(
+            long u, Long filter, List<Item> items, List<String> unavailable) {
         var resolved = new ArrayList<Item>();
         for (var item : items) {
             var kids = new LinkedHashSet<Long>();
@@ -319,31 +354,6 @@ public class EvidenceReportService {
                                 kids.isEmpty() ? "UNKNOWN" : "EXPLICIT_IDENTITY_READ_PROJECTION",
                                 data));
         }
-        resolved.sort(Comparator.comparing(Item::at).reversed());
-        var counts = new LinkedHashMap<String, Long>();
-        for (var i : resolved) counts.merge(i.kind(), 1L, Long::sum);
-        var masteries = new ArrayList<Object>();
-        if (filter != null) masteries.add(mastery.getDetail(u, filter));
-        else
-            for (var m : mastery.listAll(u).stream().limit(100).toList())
-                try {
-                    scope.requireKnowledge(m.getKnowledgeId(), u);
-                    masteries.add(mastery.getDetail(u, m.getKnowledgeId()));
-                } catch (BusinessException e) {
-                    if (!Set.of(403, 404, 409).contains(e.getCode())) throw e;
-                }
-        return Map.ofEntries(
-                Map.entry("from", from.toInstant().toString()),
-                Map.entry("until", until.toString()),
-                Map.entry("days", 7),
-                Map.entry("items", resolved),
-                Map.entry("counts", counts),
-                Map.entry("boundedByKind", bounds),
-                Map.entry("unavailableCount", unavailable.size()),
-                Map.entry("mastery", masteries),
-                Map.entry("firstAttemptRef", "UNKNOWN_UNLESS_ORIGINAL_T02_PROVES_IT"),
-                Map.entry(
-                        "semantics",
-                        "READ_ONLY_LAST_7_DAYS_MAX_100_PER_KIND;COUNTS_OVERLAP_NOT_UNIQUE_ACTIVITIES;MASTERY_CURRENT_SNAPSHOT;NO_REGRADING;NO_IMPROVEMENT_PERCENT"));
+        return resolved;
     }
 }

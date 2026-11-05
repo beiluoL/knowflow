@@ -1,10 +1,12 @@
 package com.knowflow.controller;
+import com.knowflow.support.ActiveIdentityFixtures;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,10 +23,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:notes_reliability;DB_CLOSE_DELAY=-1;MODE=MySQL", "knowflow.datasource.config-file=/tmp/knowflow-notes-test-no-config.json"})
 class NoteReliabilityHttpTest {
  @Autowired org.springframework.jdbc.core.JdbcTemplate sql;
- @Autowired com.knowflow.mapper.LearningPathMapper paths;
- @Autowired com.knowflow.mapper.LearningChapterMapper chapters;
+ @Autowired com.knowflow.learning.mapper.LearningPathMapper paths;
+ @Autowired com.knowflow.learning.mapper.LearningChapterMapper chapters;
  @Autowired MockMvc mvc; @Autowired JwtUtils jwt; @Autowired ObjectMapper json;
- String auth(long id) { return "Bearer " + jwt.generateToken(id,"notes-"+id,"USER"); }
+ @BeforeEach void activeActors() {
+  for (long user : new long[]{99181, 99182, 99183, 99185, 99186, 99187, 99188}) {
+   ActiveIdentityFixtures.ensureActive(sql, user, "notes-" + user, "USER");
+  }
+  ActiveIdentityFixtures.ensureActive(sql, 99184L, "notes-admin-99184", "ADMIN");
+ }
+ String auth(long id) {
+  return "Bearer " + jwt.generateToken(id,"notes-"+id,"USER"); }
  JsonNode write(String method,String path,String body,long user,int expected) throws Exception {
   var req=switch(method){case "POST"->post(path);case "PUT"->put(path);case "DELETE"->delete(path);default->get(path);};
   var result=mvc.perform(req.header("Authorization",auth(user)).contentType("application/json").content(body))
@@ -56,15 +65,15 @@ class NoteReliabilityHttpTest {
   write("PUT","/api/notes/"+id,"{\"title\":\"攻击\",\"revision\":1}",99183,404);
   write("DELETE","/api/notes/"+id+"?revision=1","",99183,404);
   write("POST","/api/notes/"+id+"/restore","{\"revision\":1}",99183,404);
-  mvc.perform(get("/api/notes/"+id).header("Authorization","Bearer "+jwt.generateToken(99184L,"admin","ADMIN")))
+  mvc.perform(get("/api/notes/"+id).header("Authorization","Bearer "+jwt.generateToken(99184L,"notes-admin-99184","ADMIN")))
    .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
   write("POST","/api/notes","{\"title\":\"非法引用\",\"chapterId\":-1}",99182,400);
   write("PUT","/api/notes/"+id,"{\"title\":\"无版本\"}",99182,400);
  }
 
  @Test void chapterCompatibilityAndPrivateContext() throws Exception {
-  var path=new com.knowflow.entity.LearningPath();path.setTitle("隔离章节路径");path.setOwnerUserId(99185L);path.setStatus(1);paths.insert(path);
-  var chapter=new com.knowflow.entity.LearningChapter();chapter.setPathId(path.getId());chapter.setTitle("隔离章节");chapters.insert(chapter);
+  var path=new com.knowflow.learning.entity.LearningPath();path.setTitle("隔离章节路径");path.setOwnerUserId(99185L);path.setStatus(1);paths.insert(path);
+  var chapter=new com.knowflow.learning.entity.LearningChapter();chapter.setPathId(path.getId());chapter.setTitle("隔离章节");chapters.insert(chapter);
   String body=json.writeValueAsString(java.util.Map.of("title","旧章节入口","content","上下文保留","chapterId",chapter.getId(),"pathId",path.getId()));
   var n=write("POST","/api/learning/notes",body,99185,200);assertEquals("CHAPTER",n.path("sourceType").asText());
   assertEquals(chapter.getId().longValue(),write("GET","/api/learning/notes/"+n.path("id").asLong(),"",99185,200).path("chapterId").asLong());

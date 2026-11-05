@@ -1,9 +1,10 @@
 package com.knowflow.controller;
+import com.knowflow.support.ActiveIdentityFixtures;
 
 import com.fasterxml.jackson.databind.*;
 import com.knowflow.ai.capability.AiCapabilityProperties;
-import com.knowflow.service.AiService;
-import com.knowflow.service.impl.AiServiceImpl;
+import com.knowflow.ai.service.AiService;
+import com.knowflow.ai.service.impl.AiServiceImpl;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,9 @@ class TutorHttpTest {
  @org.springframework.boot.test.web.server.LocalServerPort int port;
  final java.net.http.HttpClient client=java.net.http.HttpClient.newHttpClient();
  List<String> prompts=new java.util.concurrent.CopyOnWriteArrayList<>();
- String auth(long uid){return "Bearer "+jwt.generateToken(uid,"tutor-"+uid,uid==98403?"ADMIN":"USER");}
+ String auth(long uid){
+  ActiveIdentityFixtures.ensureActive(sql, uid, "tutor-"+uid, uid==98403?"ADMIN":"USER");
+  return "Bearer "+jwt.generateToken(uid,"tutor-"+uid,uid==98403?"ADMIN":"USER");}
  JsonNode call(String method,String path,Object body,long uid,int expected)throws Exception{
   var builder=java.net.http.HttpRequest.newBuilder(java.net.URI.create("http://127.0.0.1:"+port+path)).timeout(java.time.Duration.ofSeconds(15)).header("Authorization",auth(uid)).header("Content-Type","application/json");
   var request=builder.method(method,body==null?java.net.http.HttpRequest.BodyPublishers.noBody():java.net.http.HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body))).build();
@@ -73,7 +76,7 @@ class TutorHttpTest {
  @Autowired com.knowflow.learning.tutor.TutorContextService tutors;
  @Test void assistantAndConversationUpdateRollbackTogetherAndDeletedSourceCannotCommit()throws Exception{
   long conv=session();var prepared=tutors.prepare(conv,98401);
-  var message=new com.knowflow.entity.ChatMessage();message.setConversationId(conv);message.setUserId(98401L);message.setRole("assistant");message.setContent("可回滚导师回复");
+  var message=new com.knowflow.ai.entity.ChatMessage();message.setConversationId(conv);message.setUserId(98401L);message.setRole("assistant");message.setContent("可回滚导师回复");
   sql.execute("ALTER TABLE chat_conversation ADD CONSTRAINT tutor_test_failure CHECK (id <> "+conv+" OR message_count=0)");
   try{assertThrows(org.springframework.dao.DataAccessException.class,()->tutors.saveAssistant(message,prepared));assertEquals(0,sql.queryForObject("SELECT COUNT(*) FROM chat_message WHERE conversation_id=?",Integer.class,conv));}finally{sql.execute("ALTER TABLE chat_conversation DROP CONSTRAINT tutor_test_failure");}
   sql.update("UPDATE learning_note SET deleted=1 WHERE id=?",prepared.noteId());

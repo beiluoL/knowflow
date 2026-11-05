@@ -1,9 +1,9 @@
 package com.knowflow.learning.adaptive;
 
 import com.knowflow.learning.evidence.LearningEvidenceService;
-import com.knowflow.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
 import com.knowflow.security.DocumentAccessPolicy;
-import com.knowflow.service.KnowledgeMasteryService;
+import com.knowflow.mastery.service.KnowledgeMasteryService;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

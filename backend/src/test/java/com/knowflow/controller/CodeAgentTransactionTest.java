@@ -1,8 +1,11 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.AgentSession;
-import com.knowflow.mapper.AgentSessionMapper;
-import com.knowflow.mapper.AgentMessageMapper;
+import com.knowflow.agent.controller.CodeAgentController;
+
+
+import com.knowflow.agent.entity.AgentSession;
+import com.knowflow.agent.mapper.AgentSessionMapper;
+import com.knowflow.agent.mapper.AgentMessageMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,7 @@ class CodeAgentTransactionTest {
     void userMessageFailureRollsBackNewSession() {
         long owner = 991882L;
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(owner, "", List.of()));
-        doThrow(new IllegalStateException("injected message insert failure")).when(messages).insert(any(com.knowflow.entity.AgentMessage.class));
+        doThrow(new IllegalStateException("injected message insert failure")).when(messages).insert(any(com.knowflow.agent.entity.AgentMessage.class));
         try {
             assertThrows(RuntimeException.class, () -> controller.chat(java.util.Map.of("content", "rollback new session")));
             assertEquals(0L, sessions.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AgentSession>()

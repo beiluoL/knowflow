@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.knowflow.reward.entity.RewardLedger;
 import com.knowflow.reward.mapper.RewardLedgerMapper;
-import com.knowflow.vo.LedgerVO;
+import com.knowflow.reward.vo.LedgerVO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

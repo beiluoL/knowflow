@@ -42,7 +42,7 @@ class CareerV3HttpTest {
     @Autowired ObjectMapper json;
     @Autowired JwtUtils jwt;
     @Autowired JdbcTemplate jdbc;
-    @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+    @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
 
     private String token(long userId) {
         return "Bearer " + jwt.generateToken(userId, "v3-fixture", userId == 1 ? "ADMIN" : "USER");

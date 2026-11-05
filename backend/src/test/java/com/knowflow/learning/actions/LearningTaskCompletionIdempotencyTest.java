@@ -1,10 +1,16 @@
 package com.knowflow.learning.actions;
 
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+
+
+import com.knowflow.learning.entity.LearningTask;
+import com.knowflow.learning.mapper.LearningTaskMapper;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
 import com.knowflow.reward.WalletService;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.service.LearningService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;

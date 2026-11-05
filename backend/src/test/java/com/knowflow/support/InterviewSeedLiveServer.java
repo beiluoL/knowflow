@@ -1,7 +1,7 @@
 package com.knowflow.support;
 
 import com.knowflow.KnowFlowApplication;
-import com.knowflow.service.EmbeddingService;
+import com.knowflow.ai.service.EmbeddingService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.*;

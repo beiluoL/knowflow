@@ -41,7 +41,7 @@ class InterviewTrainerHttpTest {
     @Autowired ObjectMapper json;
     @Autowired JdbcTemplate jdbc;
     @Autowired JwtUtils jwt;
-    @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+    @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
 
     @BeforeEach
     void configure() {

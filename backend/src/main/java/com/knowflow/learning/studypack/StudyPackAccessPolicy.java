@@ -1,7 +1,7 @@
 package com.knowflow.learning.studypack;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.DocDocument;
+import com.knowflow.knowledge.entity.DocDocument;
 import jakarta.annotation.PostConstruct;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;

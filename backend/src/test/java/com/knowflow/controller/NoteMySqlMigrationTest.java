@@ -1,5 +1,5 @@
 package com.knowflow.controller;
-import com.knowflow.service.NoteSchema;
+import com.knowflow.knowledge.service.NoteSchema;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import java.sql.DriverManager;

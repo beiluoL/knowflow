@@ -1,5 +1,8 @@
 package com.knowflow.service;
 
+import com.knowflow.knowledge.service.DocumentTextExtractor;
+
+
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;

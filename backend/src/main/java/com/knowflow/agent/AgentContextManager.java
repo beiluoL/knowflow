@@ -2,10 +2,10 @@ package com.knowflow.agent;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.ai.ModelAdapter;
-import com.knowflow.entity.AgentMessage;
-import com.knowflow.entity.AgentSession;
-import com.knowflow.mapper.AgentMessageMapper;
-import com.knowflow.service.AiService;
+import com.knowflow.agent.entity.AgentMessage;
+import com.knowflow.agent.entity.AgentSession;
+import com.knowflow.agent.mapper.AgentMessageMapper;
+import com.knowflow.ai.service.AiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

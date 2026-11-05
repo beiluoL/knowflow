@@ -1,7 +1,7 @@
 package com.knowflow.learning.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.QuizQuestion;
+import com.knowflow.learning.entity.QuizQuestion;
 import java.security.MessageDigest;
 import java.util.*;
 

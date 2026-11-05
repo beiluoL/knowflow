@@ -1,28 +1,37 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.MistakeService;
+import com.knowflow.learning.service.QuizService;
+import com.knowflow.workbench.service.WorkbenchService;
+
+
+import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.service.LearningService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.learning.contract.LearningEventType;
-import com.knowflow.controller.CodeQuestionController;
-import com.knowflow.dto.QuizSubmitDTO;
-import com.knowflow.entity.CodeQuestion;
-import com.knowflow.entity.LearningChapter;
-import com.knowflow.entity.LearningEvent;
-import com.knowflow.entity.LearningFlashcard;
-import com.knowflow.entity.LearningMistake;
-import com.knowflow.entity.LearningPath;
-import com.knowflow.entity.LearningUserPath;
-import com.knowflow.entity.QuizQuestion;
-import com.knowflow.mapper.CodeQuestionMapper;
-import com.knowflow.mapper.LearningChapterMapper;
-import com.knowflow.mapper.LearningEventMapper;
-import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.mapper.LearningMistakeMapper;
-import com.knowflow.mapper.LearningPathMapper;
-import com.knowflow.mapper.LearningUserPathMapper;
-import com.knowflow.mapper.QuizQuestionMapper;
-import com.knowflow.service.impl.LearningServiceImpl;
-import com.knowflow.service.impl.MistakeServiceImpl;
-import com.knowflow.service.impl.QuizServiceImpl;
+import com.knowflow.coding.controller.CodeQuestionController;
+import com.knowflow.learning.dto.QuizSubmitDTO;
+import com.knowflow.coding.entity.CodeQuestion;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.entity.LearningUserPath;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.coding.mapper.CodeQuestionMapper;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+import com.knowflow.learning.mapper.LearningUserPathMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.learning.service.impl.LearningServiceImpl;
+import com.knowflow.learning.service.impl.MistakeServiceImpl;
+import com.knowflow.learning.service.impl.QuizServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,8 +60,8 @@ class LearningEventClosedLoopTest {
 
     private static final Long UID = 70001L;
 
-    @Autowired private com.knowflow.mapper.DocDocumentMapper documentMapper;
-    @Autowired private com.knowflow.mapper.KgEntityMapper knowledgeMapper;
+    @Autowired private com.knowflow.knowledge.mapper.DocDocumentMapper documentMapper;
+    @Autowired private com.knowflow.knowledge.mapper.KgEntityMapper knowledgeMapper;
     @Autowired private QuizService quizService;
     @Autowired private LearningService learningService;
     @Autowired private WorkbenchService workbenchService;
@@ -187,12 +196,12 @@ class LearningEventClosedLoopTest {
         flashcardMapper.insert(card);
 
         // 复习证据必须引用真实知识点；不能依赖未初始化的固定888001。
-        var document = new com.knowflow.entity.DocDocument();
+        var document = new com.knowflow.knowledge.entity.DocDocument();
         document.setTitle("闪卡证据合成来源");
         document.setContent("仅供事件闭环测试");
         document.setStatus(1);
         documentMapper.insert(document);
-        var knowledge = new com.knowflow.entity.KgEntity();
+        var knowledge = new com.knowflow.knowledge.entity.KgEntity();
         knowledge.setDocId(document.getId());
         knowledge.setName("闪卡事件合成知识点-" + java.util.UUID.randomUUID());
         knowledge.setType("CONCEPT");

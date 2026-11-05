@@ -1,7 +1,7 @@
 package com.knowflow.interview.career;
 
 import com.knowflow.exception.BusinessException;
-import com.knowflow.service.DocumentTextExtractor;
+import com.knowflow.knowledge.service.DocumentTextExtractor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;

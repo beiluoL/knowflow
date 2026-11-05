@@ -2,7 +2,7 @@ package com.knowflow.interview.career;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;

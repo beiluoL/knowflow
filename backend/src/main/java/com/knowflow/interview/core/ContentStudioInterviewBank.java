@@ -1,8 +1,8 @@
 package com.knowflow.interview.core;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.QuizQuestion;
-import com.knowflow.mapper.QuizQuestionMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
 import com.knowflow.security.DocumentAccessPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.util.*;
 public class ContentStudioInterviewBank {
     private final QuizQuestionMapper questions;
     private final DocumentAccessPolicy access;
-    private final com.knowflow.mapper.DocDocumentMapper documents;
+    private final com.knowflow.knowledge.mapper.DocDocumentMapper documents;
     public List<InterviewQuestionBank.Track> tracks(Long actor) {
         if (actor == null) return List.of();
         var query=new LambdaQueryWrapper<QuizQuestion>()

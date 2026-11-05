@@ -1,11 +1,14 @@
 package com.knowflow.learning.actions;
 
+import com.knowflow.ai.mapper.ChatConversationMapper;
+import com.knowflow.ai.mapper.ChatMessageMapper;
+
+
 import static com.knowflow.learning.actions.PlanModels.*;
 
-import com.knowflow.entity.ChatMessage;
+import com.knowflow.ai.entity.ChatMessage;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.*;
-import com.knowflow.service.LearningService;
+import com.knowflow.learning.service.LearningService;
 import java.util.*;
 import java.util.regex.*;
 import lombok.RequiredArgsConstructor;
@@ -48,29 +51,7 @@ public class ChatLearningActionService {
         String text;
         switch (intent) {
             case "CONTEXT" -> {
-                var ctx =
-                        (PlanModels.Context) tools.execute("getLearningContext", json.valueToTree(r), user);
-                StringBuilder answer = new StringBuilder("根据本人真实记录：\n");
-                answer
-                        .append("已到期闪卡（最多统计50张）：")
-                        .append(ctx.facts().getOrDefault("dueFlashcards", 0))
-                        .append("；有有效证据的知识记录：")
-                        .append(ctx.facts().getOrDefault("masteryRecordsWithEvidence", 0))
-                        .append("。\n");
-                for (var item : new DailyPlanRule().generate(r, ctx).stream().limit(3).toList())
-                    answer
-                            .append("- ")
-                            .append(item.title())
-                            .append("；")
-                            .append(item.reason())
-                            .append("；预计")
-                            .append(item.estimatedMinutes())
-                            .append("分钟；完成标准：")
-                            .append(item.completionCondition())
-                            .append("\n");
-                for (String missing : ctx.missingData()) answer.append("缺少：").append(missing).append("。\n");
-                answer.append("此查询未创建或修改任务；可在学习中心预览并确认今日计划。");
-                text = answer.toString();
+                text = contextAnswer(user, r);
             }
             case "LIST" -> {
                 tasks = today(user, r);
@@ -78,22 +59,7 @@ public class ChatLearningActionService {
             }
             case "STATUS" -> {
                 var all = today(user, r);
-                String title = m.replaceFirst(".*?(?:已经|已)?完成(?:了)?", "").replaceAll("[。！!？?]$", "").trim();
-                String needle = title.replace("复习", "").replace("任务", "").trim();
-                var matched =
-                        input.selectedTaskId() != null
-                                ? all.stream()
-                                        .filter(
-                                                t ->
-                                                        t.id().equals(input.selectedTaskId())
-                                                                && Objects.equals(t.source(), input.selectedTaskSource()))
-                                        .toList()
-                                : all.stream()
-                                        .filter(
-                                                t ->
-                                                        !needle.isBlank()
-                                                                && (t.title().contains(title) || t.title().contains(needle)))
-                                        .toList();
+                var matched = matchTasks(all, m, input);
                 if (matched.size() != 1) {
                     choices = matched;
                     text = matched.isEmpty() ? "未找到唯一匹配的今日任务，请指定任务名称。" : "找到多个同名或相关任务，请先选择要更新的那一项。";
@@ -239,5 +205,51 @@ public class ChatLearningActionService {
         r = plans.normalize(r);
         if (text.contains("明天")) r.setDate(r.getDate().plusDays(1));
         return r;
+    }
+
+    private String contextAnswer(Long user, Request r) {
+        var ctx =
+                (PlanModels.Context) tools.execute("getLearningContext", json.valueToTree(r), user);
+        StringBuilder answer = new StringBuilder("根据本人真实记录：\n");
+        answer
+                .append("已到期闪卡（最多统计50张）：")
+                .append(ctx.facts().getOrDefault("dueFlashcards", 0))
+                .append("；有有效证据的知识记录：")
+                .append(ctx.facts().getOrDefault("masteryRecordsWithEvidence", 0))
+                .append("。\n");
+        for (var item : new DailyPlanRule().generate(r, ctx).stream().limit(3).toList())
+            answer
+                    .append("- ")
+                    .append(item.title())
+                    .append("；")
+                    .append(item.reason())
+                    .append("；预计")
+                    .append(item.estimatedMinutes())
+                    .append("分钟；完成标准：")
+                    .append(item.completionCondition())
+                    .append("\n");
+        for (String missing : ctx.missingData()) answer.append("缺少：").append(missing).append("。\n");
+        answer.append("此查询未创建或修改任务；可在学习中心预览并确认今日计划。");
+        return answer.toString();
+    }
+
+    private List<TaskRef> matchTasks(List<TaskRef> all, String m, ChatRequest input) {
+        String title = m.replaceFirst(".*?(?:已经|已)?完成(?:了)?", "").replaceAll("[。！!？?]$", "").trim();
+        String needle = title.replace("复习", "").replace("任务", "").trim();
+        var matched =
+                input.selectedTaskId() != null
+                        ? all.stream()
+                                .filter(
+                                        t ->
+                                                t.id().equals(input.selectedTaskId())
+                                                        && Objects.equals(t.source(), input.selectedTaskSource()))
+                                .toList()
+                        : all.stream()
+                                .filter(
+                                        t ->
+                                                !needle.isBlank()
+                                                        && (t.title().contains(title) || t.title().contains(needle)))
+                                .toList();
+        return matched;
     }
 }

@@ -1,8 +1,8 @@
 package com.knowflow.interview;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.utils.JwtUtils;
 import okhttp3.mockwebserver.*;
 import org.junit.jupiter.api.*;

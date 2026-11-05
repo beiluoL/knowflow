@@ -1,6 +1,16 @@
 package com.knowflow.catalog;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
+
+import com.knowflow.coding.entity.CodeQuestion;
+import com.knowflow.coding.mapper.CodeQuestionMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
+
+import com.knowflow.learning.entity.LearningScenario;
+import com.knowflow.learning.mapper.LearningScenarioMapper;
+
 import com.knowflow.coding.entity.CodeProblem;
 import com.knowflow.coding.mapper.CodeProblemMapper;
 import com.knowflow.utils.JwtUtils;

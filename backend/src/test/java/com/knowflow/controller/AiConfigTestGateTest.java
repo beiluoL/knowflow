@@ -1,10 +1,13 @@
 package com.knowflow.controller;
 
+import com.knowflow.ai.controller.AiConfigController;
+
+
 import com.knowflow.ai.capability.AiCapabilityProperties;
 import com.knowflow.config.AiConfig;
 import com.knowflow.config.AiProviderRegistry;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.UserAiConfigMapper;
+import com.knowflow.ai.mapper.UserAiConfigMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

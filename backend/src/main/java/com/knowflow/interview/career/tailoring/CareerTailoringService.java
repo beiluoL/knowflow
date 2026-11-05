@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.interview.career.CareerMatcher;
 import com.knowflow.interview.career.CareerRecordService;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;

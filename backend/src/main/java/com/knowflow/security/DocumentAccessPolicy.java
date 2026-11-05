@@ -1,11 +1,15 @@
 package com.knowflow.security;
 
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.entity.*;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.DocCategoryMapper;
-import com.knowflow.service.KbMemberService;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.service.KbMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.*;
@@ -15,7 +19,7 @@ import java.util.*;
 public class DocumentAccessPolicy {
     private final DocCategoryMapper categories;
     private final KbMemberService members;
-    private final com.knowflow.mapper.DocDocumentMapper documents;
+    private final com.knowflow.knowledge.mapper.DocDocumentMapper documents;
     @org.springframework.beans.factory.annotation.Autowired(required=false)
     private com.knowflow.learning.studypack.StudyPackAccessPolicy studyPacks;
     public boolean canReadKnowledge(KgEntity entity,Long userId) {

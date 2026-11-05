@@ -3,7 +3,7 @@ package com.knowflow.coding.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.coding.contract.LegacyCodeCatalogQueryPort;
-import com.knowflow.mapper.CodeQuestionMapper;
+import com.knowflow.coding.mapper.CodeQuestionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;

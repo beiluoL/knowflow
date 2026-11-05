@@ -1,14 +1,17 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.LearningService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.KgEntity;
-import com.knowflow.entity.LearningChapter;
-import com.knowflow.entity.ResourceKnowledgeMapping;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.KgEntityMapper;
-import com.knowflow.mapper.LearningChapterMapper;
-import com.knowflow.mapper.ResourceKnowledgeMappingMapper;
-import com.knowflow.vo.ChapterKnowledgeVO;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+import com.knowflow.learning.vo.ChapterKnowledgeVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +40,7 @@ class LearningChapterKnowledgeTest {
     @Autowired private LearningChapterMapper chapterMapper;
     @Autowired private ResourceKnowledgeMappingMapper mappingMapper;
     @Autowired private KgEntityMapper kgEntityMapper;
-    @Autowired private com.knowflow.mapper.DocDocumentMapper docs;
+    @Autowired private com.knowflow.knowledge.mapper.DocDocumentMapper docs;
 
     @BeforeEach
     void setUp() {
@@ -53,7 +56,7 @@ class LearningChapterKnowledgeTest {
     @Test
     @DisplayName("A4.2-1: 章节→知识点真实映射解析（docIds→mapping(DOC,ACCEPTED)→kg_entity）")
     void resolveChapterKnowledge() {
-        com.knowflow.entity.DocDocument source=new com.knowflow.entity.DocDocument();source.setId(900101L);source.setTitle("TEST-CK-source");source.setContent("real source");source.setStatus(1);docs.insert(source);
+        com.knowflow.knowledge.entity.DocDocument source=new com.knowflow.knowledge.entity.DocDocument();source.setId(900101L);source.setTitle("TEST-CK-source");source.setContent("real source");source.setStatus(1);docs.insert(source);
         KgEntity ke = new KgEntity();
         ke.setId(900001L);
         ke.setDocId(900101L);

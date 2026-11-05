@@ -1,9 +1,9 @@
 package com.knowflow.interview;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.service.AiService;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.ai.service.AiService;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import org.springframework.http.MediaType;
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:interview-ai;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.datasource.allow-runtime-switch=false","knowflow.exam.timeout-scheduler.enabled=false","knowflow.coding.seed.algorithm.enabled=false","knowflow.ai.capability.enabled=true"})
 class InterviewAiIntegrationTest {
  @Autowired MockMvc mvc; @Autowired ObjectMapper json; @Autowired SysUserMapper users; @Autowired JwtUtils jwt;
- @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+ @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
  @Autowired com.knowflow.ai.capability.AiCapabilityProperties capability;
  String owner,other,qid,base; long session;
  @BeforeEach void init() throws Exception {

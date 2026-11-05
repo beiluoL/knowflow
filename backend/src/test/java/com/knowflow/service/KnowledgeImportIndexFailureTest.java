@@ -1,14 +1,19 @@
 package com.knowflow.service;
 
+import com.knowflow.knowledge.service.DocChunkService;
+import com.knowflow.knowledge.service.DocService;
+import com.knowflow.knowledge.service.KnowledgeImportService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.config.UploadConfigProperties;
-import com.knowflow.dto.KnowledgeImportOptionsDTO;
-import com.knowflow.entity.DocCategory;
-import com.knowflow.entity.DocDocument;
-import com.knowflow.entity.DocFavorite;
-import com.knowflow.mapper.DocCategoryMapper;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.mapper.DocFavoriteMapper;
+import com.knowflow.knowledge.dto.KnowledgeImportOptionsDTO;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.DocFavorite;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.DocFavoriteMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

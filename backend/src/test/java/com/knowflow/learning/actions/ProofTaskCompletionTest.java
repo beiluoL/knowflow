@@ -1,11 +1,24 @@
 package com.knowflow.learning.actions;
 
+import com.knowflow.ai.entity.ChatConversation;
+import com.knowflow.ai.mapper.ChatConversationMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
+
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.learning.entity.LearningTask;
+import com.knowflow.learning.mapper.LearningTaskMapper;
+
+
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
 import com.knowflow.reward.WalletService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;

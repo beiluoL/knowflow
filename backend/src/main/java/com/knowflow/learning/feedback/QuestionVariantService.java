@@ -1,18 +1,23 @@
 package com.knowflow.learning.feedback;
 
 import com.fasterxml.jackson.databind.*;
+import com.knowflow.ai.service.AiService;
 import com.knowflow.exception.BusinessException;
+import com.knowflow.knowledge.service.NoteService;
 import com.knowflow.learning.actions.LearningWriteGuard;
 import com.knowflow.learning.privatequiz.*;
-import com.knowflow.service.*;
+
 import jakarta.validation.constraints.*;
-import java.util.*;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.*;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.*;
 
 /** 题目变体服务：为练习与反馈生成同源变体题目，支撑干扰项/相似题的复用与去重，仅在校验相关特性开启时加载。 */
 @Service
@@ -80,11 +85,16 @@ public class QuestionVariantService {
     private Map<String, Object> own(long user, long id) {
         var rows =
                 sql.queryForList(
-                        "SELECT * FROM learning_question_variant WHERE id=? AND owner_id=?", id, user);
+                        "SELECT * FROM learning_question_variant WHERE id=? AND owner_id=?",
+                        id,
+                        user);
         if (rows.isEmpty()) throw new BusinessException(404, "变式不存在");
         var r = rows.get(0);
         sources.read(
-                user, r.get("source_type").toString(), n(r, "source_id"), (int) n(r, "question_index"));
+                user,
+                r.get("source_type").toString(),
+                n(r, "source_id"),
+                (int) n(r, "question_index"));
         notes.detail(n(r, "note_id"), user, false);
         if (r.get("quiz_id") != null) quizzes.detail(user, n(r, "quiz_id"));
         return r;
@@ -92,15 +102,19 @@ public class QuestionVariantService {
 
     private FeedbackSourceService.Source source(long user, Map<String, Object> r) {
         return sources.read(
-                user, r.get("source_type").toString(), n(r, "source_id"), (int) n(r, "question_index"));
+                user,
+                r.get("source_type").toString(),
+                n(r, "source_id"),
+                (int) n(r, "question_index"));
     }
 
     public List<Map<String, Object>> list(long user, String type, long sid, int index) {
         sources.read(user, type, sid, index);
         return sql
                 .queryForList(
-                        "SELECT id FROM learning_question_variant WHERE owner_id=? AND source_type=? AND"
-                                + " source_id=? AND question_index=? ORDER BY id DESC",
+                        "SELECT id FROM learning_question_variant WHERE owner_id=? AND"
+                            + " source_type=? AND source_id=? AND question_index=? ORDER BY id"
+                            + " DESC",
                         Long.class,
                         user,
                         type,
@@ -145,50 +159,7 @@ public class QuestionVariantService {
         var s = sources.read(user, input.sourceType(), input.sourceId(), input.questionIndex());
         if (s.noteId() == null) throw new BusinessException(409, "请先关联原题补练笔记");
         var note = notes.detail(s.noteId(), user, false);
-        long id =
-                tx(
-                        user,
-                        () -> {
-                            var prior =
-                                    sql.queryForList(
-                                            "SELECT * FROM learning_question_variant WHERE owner_id=? AND request_id=?",
-                                            user,
-                                            input.requestId());
-                            if (!prior.isEmpty()) {
-                                var r = prior.get(0);
-                                if (!s.type().equals(r.get("source_type"))
-                                        || s.id() != n(r, "source_id")
-                                        || s.questionIndex() != n(r, "question_index")
-                                        || !s.version().equals(r.get("source_version")))
-                                    throw new BusinessException(409, "生成标识已用于其他母题");
-                                if ("GENERATING".equals(r.get("state"))) throw new BusinessException(409, "变式正在生成");
-                                if (!"FAILED".equals(r.get("state"))) return n(r, "id");
-                                if (note.getRevision() != n(r, "note_revision"))
-                                    throw new BusinessException(409, "来源已变化，请新建生成");
-                                sql.update(
-                                        "UPDATE learning_question_variant SET state='GENERATING',error_message=NULL"
-                                                + " WHERE id=?",
-                                        r.get("id"));
-                                return n(r, "id");
-                            }
-                            sql.update(
-                                    "INSERT INTO"
-                                            + " learning_question_variant(owner_id,source_type,source_id,question_index,source_version,note_id,note_revision,request_id,state,created_at)"
-                                            + " VALUES(?,?,?,?,?,?,?,?,'GENERATING',CURRENT_TIMESTAMP)",
-                                    user,
-                                    s.type(),
-                                    s.id(),
-                                    s.questionIndex(),
-                                    s.version(),
-                                    s.noteId(),
-                                    note.getRevision(),
-                                    input.requestId());
-                            return sql.queryForObject(
-                                    "SELECT id FROM learning_question_variant WHERE owner_id=? AND request_id=?",
-                                    Long.class,
-                                    user,
-                                    input.requestId());
-                        });
+        long id = claimVariant(user, input, s, note);
         if (!"GENERATING".equals(own(user, id).get("state"))) return detail(user, id);
         try {
             if (!ai.isConfigured(user)) throw new BusinessException(400, "请先配置AI");
@@ -218,14 +189,20 @@ public class QuestionVariantService {
                     () -> {
                         var r = own(user, id);
                         if (!source(user, r).version().equals(s.version())
-                                || notes.detail(s.noteId(), user, false).getRevision() != n(r, "note_revision"))
+                                || notes.detail(s.noteId(), user, false).getRevision()
+                                        != n(r, "note_revision"))
                             throw new BusinessException(409, "生成期间来源变化");
                         var qs = questions(result);
                         var quiz =
-                                quizzes.variantDraft(user, s.noteId(), n(r, "note_revision"), "variant-" + id, qs);
+                                quizzes.variantDraft(
+                                        user,
+                                        s.noteId(),
+                                        n(r, "note_revision"),
+                                        "variant-" + id,
+                                        qs);
                         sql.update(
                                 "UPDATE learning_question_variant SET"
-                                        + " state='DRAFT',quiz_id=?,payload=?,model_scope=? WHERE id=?",
+                                    + " state='DRAFT',quiz_id=?,payload=?,model_scope=? WHERE id=?",
                                 quiz.get("id"),
                                 write(result),
                                 ai.currentScope(user),
@@ -238,14 +215,69 @@ public class QuestionVariantService {
                     () -> {
                         sql.update(
                                 "UPDATE learning_question_variant SET"
-                                        + " state='FAILED',error_message='变式生成或依据校验失败，可重试' WHERE id=? AND"
-                                        + " state='GENERATING'",
+                                    + " state='FAILED',error_message='变式生成或依据校验失败，可重试' WHERE id=?"
+                                    + " AND state='GENERATING'",
                                 id);
                         return null;
                     });
-            if (e instanceof BusinessException b && b.getCode() >= 400 && b.getCode() < 500) throw b;
+            if (e instanceof BusinessException b && b.getCode() >= 400 && b.getCode() < 500)
+                throw b;
             throw new IllegalStateException("变式生成失败，未创建正式题目");
         }
+    }
+
+    /** Claims the existing request under the original transaction and retry checks. */
+    private long claimVariant(
+            long user,
+            Generate input,
+            FeedbackSourceService.Source s,
+            com.knowflow.learning.entity.LearningNote note) {
+        return tx(
+                user,
+                () -> {
+                    var prior =
+                            sql.queryForList(
+                                    "SELECT * FROM learning_question_variant WHERE owner_id=? AND"
+                                        + " request_id=?",
+                                    user,
+                                    input.requestId());
+                    if (!prior.isEmpty()) {
+                        var r = prior.get(0);
+                        if (!s.type().equals(r.get("source_type"))
+                                || s.id() != n(r, "source_id")
+                                || s.questionIndex() != n(r, "question_index")
+                                || !s.version().equals(r.get("source_version")))
+                            throw new BusinessException(409, "生成标识已用于其他母题");
+                        if ("GENERATING".equals(r.get("state")))
+                            throw new BusinessException(409, "变式正在生成");
+                        if (!"FAILED".equals(r.get("state"))) return n(r, "id");
+                        if (note.getRevision() != n(r, "note_revision"))
+                            throw new BusinessException(409, "来源已变化，请新建生成");
+                        sql.update(
+                                "UPDATE learning_question_variant SET"
+                                    + " state='GENERATING',error_message=NULL WHERE id=?",
+                                r.get("id"));
+                        return n(r, "id");
+                    }
+                    sql.update(
+                            "INSERT INTO"
+                                + " learning_question_variant(owner_id,source_type,source_id,question_index,source_version,note_id,note_revision,request_id,state,created_at)"
+                                + " VALUES(?,?,?,?,?,?,?,?,'GENERATING',CURRENT_TIMESTAMP)",
+                            user,
+                            s.type(),
+                            s.id(),
+                            s.questionIndex(),
+                            s.version(),
+                            s.noteId(),
+                            note.getRevision(),
+                            input.requestId());
+                    return sql.queryForObject(
+                            "SELECT id FROM learning_question_variant WHERE owner_id=? AND"
+                                + " request_id=?",
+                            Long.class,
+                            user,
+                            input.requestId());
+                });
     }
 
     private List<PrivateQuizRequests.Question> questions(JsonNode items) {
@@ -261,7 +293,13 @@ public class QuestionVariantService {
         var stems = new ArrayList<String>();
         for (var item : items) {
             for (String field :
-                    List.of("knowledge", "scenario", "change", "difficulty", "basisQuote", "ambiguity"))
+                    List.of(
+                            "knowledge",
+                            "scenario",
+                            "change",
+                            "difficulty",
+                            "basisQuote",
+                            "ambiguity"))
                 if (!item.path(field).isTextual()
                         || item.path(field).asText().isBlank()
                         || item.path(field).asText().length() > 2000)
@@ -285,7 +323,8 @@ public class QuestionVariantService {
                     || stem.contains("答案是")) throw new BusinessException(400, "场景、考点或依据校验未通过");
             for (String prior : stems)
                 if (similarity(stem, prior) > .85) throw new BusinessException(400, "两个场景题过于重复");
-            if (similarity(stem, source.question()) > .85) throw new BusinessException(400, "变式与母题过于重复");
+            if (similarity(stem, source.question()) > .85)
+                throw new BusinessException(400, "变式与母题过于重复");
             stems.add(stem);
         }
     }
@@ -317,13 +356,16 @@ public class QuestionVariantService {
                         throw new BusinessException(409, "变式版本已变化");
                     String payload = write(variants);
                     if ("SAVED".equals(r.get("state"))) {
-                        if (!payload.equals(r.get("payload"))) throw new BusinessException(409, "已冻结变式不可覆盖");
+                        if (!payload.equals(r.get("payload")))
+                            throw new BusinessException(409, "已冻结变式不可覆盖");
                         return detail(user, id);
                     }
-                    if (!"DRAFT".equals(r.get("state"))) throw new BusinessException(409, "请先生成有效草稿");
+                    if (!"DRAFT".equals(r.get("state")))
+                        throw new BusinessException(409, "请先生成有效草稿");
                     quizzes.confirmVariants(user, n(r, "quiz_id"), questions(variants));
                     sql.update(
-                            "UPDATE learning_question_variant SET state='SAVED',payload=? WHERE id=?",
+                            "UPDATE learning_question_variant SET state='SAVED',payload=? WHERE"
+                                + " id=?",
                             payload,
                             id);
                     return detail(user, id);

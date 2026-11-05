@@ -3,7 +3,7 @@ package com.knowflow.interview.voice;
 import com.knowflow.interview.speech.InterviewStreamingAsrProvider;
 import com.knowflow.interview.speech.InterviewTtsProvider;
 import com.knowflow.interview.speech.SpeechStreamCapabilities;
-import com.knowflow.service.impl.AiServiceImpl;
+import com.knowflow.ai.service.impl.AiServiceImpl;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;

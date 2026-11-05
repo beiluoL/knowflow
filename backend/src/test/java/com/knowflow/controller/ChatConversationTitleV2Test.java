@@ -1,7 +1,7 @@
 package com.knowflow.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.service.AiService;
-import com.knowflow.service.ChatService;
+import com.knowflow.ai.service.AiService;
+import com.knowflow.ai.service.ChatService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ChatConversationTitleV2Test {
  @Autowired MockMvc http;@Autowired JwtUtils jwt;@Autowired ObjectMapper json;@Autowired ChatService service;
  /** 流式生成在请求线程之外执行，断言前需等待异步收尾，避免跨用例串行干扰。 */
- @Autowired com.knowflow.service.impl.ChatServiceImpl chat;
+ @Autowired com.knowflow.ai.service.impl.ChatServiceImpl chat;
  @SpyBean AiService ai;
  final long owner=982001,other=982002;
  private static final long ADMIN = 982003L;

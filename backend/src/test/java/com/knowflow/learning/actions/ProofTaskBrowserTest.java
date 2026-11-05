@@ -1,9 +1,34 @@
 package com.knowflow.learning.actions;
+
+import com.knowflow.ai.entity.ChatConversation;
+import com.knowflow.ai.mapper.ChatConversationMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+
+
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningGoal;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.entity.LearningTask;
+import com.knowflow.learning.entity.LearningUserPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningGoalMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+import com.knowflow.learning.mapper.LearningUserPathMapper;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
-import com.knowflow.dto.FlashcardSaveDTO;
-import com.knowflow.service.LearningService;
+import com.knowflow.flashcards.dto.FlashcardSaveDTO;
+import com.knowflow.learning.service.LearningService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;
@@ -24,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProofTaskBrowserTest {
  @org.springframework.boot.test.web.server.LocalServerPort int port;
  @Autowired DailyLearningPlanService plans;
- @Autowired com.knowflow.service.TaskService tasks;
+ @Autowired com.knowflow.productivity.service.TaskService tasks;
  @Autowired SysUserMapper users;@Autowired DocCategoryMapper categories;@Autowired DocDocumentMapper docs;@Autowired KgEntityMapper knowledge;
  @Autowired LearningPathMapper paths;@Autowired LearningChapterMapper chapters;@Autowired LearningUserPathMapper enrollments;@Autowired LearningGoalMapper goals;
  @Autowired QuizQuestionMapper questions;@Autowired ResourceKnowledgeMappingMapper mappings;@Autowired ChatConversationMapper chats;
@@ -50,7 +75,7 @@ class ProofTaskBrowserTest {
   var draft=plans.preview(u.getId(),req);var selected=draft.tasks().stream().filter(i->"QUIZ".equals(i.resourceType())||"FLASHCARD".equals(i.resourceType())).toList();assertEquals(2,selected.size());
   var confirm=new PlanModels.ConfirmRequest();confirm.setVersion(draft.version());confirm.setConfirmationToken(draft.confirmationToken());confirm.setIdempotencyKey(UUID.randomUUID().toString());confirm.setTasks(selected.stream().map(i->new PlanModels.EditedItem(i.key(),i.title(),i.estimatedMinutes(),i.priority())).toList());
   var saved=plans.confirm(u.getId(),draft.planId(),confirm);
-  var todo=new com.knowflow.dto.TaskDTO();todo.setTitle("G浏览器普通Todo");todo.setScheduledDate(LocalDate.now());long todoId=tasks.createTask(u.getId(),todo);
+  var todo=new com.knowflow.productivity.dto.TaskDTO();todo.setTitle("G浏览器普通Todo");todo.setScheduledDate(LocalDate.now());long todoId=tasks.createTask(u.getId(),todo);
   var legacy=new LearningTask();legacy.setTitle("G浏览器旧学习活动");legacy.setStatus(0);legacy.setType("REVIEW");learning.createTask(legacy,u.getId());
   long quizTask=saved.createdTasks().stream().filter(t->t.title().contains(q.getTitle())).findFirst().orElseThrow().id();
   long cardTask=saved.createdTasks().stream().filter(t->t.id()!=quizTask).findFirst().orElseThrow().id();

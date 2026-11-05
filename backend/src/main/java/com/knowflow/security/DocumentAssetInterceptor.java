@@ -1,6 +1,6 @@
 package com.knowflow.security;
 
-import com.knowflow.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
 import com.knowflow.exception.BusinessException;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;

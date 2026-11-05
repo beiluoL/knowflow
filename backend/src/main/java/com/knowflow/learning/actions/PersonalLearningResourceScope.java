@@ -1,9 +1,11 @@
 package com.knowflow.learning.actions;
 
-import com.knowflow.entity.*;
-import com.knowflow.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.entity.DocDocument;
+
+
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
 import com.knowflow.security.DocumentAccessPolicy;
-import com.knowflow.service.KbMemberService;
+import com.knowflow.knowledge.service.KbMemberService;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

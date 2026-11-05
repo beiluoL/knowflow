@@ -1,7 +1,7 @@
 package com.knowflow.exam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.SysUser;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.exam.ai.ExamAiService;
 import com.knowflow.exam.dto.ExamRequests;
 import com.knowflow.exam.entity.ExamAnswer;
@@ -14,7 +14,7 @@ import com.knowflow.exam.mapper.ExamPaperMapper;
 import com.knowflow.exam.mapper.ExamPaperQuestionMapper;
 import com.knowflow.exam.service.ExamService;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -616,7 +616,7 @@ class ExamConcurrencyIntegrationTest {
 
         @Bean
         @Primary
-        ExamAiService stubExamAiService(com.knowflow.service.AiService aiService, ObjectMapper objectMapper) {
+        ExamAiService stubExamAiService(com.knowflow.ai.service.AiService aiService, ObjectMapper objectMapper) {
             return new ExamAiService(aiService, objectMapper) {
                 @Override
                 public boolean isConfigured() {

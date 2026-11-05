@@ -1,13 +1,43 @@
 package com.knowflow.seed;
 
+import com.knowflow.coding.entity.CodeQuestion;
+import com.knowflow.coding.mapper.CodeQuestionMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+
+
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningGoal;
+import com.knowflow.learning.entity.LearningNote;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.entity.LearningTask;
+import com.knowflow.learning.entity.LearningUserPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningGoalMapper;
+import com.knowflow.learning.mapper.LearningNoteMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+import com.knowflow.learning.mapper.LearningTaskMapper;
+import com.knowflow.learning.mapper.LearningUserPathMapper;
+
+
 import com.knowflow.common.persistence.BaseEntity;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.*;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;

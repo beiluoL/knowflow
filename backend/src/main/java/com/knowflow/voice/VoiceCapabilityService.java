@@ -3,7 +3,7 @@ package com.knowflow.voice;
 import com.knowflow.interview.speech.InterviewStreamingAsrProvider;
 import com.knowflow.interview.speech.InterviewTtsProvider;
 import com.knowflow.interview.voice.VoiceTransportProperties;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import com.knowflow.voice.llm.OllamaVoiceLlm;
 import java.time.Instant;
 import java.util.ArrayList;

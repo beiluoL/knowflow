@@ -1,5 +1,5 @@
 package com.knowflow.controller;
-import com.knowflow.service.ChatService;
+import com.knowflow.ai.service.ChatService;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,8 +41,8 @@ class ChatManagementTest {
 
  @Autowired com.fasterxml.jackson.databind.ObjectMapper json;
  @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
- @Autowired com.knowflow.service.ChatShareService shares;
- @Autowired com.knowflow.service.ChatManagementSchema schema;
+ @Autowired com.knowflow.ai.service.ChatShareService shares;
+ @Autowired com.knowflow.ai.service.ChatManagementSchema schema;
  String createShare(long id)throws Exception{return http.perform(post("/api/chat/conversations/"+id+"/shares").header("Authorization",auth(998001,"USER")).contentType("application/json").content("{\"confirmed\":true,\"expiresInHours\":24}")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();}
  @Test void publicSnapshotIsImmutableRevocableAndDeletedSourceInvalidatesIt()throws Exception{
   long id=service.createConversation(998001L,"公开文本").getId();

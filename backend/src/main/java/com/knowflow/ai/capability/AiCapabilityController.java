@@ -2,7 +2,7 @@ package com.knowflow.ai.capability;
 
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.identity.contract.RewardAccountQuery;
 import com.knowflow.reward.entity.Wallet;
 import com.knowflow.reward.mapper.WalletMapper;
-import com.knowflow.vo.WalletVO;
+import com.knowflow.reward.vo.WalletVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;

@@ -1,16 +1,19 @@
 package com.knowflow.controller;
 
+import com.knowflow.knowledge.controller.DocController;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.DocDocument;
-import com.knowflow.entity.LearningChapter;
-import com.knowflow.entity.LearningFlashcard;
-import com.knowflow.entity.LearningPath;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.mapper.LearningChapterMapper;
-import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.mapper.LearningPathMapper;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;

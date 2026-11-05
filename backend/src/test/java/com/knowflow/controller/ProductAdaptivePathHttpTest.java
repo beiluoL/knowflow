@@ -1,8 +1,22 @@
 package com.knowflow.controller;
-import com.knowflow.entity.*;import com.knowflow.mapper.*;import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import java.util.*;import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;import static org.mockito.ArgumentMatchers.*;
+
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+
+
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+
+import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import java.util.*;import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;import static org.mockito.ArgumentMatchers.*;
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.adaptive-learning.enabled=true","knowflow.product.interview-learning.enabled=true","knowflow.product.private-quiz.enabled=true","knowflow.product.tutor.enabled=true","knowflow.product.tutor-coaching.enabled=true","server.address=127.0.0.1"})
 class ProductAdaptivePathHttpTest extends ProductFeedbackHttpTest {
- @Autowired com.knowflow.service.LearningService learning;@Autowired LearningPathMapper paths;@Autowired LearningChapterMapper chapters;@Autowired DocCategoryMapper categories;@Autowired DocDocumentMapper docs;@Autowired KgEntityMapper knowledge;
+ @Autowired com.knowflow.learning.service.LearningService learning;@Autowired LearningPathMapper paths;@Autowired LearningChapterMapper chapters;@Autowired DocCategoryMapper categories;@Autowired DocDocumentMapper docs;@Autowired KgEntityMapper knowledge;
  @Test void sourceBoundSuggestionsLocksVersionsAndRevocationDoNotRewriteOriginalPath()throws Exception {
   var original=wrong();var cat=new DocCategory();cat.setOwnerId(owner);cat.setStatus(1);cat.setName("路径合成来源");cat.setCode("p04-"+UUID.randomUUID());categories.insert(cat);var doc=new DocDocument();doc.setCategoryId(cat.getId());doc.setTitle("Read View合成来源");doc.setContent("Read View用于判断版本可见性。");doc.setStatus(1);docs.insert(doc);
   var k=new KgEntity();k.setCategoryId(cat.getId());k.setDocId(doc.getId());k.setName("Read View-"+UUID.randomUUID());k.setType("CONCEPT");knowledge.insert(k);
@@ -14,7 +28,7 @@ class ProductAdaptivePathHttpTest extends ProductFeedbackHttpTest {
   var second=call("POST",root+"/preview",Map.of("expectedRevision",0,"requestId",UUID.randomUUID().toString(),"lockedChapterIds",List.of()),owner,200);
   call("POST",root+"/revisions/"+preview.path("id").asLong()+"/decision",Map.of("accept",true),owner,200);call("POST",root+"/revisions/"+preview.path("id").asLong()+"/decision",Map.of("accept",true),owner,200);call("POST",root+"/revisions/"+second.path("id").asLong()+"/decision",Map.of("accept",true),owner,409);
   detail=call("GET",root,null,owner,200);assertEquals(1,detail.path("revision").asInt());assertEquals(ids.get(1).longValue(),detail.path("effectiveOrder").get(0).asLong());assertEquals(ids.get(1),learning.getChapterList(path.getId(),owner).get(0).getId());assertEquals(ids.get(1),learning.getChapterDag(path.getId(),owner).getNodes().get(0).getId());assertEquals(1,chapters.selectById(ids.get(0)).getSortOrder());assertEquals(2,chapters.selectById(ids.get(1)).getSortOrder());
-  for(long actor:new long[]{owner+1,owner+2})call("GET",root,null,actor,403);call("GET",root,null,0,401);
+  for(long actor:new long[]{otherUser,adminUser})call("GET",root,null,actor,403);call("GET",root,null,0,401);
   docs.deleteById(doc.getId());var revoked=call("GET",root,null,owner,200);var applied=java.util.stream.StreamSupport.stream(revoked.path("history").spliterator(),false).filter(r->r.path("state").asText().equals("APPLIED")).findFirst().orElseThrow();assertTrue(applied.path("sourceUnavailable").asBoolean());assertFalse(applied.has("payload"));
   var a=chapters.selectById(ids.get(0));a.setPrerequisiteChapterIds(ids.get(2).toString());chapters.updateById(a);var z=chapters.selectById(ids.get(2));z.setPrerequisiteChapterIds(ids.get(0).toString());chapters.updateById(z);call("GET",root,null,owner,409);
  }

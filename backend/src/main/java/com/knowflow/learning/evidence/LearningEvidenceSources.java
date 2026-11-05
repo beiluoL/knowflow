@@ -1,10 +1,17 @@
 package com.knowflow.learning.evidence;
 
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
+
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.actions.PersonalLearningResourceScope;
-import com.knowflow.mapper.*;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -114,7 +121,7 @@ public class LearningEvidenceSources {
                         "SELECT id,category_id,status,deleted FROM doc_document WHERE id=? AND deleted=0", id);
         if (rows.isEmpty()) return false;
         var row = rows.get(0);
-        var doc = new com.knowflow.entity.DocDocument();
+        var doc = new com.knowflow.knowledge.entity.DocDocument();
         doc.setId(id);
         doc.setCategoryId(row.get("category_id") == null ? null : number(row, "category_id"));
         doc.setStatus(((Number) row.get("status")).intValue());

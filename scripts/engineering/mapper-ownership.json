@@ -1,0 +1,181 @@
+{
+  "description": "2026-11-04 exact legacy identity ratchet. New ownership entries require review; never auto-refresh legacy. Governed callers are explicit same-business services and existing seed infrastructure. Entity packages unchanged.",
+  "legacy": [
+    "com.knowflow.coding.mapper.CodeDraftMapper",
+    "com.knowflow.coding.mapper.CodeProblemMapper",
+    "com.knowflow.coding.mapper.CodeSubmissionMapper",
+    "com.knowflow.coding.mapper.CodeTestCaseMapper",
+    "com.knowflow.coding.mapper.QuestionTopicMapper",
+    "com.knowflow.exam.mapper.ExamAnswerMapper",
+    "com.knowflow.exam.mapper.ExamAttemptMapper",
+    "com.knowflow.exam.mapper.ExamPaperMapper",
+    "com.knowflow.exam.mapper.ExamPaperQuestionMapper",
+    "com.knowflow.exam.mapper.ExamTemplateMapper",
+    "com.knowflow.interview.mapper.MockInterviewSessionMapper",
+    "com.knowflow.learning.actions.LearningActionDraftMapper",
+    "com.knowflow.reward.mapper.AchievementMapper",
+    "com.knowflow.agent.mapper.AgentCallLogMapper",
+    "com.knowflow.agent.mapper.AgentMessageMapper",
+    "com.knowflow.agent.mapper.AgentSessionMapper",
+    "com.knowflow.agent.mapper.AgentToolCallMapper",
+    "com.knowflow.agent.mapper.AgentToolConfigMapper",
+    "com.knowflow.agent.mapper.AgentWorkflowMapper",
+    "com.knowflow.knowledge.mapper.AiConceptDiagramMapper",
+    "com.knowflow.learning.mapper.AiLearningSuggestionMapper",
+    "com.knowflow.learning.mapper.AiPersonalizedPathMapper",
+    "com.knowflow.productivity.mapper.CalendarMemorialMapper",
+    "com.knowflow.learning.mapper.ChapterFavoriteMapper",
+    "com.knowflow.ai.mapper.ChatConversationMapper",
+    "com.knowflow.ai.mapper.ChatMessageMapper",
+    "com.knowflow.coding.mapper.CodeChallengeLevelMapper",
+    "com.knowflow.coding.mapper.CodeChallengeLevelRecordMapper",
+    "com.knowflow.coding.mapper.CodeChallengeMapper",
+    "com.knowflow.coding.mapper.CodeChallengeRecordMapper",
+    "com.knowflow.coding.mapper.CodeQuestionMapper",
+    "com.knowflow.coding.mapper.CodeSubmitRecordMapper",
+    "com.knowflow.community.mapper.CommunityCommentLikeMapper",
+    "com.knowflow.community.mapper.CommunityCommentMapper",
+    "com.knowflow.community.mapper.CommunityPostLikeMapper",
+    "com.knowflow.community.mapper.CommunityPostMapper",
+    "com.knowflow.knowledge.mapper.DocCategoryMapper",
+    "com.knowflow.knowledge.mapper.DocChunkMapper",
+    "com.knowflow.knowledge.mapper.DocDocumentMapper",
+    "com.knowflow.knowledge.mapper.DocFavoriteMapper",
+    "com.knowflow.knowledge.mapper.DocReadProgressMapper",
+    "com.knowflow.knowledge.mapper.DrawingMapper",
+    "com.knowflow.productivity.mapper.FocusSessionMapper",
+    "com.knowflow.productivity.mapper.HabitCheckInMapper",
+    "com.knowflow.productivity.mapper.HabitMapper",
+    "com.knowflow.knowledge.mapper.ImportTemplateMapper",
+    "com.knowflow.knowledge.mapper.KgEntityMapper",
+    "com.knowflow.knowledge.mapper.KgRelationMapper",
+    "com.knowflow.mastery.mapper.KnowledgeMasteryMapper",
+    "com.knowflow.learning.mapper.LearningChapterMapper",
+    "com.knowflow.learning.mapper.LearningEventMapper",
+    "com.knowflow.flashcards.mapper.LearningFlashcardMapper",
+    "com.knowflow.learning.mapper.LearningGoalMapper",
+    "com.knowflow.learning.mapper.LearningMistakeMapper",
+    "com.knowflow.learning.mapper.LearningNoteMapper",
+    "com.knowflow.learning.mapper.LearningPathMapper",
+    "com.knowflow.learning.mapper.LearningScenarioMapper",
+    "com.knowflow.learning.mapper.LearningTaskMapper",
+    "com.knowflow.learning.mapper.LearningUserChapterMapper",
+    "com.knowflow.learning.mapper.LearningUserPathMapper",
+    "com.knowflow.knowledge.mapper.MindMapMapper",
+    "com.knowflow.knowledge.mapper.NoteVersionMapper",
+    "com.knowflow.ai.mapper.OllamaConfigMapper",
+    "com.knowflow.community.mapper.PrivateConversationMapper",
+    "com.knowflow.community.mapper.PrivateConversationReadMapper",
+    "com.knowflow.community.mapper.PrivateMessageMapper",
+    "com.knowflow.learning.mapper.QuizAnswerRecordMapper",
+    "com.knowflow.learning.mapper.QuizQuestionMapper",
+    "com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper",
+    "com.knowflow.community.mapper.StudyGroupMapper",
+    "com.knowflow.community.mapper.StudyGroupMemberMapper",
+    "com.knowflow.community.mapper.StudyGroupMessageMapper",
+    "com.knowflow.administration.mapper.SysIconMapper",
+    "com.knowflow.community.mapper.SysNotificationMapper",
+    "com.knowflow.identity.mapper.SysUserMapper",
+    "com.knowflow.productivity.mapper.TaskListMapper",
+    "com.knowflow.productivity.mapper.TaskMapper",
+    "com.knowflow.productivity.mapper.TaskTagMapper",
+    "com.knowflow.productivity.mapper.TaskTagRelMapper",
+    "com.knowflow.techenglish.mapper.TechVocabCandidateMapper",
+    "com.knowflow.reward.mapper.UserAchievementMapper",
+    "com.knowflow.ai.mapper.UserAiConfigMapper",
+    "com.knowflow.identity.mapper.UserBackgroundPresetMapper",
+    "com.knowflow.reward.mapper.UserCheckInMapper",
+    "com.knowflow.learning.mapper.UserLearningPrefMapper",
+    "com.knowflow.reward.mapper.UserPetMapper",
+    "com.knowflow.techenglish.mapper.UserVocabStateMapper",
+    "com.knowflow.workbench.mapper.WbCaptureMapper",
+    "com.knowflow.workbench.mapper.WbNoteMapper",
+    "com.knowflow.workbench.mapper.WbPalaceLociMapper",
+    "com.knowflow.workbench.mapper.WbPalaceMapper",
+    "com.knowflow.workbench.mapper.WbRecallSessionMapper",
+    "com.knowflow.workbench.mapper.WbReviewCardMapper",
+    "com.knowflow.workbench.mapper.WbReviewLogMapper",
+    "com.knowflow.workbench.mapper.WbStoryMapper",
+    "com.knowflow.learning.mapper.WeeklyReportMapper"
+  ],
+  "owned": {
+    "com.knowflow.knowledge.mapper.RagIndexRevisionMapper": {
+      "entity": "RagIndexRevision",
+      "callers": ["backend/src/main/java/com/knowflow/knowledge/service/impl/DocChunkServiceImpl.java"]
+    },
+    "com.knowflow.ai.mapper.AiBillingEntryMapper": {
+      "entity": "AiBillingEntry",
+      "callers": ["backend/src/main/java/com/knowflow/ai/billing/AiBillingService.java"]
+    },
+    "com.knowflow.reward.mapper.RewardLedgerMapper": {
+      "entity": "RewardLedger",
+      "callers": ["backend/src/main/java/com/knowflow/reward/RewardLedgerService.java"]
+    },
+    "com.knowflow.reward.mapper.WalletMapper": {
+      "entity": "Wallet",
+      "callers": ["backend/src/main/java/com/knowflow/reward/WalletService.java"]
+    },
+    "com.knowflow.identity.mapper.OAuthStateMapper": {
+      "entity": "OAuthState",
+      "callers": ["backend/src/main/java/com/knowflow/identity/oauth/OAuthStateService.java"]
+    },
+    "com.knowflow.learning.mapper.LearningCertificateMapper": {
+      "entity": "LearningCertificate",
+      "callers": ["backend/src/main/java/com/knowflow/learning/service/impl/LearningServiceImpl.java"]
+    },
+    "com.knowflow.learning.mapper.LearningPlanMapper": {
+      "entity": "LearningPlan",
+      "callers": ["backend/src/main/java/com/knowflow/learning/service/impl/LearningPlanServiceImpl.java"]
+    },
+    "com.knowflow.knowledge.mapper.KbMemberMapper": {
+      "entity": "KbMember",
+      "callers": ["backend/src/main/java/com/knowflow/knowledge/service/impl/KbMemberServiceImpl.java"]
+    },
+    "com.knowflow.store.mapper.OrderItemMapper": {
+      "entity": "OrderItem",
+      "callers": ["backend/src/main/java/com/knowflow/store/OrderService.java"]
+    },
+    "com.knowflow.store.mapper.OrderMapper": {
+      "entity": "Order",
+      "callers": ["backend/src/main/java/com/knowflow/store/OrderService.java"]
+    },
+    "com.knowflow.store.mapper.EntitlementMapper": {
+      "entity": "Entitlement",
+      "callers": ["backend/src/main/java/com/knowflow/store/EntitlementService.java"]
+    },
+    "com.knowflow.store.mapper.ProductMapper": {
+      "entity": "Product",
+      "callers": ["backend/src/main/java/com/knowflow/store/ProductService.java"]
+    },
+    "com.knowflow.apps.mapper.UserAppMapper": {
+      "entity": "UserApp",
+      "callers": [
+        "backend/src/main/java/com/knowflow/apps/UserAppService.java"
+      ]
+    },
+    "com.knowflow.techenglish.mapper.TechVocabConceptLinkMapper": {
+      "entity": "TechVocabConceptLink",
+      "callers": [
+        "backend/src/main/java/com/knowflow/seed/TechVocabSeedInitializer.java",
+        "backend/src/main/java/com/knowflow/techenglish/service/TechVocabService.java"
+      ]
+    },
+    "com.knowflow.techenglish.mapper.TechVocabPronunciationMapper": {
+      "entity": "TechVocabPronunciation",
+      "callers": [
+        "backend/src/main/java/com/knowflow/seed/TechVocabSeedInitializer.java",
+        "backend/src/main/java/com/knowflow/techenglish/service/TechVocabReviewService.java",
+        "backend/src/main/java/com/knowflow/techenglish/service/TechVocabService.java"
+      ]
+    },
+    "com.knowflow.techenglish.mapper.TechVocabTermMapper": {
+      "entity": "TechVocabTerm",
+      "callers": [
+        "backend/src/main/java/com/knowflow/seed/TechVocabSeedInitializer.java",
+        "backend/src/main/java/com/knowflow/techenglish/service/TechVocabExtractionService.java",
+        "backend/src/main/java/com/knowflow/techenglish/service/TechVocabReviewService.java",
+        "backend/src/main/java/com/knowflow/techenglish/service/TechVocabService.java"
+      ]
+    }
+  }
+}

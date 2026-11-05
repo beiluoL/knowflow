@@ -1,11 +1,19 @@
 package com.knowflow.learning.tutor;
 
+import com.knowflow.ai.entity.ChatMessage;
+import com.knowflow.ai.mapper.ChatConversationMapper;
+import com.knowflow.ai.mapper.ChatMessageMapper;
+import com.knowflow.ai.service.ChatService;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.service.NoteService;
+
+
+import com.knowflow.learning.entity.LearningNote;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.*;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.actions.LearningWriteGuard;
-import com.knowflow.mapper.*;
-import com.knowflow.service.*;
 import jakarta.annotation.PostConstruct;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -367,7 +375,7 @@ public class TutorContextService {
     }
 
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
-    public Prepared prepare(long conv, long user, com.knowflow.dto.ChatSendDTO input) {
+    public Prepared prepare(long conv, long user, com.knowflow.ai.dto.ChatSendDTO input) {
         var base = prepare(conv, user);
         if (base != null
                 && (input.getContent() == null
@@ -456,7 +464,7 @@ public class TutorContextService {
     }
 
     private Prepared reading(
-            Prepared p, com.knowflow.dto.ChatSendDTO.ReadingSelection selection, long user) {
+            Prepared p, com.knowflow.ai.dto.ChatSendDTO.ReadingSelection selection, long user) {
         if (selection == null) return p;
         requireCoaching();
         if (p == null) throw new BusinessException(400, "选区提问必须使用Tutor会话");
@@ -525,7 +533,7 @@ public class TutorContextService {
         String content =
                 n.getContent() + "\n\n## 导师回答（AI生成，已确认追加）\n" + marker + "\n\n" + message.getContent();
         if (content.length() > 20000) throw new BusinessException(400, "追加后超过当前Tutor正文上限，请自行整理笔记");
-        var dto = new com.knowflow.dto.LearningNoteDTO();
+        var dto = new com.knowflow.learning.dto.LearningNoteDTO();
         org.springframework.beans.BeanUtils.copyProperties(n, dto);
         dto.setContent(content);
         dto.setRevision(expected);

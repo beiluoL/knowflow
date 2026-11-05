@@ -1,17 +1,20 @@
 package com.knowflow.controller;
 
+import com.knowflow.community.controller.PrivateMessageController;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.dto.PrivateMessageSendDTO;
-import com.knowflow.entity.PrivateConversation;
-import com.knowflow.entity.PrivateConversationRead;
-import com.knowflow.entity.PrivateMessage;
+import com.knowflow.community.dto.PrivateMessageSendDTO;
+import com.knowflow.community.entity.PrivateConversation;
+import com.knowflow.community.entity.PrivateConversationRead;
+import com.knowflow.community.entity.PrivateMessage;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.PrivateConversationMapper;
-import com.knowflow.mapper.PrivateConversationReadMapper;
-import com.knowflow.mapper.PrivateMessageMapper;
+import com.knowflow.community.mapper.PrivateConversationMapper;
+import com.knowflow.community.mapper.PrivateConversationReadMapper;
+import com.knowflow.community.mapper.PrivateMessageMapper;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;

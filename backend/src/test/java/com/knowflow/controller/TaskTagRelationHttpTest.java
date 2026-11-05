@@ -1,7 +1,13 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.productivity.entity.Task;
+import com.knowflow.productivity.entity.TaskTag;
+import com.knowflow.productivity.mapper.TaskMapper;
+import com.knowflow.productivity.mapper.TaskTagMapper;
+
+
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;

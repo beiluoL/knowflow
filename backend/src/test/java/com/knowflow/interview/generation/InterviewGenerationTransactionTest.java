@@ -1,7 +1,7 @@
 package com.knowflow.interview.generation;
 
-import com.knowflow.entity.QuizQuestion;
-import com.knowflow.mapper.QuizQuestionMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

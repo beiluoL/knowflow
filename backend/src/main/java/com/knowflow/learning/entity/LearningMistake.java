@@ -1,0 +1,46 @@
+package com.knowflow.learning.entity;
+
+
+
+import com.knowflow.common.persistence.BaseEntity;
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("learning_mistake")
+/** 错题本实体，记录用户答错的题目用于复习巩固。 */
+public class LearningMistake extends BaseEntity {
+
+    private Long userId;
+
+    private String question;
+
+    private String wrongAnswer;
+
+    private String correctAnswer;
+
+    private String category;
+
+    private Integer difficulty;
+
+    /** 原测验题ID（逻辑外键 quiz_question.id，可空兼容旧数据）——打通 错题→原题→解析→知识点→再练习 */
+    private Long questionId;
+
+    /** 原代码题ID（逻辑外键 code_question.id，可空兼容旧数据） */
+    private Long codeQuestionId;
+
+    private Integer reviewCount;
+
+    private LocalDateTime lastReviewTime;
+
+    /** 是否已掌握，0 未掌握 / 1 已掌握。 */
+    private Integer mastered;
+
+    /** 题目来源，如来源文档 ID 或学习路径。 */
+    private String source;
+}

@@ -43,7 +43,7 @@ class CareerAppsV2HttpTest {
     @Autowired ObjectMapper json;
     @Autowired JwtUtils jwt;
     @Autowired JdbcTemplate jdbc;
-    @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+    @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
 
     private static final List<String> CAREER_KEYS = List.of(
             "career-overview", "career-resume", "career-jobs", "career-matching",

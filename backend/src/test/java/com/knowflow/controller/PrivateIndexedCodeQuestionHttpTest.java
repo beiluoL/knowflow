@@ -1,9 +1,9 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.CodeQuestion;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.CodeQuestionMapper;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.coding.entity.CodeQuestion;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.coding.mapper.CodeQuestionMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;

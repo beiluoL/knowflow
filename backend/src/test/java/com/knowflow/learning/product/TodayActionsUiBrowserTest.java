@@ -1,10 +1,10 @@
 package com.knowflow.learning.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.LearningFlashcard;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;

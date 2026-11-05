@@ -1,8 +1,8 @@
 package com.knowflow.seed;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class InterviewRadarImportTest {
  @Autowired SysUserMapper users;
  @Autowired JdbcTemplate jdbc;
  @Autowired ObjectMapper json;
- @Autowired com.knowflow.service.LearningService learning;
+ @Autowired com.knowflow.learning.service.LearningService learning;
  @Autowired org.springframework.test.web.servlet.MockMvc mvc;
  @Autowired com.knowflow.utils.JwtUtils jwt;
  private SysUser user(){var u=new SysUser();u.setUsername("radar-"+UUID.randomUUID());u.setPassword("fixture-only");u.setRole("USER");users.insert(u);return u;}

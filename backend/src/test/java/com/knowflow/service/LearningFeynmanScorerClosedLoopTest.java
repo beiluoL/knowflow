@@ -1,15 +1,18 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.LearningFeynmanService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.dto.FeynmanSubmitDTO;
-import com.knowflow.entity.LearningEvent;
+import com.knowflow.learning.dto.FeynmanSubmitDTO;
+import com.knowflow.learning.entity.LearningEvent;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.LearningEventMapper;
-import com.knowflow.vo.FeynmanCriterionVO;
-import com.knowflow.vo.FeynmanDimensionResultVO;
-import com.knowflow.vo.FeynmanDimensionVO;
-import com.knowflow.vo.FeynmanRubricVO;
-import com.knowflow.vo.FeynmanSubmitResultVO;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.learning.vo.FeynmanCriterionVO;
+import com.knowflow.learning.vo.FeynmanDimensionResultVO;
+import com.knowflow.learning.vo.FeynmanDimensionVO;
+import com.knowflow.learning.vo.FeynmanRubricVO;
+import com.knowflow.learning.vo.FeynmanSubmitResultVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

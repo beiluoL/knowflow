@@ -1,15 +1,22 @@
 package com.knowflow.service;
 
+import com.knowflow.ai.service.AiService;
+import com.knowflow.knowledge.service.DocChunkService;
+
+
+import com.knowflow.learning.service.LearningEventService;
+
+
 import com.knowflow.ai.capability.AiCapabilityProperties;
-import com.knowflow.dto.ChatRegenerateDTO;
-import com.knowflow.dto.ChatSendDTO;
-import com.knowflow.entity.ChatConversation;
-import com.knowflow.entity.ChatMessage;
+import com.knowflow.ai.dto.ChatRegenerateDTO;
+import com.knowflow.ai.dto.ChatSendDTO;
+import com.knowflow.ai.entity.ChatConversation;
+import com.knowflow.ai.entity.ChatMessage;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.ChatConversationMapper;
-import com.knowflow.mapper.ChatMessageMapper;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.service.impl.ChatServiceImpl;
+import com.knowflow.ai.mapper.ChatConversationMapper;
+import com.knowflow.ai.mapper.ChatMessageMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.ai.service.impl.ChatServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

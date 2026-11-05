@@ -1,10 +1,26 @@
 package com.knowflow.learning.product;
 
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.knowledge.entity.DocCategory;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+
+
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+
+
 import com.knowflow.knowledge.mapper.KbMemberMapper;
 
 import com.knowflow.knowledge.entity.KbMember;
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.entity.*;import com.knowflow.mapper.*;
 import com.knowflow.support.FakeAiConfiguration;import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;import org.springframework.context.annotation.Import;
@@ -30,7 +46,7 @@ class HashMapLearningLoopTest {
  @Test void privateLearningReviewRestoresRealWrongAnswer()throws Exception {long u=user();var q=question();submit(u,q.getId(),"true","hm-review-"+u,Map.of());http.perform(get("/api/quiz/questions/"+q.getId()+"/learning-review").header("Authorization",auth(u))).andExpect(status().isOk()).andExpect(jsonPath("$.data.attempts[0].userAnswer").value("true")).andExpect(jsonPath("$.data.attempts[0].correct").value(false));}
  @Test void realWrongReviewAndRetestAreComparableAndIdempotent()throws Exception{long u=user();var q=question();long kid=bind(q);long cid=card(u,q.getDocId(),kid,"ACCEPTED");String hash=load(u,q.getId()).path("contentHash").asText();long first=submit(u,q.getId(),"true","hm-wrong-"+u,Map.of("expectedContentHash",hash)).at("/items/0/answerRecordId").asLong();fsrs(u,cid,kid,"hm-fsrs-review-"+u);var extra=Map.<String,Object>of("expectedContentHash",hash,"baselineAnswerRecordId",first);var second=submit(u,q.getId(),"false","hm-retest-"+u,extra);assertEquals(second,submit(u,q.getId(),"false","hm-retest-"+u,extra));var r=report(u,q.getId());assertTrue(r.at("/comparison/comparable").asBoolean());assertTrue(r.at("/comparison/reviewConfirmed").asBoolean());assertFalse(r.at("/comparison/firstCorrect").asBoolean());assertTrue(r.at("/comparison/secondCorrect").asBoolean());assertEquals(2,r.path("attempts").size());assertEquals(1,r.path("reviews").size());assertEquals(1,r.path("mistakes").size());assertEquals(2,db.queryForObject("SELECT COUNT(*) FROM quiz_answer_record WHERE user_id=?",Integer.class,u));assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM learning_event WHERE user_id=? AND event_type='FLASHCARD_REVIEWED'",Integer.class,u));}
  @Test void reviewStillWrongNeverFabricatesImprovement()throws Exception{long u=user();var q=question();long kid=bind(q);long cid=card(u,q.getDocId(),kid,"ACCEPTED");String hash=load(u,q.getId()).path("contentHash").asText();long first=submit(u,q.getId(),"true","hm-still-"+u,Map.of()).at("/items/0/answerRecordId").asLong();fsrs(u,cid,kid,"hm-still-fsrs-"+u);submit(u,q.getId(),"true","hm-still-second-"+u,Map.of("expectedContentHash",hash,"baselineAnswerRecordId",first));var r=report(u,q.getId());assertTrue(r.at("/comparison/comparable").asBoolean());assertFalse(r.at("/comparison/secondCorrect").asBoolean());}
- @Test void oldReceiptSerializationRemainsUnchanged()throws Exception{var item=new com.knowflow.dto.QuizSubmitDTO.Item();item.setQuestionId(9L);item.setUserAnswer("false");assertEquals("{\"questionId\":9,\"userAnswer\":\"false\",\"timeCost\":null}",json.writeValueAsString(item));}
+ @Test void oldReceiptSerializationRemainsUnchanged()throws Exception{var item=new com.knowflow.learning.dto.QuizSubmitDTO.Item();item.setQuestionId(9L);item.setUserAnswer("false");assertEquals("{\"questionId\":9,\"userAnswer\":\"false\",\"timeCost\":null}",json.writeValueAsString(item));}
  @Test void changedContentWithoutVersionBumpRejectsStaleAnswerAndKeepsHistory()throws Exception{long u=user();var q=question();String hash=load(u,q.getId()).path("contentHash").asText();submit(u,q.getId(),"true","hm-old-"+u,Map.of());db.update("UPDATE quiz_question SET content='新题干' WHERE id=?",q.getId());http.perform(post("/api/quiz/submit").header("Authorization",auth(u)).contentType("application/json").content(json.writeValueAsString(Map.of("requestId","hm-stale-"+u,"answers",List.of(Map.of("questionId",q.getId(),"userAnswer","false","expectedContentHash",hash)))))).andExpect(status().isConflict()).andExpect(jsonPath("$.code").value(409));assertEquals(q.getContent(),report(u,q.getId()).at("/attempts/0/snapshot/content").asText());}
  @Test void privateAnswersAndCardsCannotLeakToOtherOrAnonymous()throws Exception{long u=user(),other=user();var q=question();long kid=bind(q);card(other,q.getDocId(),kid,"ACCEPTED");card(u,q.getDocId(),kid,"PENDING");long id=submit(u,q.getId(),"true","hm-private-"+u,Map.of()).at("/items/0/answerRecordId").asLong();assertEquals(0,report(u,q.getId()).path("cards").size());assertEquals(0,report(other,q.getId()).path("attempts").size());http.perform(get("/api/quiz/answers/"+id+"/learning-review").header("Authorization",auth(other))).andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));http.perform(get("/api/quiz/answers/"+id+"/learning-review")).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value(401));long admin=user();db.update("UPDATE sys_user SET role='ADMIN' WHERE id=?",admin);String adminToken="Bearer "+jwt.generateToken(admin,"admin","ADMIN");http.perform(get("/api/quiz/answers/"+id+"/learning-review").header("Authorization",adminToken)).andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));for(String actor:List.of(auth(other),adminToken))http.perform(post("/api/quiz/answers/"+id+"/flashcard").header("Authorization",actor).contentType("application/json").content("{\"front\":\"private draft\",\"back\":\"no access\"}")).andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));http.perform(post("/api/quiz/answers/"+id+"/flashcard").contentType("application/json").content("{\"front\":\"private draft\",\"back\":\"no access\"}")).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value(401));}
  @Test void confirmedNewPersonalCardOnlyCreatesPendingMapping()throws Exception{long u=user();var q=question();bind(q);long id=submit(u,q.getId(),"true","hm-draft-"+u,Map.of()).at("/items/0/answerRecordId").asLong();var made=data(http.perform(post("/api/quiz/answers/"+id+"/flashcard").header("Authorization",auth(u)).contentType("application/json").content("{\"front\":\"共享HashMap写？\",\"back\":\"需同步\"}")));assertEquals("PENDING",made.path("mappingStatus").asText());assertEquals(0,db.queryForObject("SELECT COUNT(*) FROM resource_knowledge_mapping WHERE resource_type='FLASHCARD' AND resource_id=? AND status='ACCEPTED'",Integer.class,made.path("cardId").asLong()));}

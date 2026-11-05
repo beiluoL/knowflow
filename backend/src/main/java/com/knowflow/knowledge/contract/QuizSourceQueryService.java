@@ -2,9 +2,9 @@ package com.knowflow.knowledge.contract;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.entity.DocDocument;
-import com.knowflow.mapper.DocCategoryMapper;
-import com.knowflow.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
 import com.knowflow.security.DocumentAccessPolicy;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

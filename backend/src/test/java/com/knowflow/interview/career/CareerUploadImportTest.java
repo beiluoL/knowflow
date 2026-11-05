@@ -1,7 +1,7 @@
 package com.knowflow.interview.career;
 
 import com.knowflow.exception.BusinessException;
-import com.knowflow.service.DocumentTextExtractor;
+import com.knowflow.knowledge.service.DocumentTextExtractor;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;

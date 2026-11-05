@@ -2,7 +2,7 @@ package com.knowflow.interview.v2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.service.AiService;
+import com.knowflow.ai.service.AiService;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class InterviewV2HttpTest {
  @Autowired MockMvc mvc; @Autowired ObjectMapper json; @Autowired JdbcTemplate jdbc; @Autowired JwtUtils jwt;
  @Autowired InterviewV2Service v2Service;
- @MockBean com.knowflow.service.impl.AiServiceImpl ai;
+ @MockBean com.knowflow.ai.service.impl.AiServiceImpl ai;
  @MockBean com.knowflow.interview.speech.InterviewStreamingAsrProvider realtimeAsr;
  @Autowired com.knowflow.interview.voice.VoiceTransportProperties voiceConfig;
  @BeforeEach void configure(){

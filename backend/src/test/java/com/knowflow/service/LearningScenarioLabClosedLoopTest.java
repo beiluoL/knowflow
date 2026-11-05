@@ -1,15 +1,18 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.LearningScenarioService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.dto.ScenarioSubmitDTO;
-import com.knowflow.entity.LearningEvent;
-import com.knowflow.entity.LearningScenario;
+import com.knowflow.learning.dto.ScenarioSubmitDTO;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.learning.entity.LearningScenario;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.LearningEventMapper;
-import com.knowflow.mapper.LearningScenarioMapper;
-import com.knowflow.vo.ScenarioDetailVO;
-import com.knowflow.vo.ScenarioSubmitResultVO;
-import com.knowflow.vo.ScenarioSummaryVO;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.learning.mapper.LearningScenarioMapper;
+import com.knowflow.learning.vo.ScenarioDetailVO;
+import com.knowflow.learning.vo.ScenarioSubmitResultVO;
+import com.knowflow.learning.vo.ScenarioSummaryVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

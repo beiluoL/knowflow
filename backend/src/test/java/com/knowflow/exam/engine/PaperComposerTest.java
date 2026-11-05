@@ -1,13 +1,13 @@
 package com.knowflow.exam.engine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.QuizQuestion;
+import com.knowflow.learning.entity.QuizQuestion;
 import com.knowflow.exam.dto.ExamRequests;
-import com.knowflow.mapper.DocCategoryMapper;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.mapper.LearningMistakeMapper;
-import com.knowflow.mapper.QuizAnswerRecordMapper;
-import com.knowflow.mapper.QuizQuestionMapper;
+import com.knowflow.knowledge.mapper.DocCategoryMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.learning.mapper.QuizAnswerRecordMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
 import com.knowflow.security.DocumentAccessPolicy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -216,7 +216,7 @@ class PaperComposerTest {
         var b=q(921,QuizQuestion.TYPE_SINGLE_CHOICE,"新版","HASHMAP",1,"0");
         var c=q(922,QuizQuestion.TYPE_SINGLE_CHOICE,"未做","HASHMAP",1,"0");
         a.setCanonicalKey("seen"); b.setCanonicalKey("seen"); c.setCanonicalKey("unseen");
-        var record=new com.knowflow.entity.QuizAnswerRecord(); record.setQuestionId(a.getId()); record.setUserId(1L);
+        var record=new com.knowflow.learning.entity.QuizAnswerRecord(); record.setQuestionId(a.getId()); record.setUserId(1L);
         when(recordMapper.selectList(any())).thenReturn(List.of(record));
         givenBank(List.of(a,b,c)); var request=req("RANDOM",42L,2,100); request.setIncludeAnswered(false);
         var result=composer.compose(1L,request);

@@ -1,31 +1,34 @@
 package com.knowflow.service;
 
+import com.knowflow.mastery.service.KnowledgeMasteryService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.CodeSubmitRecord;
-import com.knowflow.entity.DocReadProgress;
-import com.knowflow.entity.KgEntity;
-import com.knowflow.entity.LearningEvent;
-import com.knowflow.entity.LearningFlashcard;
-import com.knowflow.entity.LearningMistake;
-import com.knowflow.entity.QuizAnswerRecord;
-import com.knowflow.entity.ResourceKnowledgeMapping;
-import com.knowflow.entity.WbRecallSession;
-import com.knowflow.entity.WbReviewCard;
-import com.knowflow.entity.WbReviewLog;
-import com.knowflow.mapper.CodeSubmitRecordMapper;
-import com.knowflow.mapper.DocReadProgressMapper;
-import com.knowflow.mapper.KgEntityMapper;
-import com.knowflow.mapper.KnowledgeMasteryMapper;
-import com.knowflow.mapper.LearningFlashcardMapper;
-import com.knowflow.mapper.LearningMistakeMapper;
-import com.knowflow.mapper.QuizAnswerRecordMapper;
-import com.knowflow.mapper.ResourceKnowledgeMappingMapper;
-import com.knowflow.mapper.WbRecallSessionMapper;
-import com.knowflow.mapper.WbReviewCardMapper;
-import com.knowflow.mapper.WbReviewLogMapper;
+import com.knowflow.coding.entity.CodeSubmitRecord;
+import com.knowflow.knowledge.entity.DocReadProgress;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.learning.entity.LearningEvent;
+import com.knowflow.flashcards.entity.LearningFlashcard;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.learning.entity.QuizAnswerRecord;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.workbench.entity.WbRecallSession;
+import com.knowflow.workbench.entity.WbReviewCard;
+import com.knowflow.workbench.entity.WbReviewLog;
+import com.knowflow.coding.mapper.CodeSubmitRecordMapper;
+import com.knowflow.knowledge.mapper.DocReadProgressMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.mastery.mapper.KnowledgeMasteryMapper;
+import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.learning.mapper.QuizAnswerRecordMapper;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
+import com.knowflow.workbench.mapper.WbRecallSessionMapper;
+import com.knowflow.workbench.mapper.WbReviewCardMapper;
+import com.knowflow.workbench.mapper.WbReviewLogMapper;
 import com.knowflow.mastery.MasteryConfig;
-import com.knowflow.vo.KnowledgeMasteryDetailVO;
-import com.knowflow.vo.MasteryDiagnosticsVO;
+import com.knowflow.mastery.vo.KnowledgeMasteryDetailVO;
+import com.knowflow.mastery.vo.MasteryDiagnosticsVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -121,7 +124,7 @@ class MasteryEngineIntegrationTest {
         answer.setIsCorrect(1);
         answer.setCreateTime(assessedAt);
         quizMapper.insert(answer);
-        var event = new com.knowflow.entity.LearningEvent();
+        var event = new com.knowflow.learning.entity.LearningEvent();
         event.setId(945002L);
         event.setUserId(UID);
         event.setResourceType(MasteryConfig.RES_QUIZ);
@@ -151,8 +154,8 @@ class MasteryEngineIntegrationTest {
             assertNull(row.getLastReviewedAt());
             assertNull(row.getNextReviewAt());
         }
-        assertEquals(1, masteryMapper.selectCount(new LambdaQueryWrapper<com.knowflow.entity.KnowledgeMastery>()
-                .eq(com.knowflow.entity.KnowledgeMastery::getKnowledgeId, knowledgeId)));
+        assertEquals(1, masteryMapper.selectCount(new LambdaQueryWrapper<com.knowflow.mastery.entity.KnowledgeMastery>()
+                .eq(com.knowflow.mastery.entity.KnowledgeMastery::getKnowledgeId, knowledgeId)));
     }
 
     @Test
@@ -167,9 +170,9 @@ class MasteryEngineIntegrationTest {
         quizMapper.insert(r);
 
         masteryService.recalc(UID, kid);
-        var row = masteryMapper.selectOne(new LambdaQueryWrapper<com.knowflow.entity.KnowledgeMastery>()
-                .eq(com.knowflow.entity.KnowledgeMastery::getUserId, UID)
-                .eq(com.knowflow.entity.KnowledgeMastery::getKnowledgeId, kid));
+        var row = masteryMapper.selectOne(new LambdaQueryWrapper<com.knowflow.mastery.entity.KnowledgeMastery>()
+                .eq(com.knowflow.mastery.entity.KnowledgeMastery::getUserId, UID)
+                .eq(com.knowflow.mastery.entity.KnowledgeMastery::getKnowledgeId, kid));
         assertNotNull(row);
         assertEquals(67, row.getMasteryScore());
         assertEquals(MasteryConfig.STATUS_LEARNING, row.getLearningStatus());
@@ -393,9 +396,9 @@ class MasteryEngineIntegrationTest {
         masteryService.recalc(UID, kid);
         masteryService.recalc(UID, kid);
         masteryService.recalc(UID, kid);
-        long count = masteryMapper.selectCount(new LambdaQueryWrapper<com.knowflow.entity.KnowledgeMastery>()
-                .eq(com.knowflow.entity.KnowledgeMastery::getUserId, UID)
-                .eq(com.knowflow.entity.KnowledgeMastery::getKnowledgeId, kid));
+        long count = masteryMapper.selectCount(new LambdaQueryWrapper<com.knowflow.mastery.entity.KnowledgeMastery>()
+                .eq(com.knowflow.mastery.entity.KnowledgeMastery::getUserId, UID)
+                .eq(com.knowflow.mastery.entity.KnowledgeMastery::getKnowledgeId, kid));
         assertEquals(1, count);
     }
 
@@ -439,8 +442,8 @@ class MasteryEngineIntegrationTest {
         ev.setId(99002L); ev.setUserId(UID); ev.setEventType("QUIZ_SUBMIT");
         ev.setResourceType(MasteryConfig.RES_QUIZ); ev.setResourceId(93018L);
         assertDoesNotThrow(() -> masteryService.processEvent(ev));
-        assertEquals(0L, masteryMapper.selectCount(new LambdaQueryWrapper<com.knowflow.entity.KnowledgeMastery>()
-                .eq(com.knowflow.entity.KnowledgeMastery::getUserId, UID)));
+        assertEquals(0L, masteryMapper.selectCount(new LambdaQueryWrapper<com.knowflow.mastery.entity.KnowledgeMastery>()
+                .eq(com.knowflow.mastery.entity.KnowledgeMastery::getUserId, UID)));
     }
 
     @Test
@@ -512,9 +515,9 @@ class MasteryEngineIntegrationTest {
     }
 
     // ---- 工具 ----
-    private com.knowflow.entity.KnowledgeMastery oneRow(long kid) {
-        return masteryMapper.selectOne(new LambdaQueryWrapper<com.knowflow.entity.KnowledgeMastery>()
-                .eq(com.knowflow.entity.KnowledgeMastery::getUserId, UID)
-                .eq(com.knowflow.entity.KnowledgeMastery::getKnowledgeId, kid));
+    private com.knowflow.mastery.entity.KnowledgeMastery oneRow(long kid) {
+        return masteryMapper.selectOne(new LambdaQueryWrapper<com.knowflow.mastery.entity.KnowledgeMastery>()
+                .eq(com.knowflow.mastery.entity.KnowledgeMastery::getUserId, UID)
+                .eq(com.knowflow.mastery.entity.KnowledgeMastery::getKnowledgeId, kid));
     }
 }

@@ -1,16 +1,19 @@
 package com.knowflow.controller;
 
+import com.knowflow.productivity.controller.FocusSessionController;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.CommunityPost;
-import com.knowflow.entity.LearningMistake;
-import com.knowflow.entity.SysNotification;
-import com.knowflow.mapper.CommunityPostMapper;
-import com.knowflow.mapper.LearningMistakeMapper;
-import com.knowflow.mapper.SysNotificationMapper;
-import com.knowflow.service.CommunityService;
-import com.knowflow.service.NotificationService;
+import com.knowflow.community.entity.CommunityPost;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.community.entity.SysNotification;
+import com.knowflow.community.mapper.CommunityPostMapper;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.community.mapper.SysNotificationMapper;
+import com.knowflow.community.service.CommunityService;
+import com.knowflow.community.service.NotificationService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.DisplayName;

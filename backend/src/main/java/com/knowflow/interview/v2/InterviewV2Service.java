@@ -27,7 +27,7 @@ public class InterviewV2Service {
  private final InterviewFollowupEngine engine;private final InterviewRubricProperties rubric;private final InterviewProjectContextService projects;
  @org.springframework.beans.factory.annotation.Autowired private com.knowflow.interview.radar.RadarInterviewBank curatedBank;
  private final TransactionTemplate tx;
- private final com.knowflow.service.LearningEventService events;
+ private final com.knowflow.learning.service.LearningEventService events;
  private final ThreadPoolExecutor workers=new ThreadPoolExecutor(2,2,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(8),r->{Thread t=new Thread(r,"interview-v2-evaluate");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
  private record Running(long version,Future<?> future){}
  private final ConcurrentHashMap<Long,Running> futures=new ConcurrentHashMap<>();
@@ -35,7 +35,7 @@ public class InterviewV2Service {
  public record Answer(Long version,String requestId,String answer,Integer selfScore,Long speechId){}
  public record Command(Long version,String requestId){}
  private record Work(long user,long sid,long turn,long version,SeedQuestion question,String prompt,String answer,int depth,int maxDepth,List<String> asked,String role,String mode,String project,List<Map<String,Object>> history){}
- public InterviewV2Service(JdbcTemplate jdbc,ObjectMapper json,MockInterviewService legacy,InterviewFollowupEngine engine,InterviewRubricProperties rubric,InterviewProjectContextService projects,PlatformTransactionManager manager,com.knowflow.service.LearningEventService events){
+ public InterviewV2Service(JdbcTemplate jdbc,ObjectMapper json,MockInterviewService legacy,InterviewFollowupEngine engine,InterviewRubricProperties rubric,InterviewProjectContextService projects,PlatformTransactionManager manager,com.knowflow.learning.service.LearningEventService events){
   this.jdbc=jdbc;this.json=json;this.legacy=legacy;this.engine=engine;this.rubric=rubric;this.projects=projects;this.events=events;tx=new TransactionTemplate(manager);
   tx.setIsolationLevel(org.springframework.transaction.TransactionDefinition.ISOLATION_READ_COMMITTED);
  }

@@ -10,9 +10,9 @@ import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.coding.entity.CodeSubmission;
 import com.knowflow.coding.judge.JudgeStatus;
 import com.knowflow.coding.service.CodeProblemService;
-import com.knowflow.entity.LearningMistake;
-import com.knowflow.entity.QuizQuestion;
-import com.knowflow.entity.SysUser;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.exam.ai.ExamAiService;
 import com.knowflow.exam.dto.ExamRequests;
 import com.knowflow.exam.engine.ExamGrader;
@@ -31,10 +31,10 @@ import com.knowflow.exam.mapper.ExamTemplateMapper;
 import com.knowflow.exam.service.ExamService;
 import com.knowflow.exam.vo.ExamVos;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.LearningMistakeMapper;
-import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.service.LearningEventService;
-import com.knowflow.service.MistakeService;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.service.MistakeService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -97,7 +97,7 @@ public class ExamServiceImpl implements ExamService {
     private final ObjectMapper objectMapper;
     private final SysUserMapper sysUserMapper;
     private final com.knowflow.security.DocumentAccessPolicy documentAccess;
-    private final com.knowflow.mapper.DocDocumentMapper sourceDocumentMapper;
+    private final com.knowflow.knowledge.mapper.DocDocumentMapper sourceDocumentMapper;
     private final PlatformTransactionManager transactionManager;
 
     /** AI 评卷短事务边界（认领/落分各自独立，避免在 DB 事务内发起远程模型调用）。 */

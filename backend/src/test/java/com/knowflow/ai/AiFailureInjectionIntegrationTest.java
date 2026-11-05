@@ -1,22 +1,22 @@
 package com.knowflow.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.LearningMistake;
-import com.knowflow.entity.QuizAnswerRecord;
-import com.knowflow.entity.QuizQuestion;
-import com.knowflow.entity.SysUser;
+import com.knowflow.learning.entity.LearningMistake;
+import com.knowflow.learning.entity.QuizAnswerRecord;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.exam.ai.ExamAiService;
 import com.knowflow.exam.dto.ExamRequests;
-import com.knowflow.mapper.LearningMistakeMapper;
-import com.knowflow.mapper.QuizAnswerRecordMapper;
-import com.knowflow.mapper.QuizQuestionMapper;
-import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.service.LearningAnalyticsService;
-import com.knowflow.service.QuizService;
+import com.knowflow.learning.mapper.LearningMistakeMapper;
+import com.knowflow.learning.mapper.QuizAnswerRecordMapper;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.learning.service.LearningAnalyticsService;
+import com.knowflow.learning.service.QuizService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;
-import com.knowflow.vo.LearningAnalyticsVO;
-import com.knowflow.vo.QuizExplainVO;
+import com.knowflow.learning.vo.LearningAnalyticsVO;
+import com.knowflow.learning.vo.QuizExplainVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -415,8 +415,8 @@ class AiFailureInjectionIntegrationTest {
 
     // ============ 错题幂等 + 事件不重复 + 分析口径 ============
 
-    private com.knowflow.dto.QuizSubmitDTO.Item answer(long qid, String ans) {
-        com.knowflow.dto.QuizSubmitDTO.Item item = new com.knowflow.dto.QuizSubmitDTO.Item();
+    private com.knowflow.learning.dto.QuizSubmitDTO.Item answer(long qid, String ans) {
+        com.knowflow.learning.dto.QuizSubmitDTO.Item item = new com.knowflow.learning.dto.QuizSubmitDTO.Item();
         item.setQuestionId(qid);
         item.setUserAnswer(ans);
         return item;
@@ -428,7 +428,7 @@ class AiFailureInjectionIntegrationTest {
         SysUser u = newUser("mistake-idem");
         QuizQuestion q = insert(TOPIC, QuizQuestion.TYPE_SINGLE_CHOICE, 1,
                 "幂等错题 " + UUID.randomUUID(), "3+3=?", "[\"5\",\"6\"]", "6");
-        com.knowflow.dto.QuizSubmitDTO dto = new com.knowflow.dto.QuizSubmitDTO();
+        com.knowflow.learning.dto.QuizSubmitDTO dto = new com.knowflow.learning.dto.QuizSubmitDTO();
         dto.setAnswers(List.of(answer(q.getId(), "5")));
         quizService.submit(dto, u.getId());
         quizService.submit(dto, u.getId());
@@ -448,7 +448,7 @@ class AiFailureInjectionIntegrationTest {
         SysUser u = newUser("event-idem");
         QuizQuestion q = insert(TOPIC, QuizQuestion.TYPE_SINGLE_CHOICE, 1,
                 "事件幂等题 " + UUID.randomUUID(), "1+2=?", "[\"2\",\"3\"]", "3");
-        com.knowflow.dto.QuizSubmitDTO dto = new com.knowflow.dto.QuizSubmitDTO();
+        com.knowflow.learning.dto.QuizSubmitDTO dto = new com.knowflow.learning.dto.QuizSubmitDTO();
         dto.setAnswers(List.of(answer(q.getId(), "3")));
         quizService.submit(dto, u.getId());
 
@@ -471,10 +471,10 @@ class AiFailureInjectionIntegrationTest {
         QuizQuestion pending = insert(TOPIC, QuizQuestion.TYPE_SHORT_ANSWER, 1,
                 "待评分题 " + UUID.randomUUID(), "简述什么是闭包。", null, "函数与引用环境");
 
-        com.knowflow.dto.QuizSubmitDTO wrongDto = new com.knowflow.dto.QuizSubmitDTO();
+        com.knowflow.learning.dto.QuizSubmitDTO wrongDto = new com.knowflow.learning.dto.QuizSubmitDTO();
         wrongDto.setAnswers(List.of(answer(wrong.getId(), "1")));
         quizService.submit(wrongDto, u.getId());
-        com.knowflow.dto.QuizSubmitDTO rightDto = new com.knowflow.dto.QuizSubmitDTO();
+        com.knowflow.learning.dto.QuizSubmitDTO rightDto = new com.knowflow.learning.dto.QuizSubmitDTO();
         rightDto.setAnswers(List.of(answer(right.getId(), "4")));
         quizService.submit(rightDto, u.getId());
 

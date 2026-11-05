@@ -2,7 +2,7 @@ package com.knowflow.learning.adaptive;
 
 import com.fasterxml.jackson.databind.*;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.vo.LearningChapterVO;
+import com.knowflow.learning.vo.LearningChapterVO;
 import java.security.MessageDigest;
 import java.util.*;
 import lombok.RequiredArgsConstructor;

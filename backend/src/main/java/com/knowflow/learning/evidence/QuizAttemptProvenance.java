@@ -128,34 +128,7 @@ public class QuizAttemptProvenance {
             Map<String, Object> data,
             Predicate<JsonNode> accessible,
             boolean includeStatistics) {
-        boolean tracked =
-                snapshot.path("historyTrackingVersion").asInt() == 2
-                        && snapshot.hasNonNull("firstTrackedAttemptId")
-                        && "COMPLETE_FROM_TRACKING".equals(snapshot.path("trackedHistoryState").asText());
-        long anchor = snapshot.path("firstTrackedAttemptId").asLong();
-        if (anchor == 0) anchor = current;
-        data.put("firstTrackedAttemptRef", null);
-        data.put("trackedHistoryCompleteness", "UNKNOWN");
-        if (tracked) {
-            var origins =
-                    jdbc.queryForList(
-                            "SELECT deleted FROM quiz_answer_record WHERE id=? AND user_id=? AND question_id=?",
-                            anchor,
-                            actor,
-                            question);
-            boolean missing =
-                    origins.isEmpty() || ((Number) origins.get(0).get("deleted")).intValue() == 1;
-            data.put("firstTrackedAttemptRef", Map.of("type", "QUIZ_ANSWER", "id", anchor));
-            data.put(
-                    "trackedHistoryCompleteness",
-                    missing || "INCOMPLETE".equals(data.get("historyCompleteness"))
-                            ? "INCOMPLETE"
-                            : "COMPLETE_FROM_TRACKING");
-            if (missing) {
-                data.put("historyCompleteness", "INCOMPLETE");
-                data.put("historyReasons", List.of("TRACKED_ORIGIN_UNAVAILABLE"));
-            }
-        }
+        describeTracking(actor, question, current, snapshot, data);
         // A new tracking point never proves that older, physically missing history did not exist.
         // Original firstAttemptRef remains null unless a separately verified migration can prove it.
         data.put("latestQualifiedAttemptRef", null);
@@ -238,6 +211,39 @@ public class QuizAttemptProvenance {
                 unreadable
                         ? List.of("HISTORICAL_SNAPSHOT_UNREADABLE")
                         : complete ? List.of() : List.of("HISTORY_SCAN_LIMIT_REACHED"));
+    }
+
+
+    private void describeTracking(
+            long actor, long question, long current, JsonNode snapshot, Map<String, Object> data) {
+        boolean tracked =
+                snapshot.path("historyTrackingVersion").asInt() == 2
+                        && snapshot.hasNonNull("firstTrackedAttemptId")
+                        && "COMPLETE_FROM_TRACKING".equals(snapshot.path("trackedHistoryState").asText());
+        long anchor = snapshot.path("firstTrackedAttemptId").asLong();
+        if (anchor == 0) anchor = current;
+        data.put("firstTrackedAttemptRef", null);
+        data.put("trackedHistoryCompleteness", "UNKNOWN");
+        if (tracked) {
+            var origins =
+                    jdbc.queryForList(
+                            "SELECT deleted FROM quiz_answer_record WHERE id=? AND user_id=? AND question_id=?",
+                            anchor,
+                            actor,
+                            question);
+            boolean missing =
+                    origins.isEmpty() || ((Number) origins.get(0).get("deleted")).intValue() == 1;
+            data.put("firstTrackedAttemptRef", Map.of("type", "QUIZ_ANSWER", "id", anchor));
+            data.put(
+                    "trackedHistoryCompleteness",
+                    missing || "INCOMPLETE".equals(data.get("historyCompleteness"))
+                            ? "INCOMPLETE"
+                            : "COMPLETE_FROM_TRACKING");
+            if (missing) {
+                data.put("historyCompleteness", "INCOMPLETE");
+                data.put("historyReasons", List.of("TRACKED_ORIGIN_UNAVAILABLE"));
+            }
+        }
     }
 
     private boolean sameConditions(JsonNode reference, JsonNode candidate) {

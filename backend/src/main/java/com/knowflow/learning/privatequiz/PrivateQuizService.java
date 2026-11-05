@@ -1,13 +1,19 @@
 package com.knowflow.learning.privatequiz;
 
+import com.knowflow.ai.service.AiService;
+import com.knowflow.knowledge.service.NoteService;
+
+
+import com.knowflow.learning.service.LearningEventService;
+
+
 import static com.knowflow.learning.privatequiz.PrivateQuizRequests.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.entity.LearningNote;
+import com.knowflow.learning.entity.LearningNote;
 import com.knowflow.exam.engine.ExamGrader;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.service.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
@@ -28,7 +34,7 @@ public class PrivateQuizService {
     private final JdbcTemplate sql;
     private final ObjectMapper json;
     private final NoteService notes;
-    private final com.knowflow.mapper.DocDocumentMapper documents;
+    private final com.knowflow.knowledge.mapper.DocDocumentMapper documents;
     private final com.knowflow.security.DocumentAccessPolicy documentAccess;
     private final AiService ai;
     private final LearningEventService events;

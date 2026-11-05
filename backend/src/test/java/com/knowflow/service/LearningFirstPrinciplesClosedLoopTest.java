@@ -1,13 +1,16 @@
 package com.knowflow.service;
 
+import com.knowflow.learning.service.LearningFirstPrinciplesService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.dto.FirstPrinciplesSubmitDTO;
-import com.knowflow.entity.LearningEvent;
+import com.knowflow.learning.dto.FirstPrinciplesSubmitDTO;
+import com.knowflow.learning.entity.LearningEvent;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.LearningEventMapper;
-import com.knowflow.vo.FirstPrinciplesRubricVO;
-import com.knowflow.vo.FirstPrinciplesStepVO;
-import com.knowflow.vo.FirstPrinciplesSubmitResultVO;
+import com.knowflow.learning.mapper.LearningEventMapper;
+import com.knowflow.learning.vo.FirstPrinciplesRubricVO;
+import com.knowflow.learning.vo.FirstPrinciplesStepVO;
+import com.knowflow.learning.vo.FirstPrinciplesSubmitResultVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

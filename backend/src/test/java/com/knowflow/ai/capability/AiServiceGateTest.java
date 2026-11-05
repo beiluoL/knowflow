@@ -2,8 +2,8 @@ package com.knowflow.ai.capability;
 
 import com.knowflow.ai.*;
 import com.knowflow.config.*;
-import com.knowflow.mapper.UserAiConfigMapper;
-import com.knowflow.service.impl.AiServiceImpl;
+import com.knowflow.ai.mapper.UserAiConfigMapper;
+import com.knowflow.ai.service.impl.AiServiceImpl;
 import okhttp3.mockwebserver.*;
 import org.junit.jupiter.api.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

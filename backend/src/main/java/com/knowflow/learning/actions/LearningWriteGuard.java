@@ -1,10 +1,10 @@
 package com.knowflow.learning.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.dto.QuizSubmitDTO;
-import com.knowflow.entity.Task;
+import com.knowflow.learning.dto.QuizSubmitDTO;
+import com.knowflow.productivity.entity.Task;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.vo.QuizSubmitResultVO;
+import com.knowflow.learning.vo.QuizSubmitResultVO;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component;
 public class LearningWriteGuard {
     private final JdbcTemplate jdbc;
     private final ObjectMapper json;
-    private final com.knowflow.mapper.QuizQuestionMapper questions;
-    private final com.knowflow.mapper.DocDocumentMapper documents;
+    private final com.knowflow.learning.mapper.QuizQuestionMapper questions;
+    private final com.knowflow.knowledge.mapper.DocDocumentMapper documents;
     private final PersonalLearningResourceScope personal;
 
     @PostConstruct

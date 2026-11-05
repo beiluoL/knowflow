@@ -1,9 +1,9 @@
 package com.knowflow.apps;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.entity.SysUser;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.apps.entity.UserApp;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.apps.mapper.UserAppMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;

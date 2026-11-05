@@ -1,11 +1,14 @@
 package com.knowflow.controller.admin;
 
+import com.knowflow.learning.controller.admin.AdminLearningController;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.knowflow.entity.LearningChapter;
-import com.knowflow.entity.LearningPath;
-import com.knowflow.mapper.LearningChapterMapper;
-import com.knowflow.mapper.LearningPathMapper;
-import com.knowflow.service.impl.AiServiceImpl;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.learning.entity.LearningPath;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.learning.mapper.LearningPathMapper;
+import com.knowflow.ai.service.impl.AiServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,8 +37,8 @@ class AdminLearningTransactionTest {
     @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
     @SpyBean LearningChapterMapper chapters;
     @SpyBean AiServiceImpl ai;
-    @Autowired com.knowflow.service.AdminLearningWriteService writes;
-    @SpyBean com.knowflow.mapper.LearningFlashcardMapper cards;
+    @Autowired com.knowflow.learning.service.AdminLearningWriteService writes;
+    @SpyBean com.knowflow.flashcards.mapper.LearningFlashcardMapper cards;
 
     @Test
     void chapterFailureRollsBackGeneratedPathAndAiRunsOutsideTransaction() {
@@ -62,22 +65,22 @@ class AdminLearningTransactionTest {
     @Test
     void secondCardFailureRollsBackBatchThroughServiceProxy() {
         long owner = 991892L;
-        com.knowflow.entity.LearningFlashcard first = new com.knowflow.entity.LearningFlashcard();
+        com.knowflow.flashcards.entity.LearningFlashcard first = new com.knowflow.flashcards.entity.LearningFlashcard();
         first.setUserId(owner);
         first.setFront("first");
         first.setBack("answer");
-        com.knowflow.entity.LearningFlashcard second = new com.knowflow.entity.LearningFlashcard();
+        com.knowflow.flashcards.entity.LearningFlashcard second = new com.knowflow.flashcards.entity.LearningFlashcard();
         second.setUserId(owner);
         second.setFront("second");
         second.setBack("answer");
         doAnswer(call -> {
-            com.knowflow.entity.LearningFlashcard card = call.getArgument(0);
+            com.knowflow.flashcards.entity.LearningFlashcard card = call.getArgument(0);
             if ("second".equals(card.getFront())) throw new IllegalStateException("second card failure");
             return jdbc.update("INSERT INTO learning_flashcard(user_id,front,back) VALUES(?,?,?)", card.getUserId(), card.getFront(), card.getBack());
-        }).when(cards).insert(any(com.knowflow.entity.LearningFlashcard.class));
+        }).when(cards).insert(any(com.knowflow.flashcards.entity.LearningFlashcard.class));
         try {
             assertThrows(IllegalStateException.class, () -> writes.createGeneratedCards(List.of(first, second)));
-            assertEquals(0L, cards.selectCount(new QueryWrapper<com.knowflow.entity.LearningFlashcard>().eq("user_id", owner)));
+            assertEquals(0L, cards.selectCount(new QueryWrapper<com.knowflow.flashcards.entity.LearningFlashcard>().eq("user_id", owner)));
         } finally {
             reset(cards);
         }

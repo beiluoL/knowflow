@@ -1,10 +1,14 @@
 package com.knowflow.seed;
 
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+
+
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.entity.*;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.actions.PersonalLearningResourceScope;
-import com.knowflow.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.env.Environment;

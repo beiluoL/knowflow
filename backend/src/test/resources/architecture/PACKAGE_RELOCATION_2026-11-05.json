@@ -1,0 +1,1004 @@
+[
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningGoalController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningGoalController.java",
+    "oldType": "com.knowflow.controller.LearningGoalController",
+    "newType": "com.knowflow.learning.controller.LearningGoalController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/goals\")",
+      "@GetMapping",
+      "@GetMapping(\"/active\")",
+      "@PostMapping",
+      "@PutMapping(\"/{id}\")",
+      "@DeleteMapping(\"/{id}\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/TechEnglishController.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/controller/TechEnglishController.java",
+    "oldType": "com.knowflow.controller.TechEnglishController",
+    "newType": "com.knowflow.techenglish.controller.TechEnglishController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/tech-english\")",
+      "@GetMapping(\"/terms\")",
+      "@GetMapping(\"/terms/{id}\")",
+      "@GetMapping(\"/terms/{id}/pronunciations\")",
+      "@GetMapping(\"/filters\")",
+      "@GetMapping(\"/topics\")",
+      "@GetMapping(\"/topics/{domain}\")",
+      "@GetMapping(\"/me/terms\")",
+      "@PutMapping(\"/me/terms/{id}\")",
+      "@PostMapping(\"/me/terms/{id}/review-card\")",
+      "@GetMapping(\"/me/review-queue\")",
+      "@PostMapping(\"/me/terms/{id}/review\")",
+      "@GetMapping(\"/me/progress\")",
+      "@GetMapping(\"/lookup\")",
+      "@PostMapping(\"/me/candidates/extract\")",
+      "@PostMapping(\"/me/candidates\")",
+      "@GetMapping(\"/me/candidates\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningFeynmanController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningFeynmanController.java",
+    "oldType": "com.knowflow.controller.LearningFeynmanController",
+    "newType": "com.knowflow.learning.controller.LearningFeynmanController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/feynman\")",
+      "@GetMapping(\"/rubric\")",
+      "@PostMapping(\"/submit\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningContentController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningContentController.java",
+    "oldType": "com.knowflow.controller.LearningContentController",
+    "newType": "com.knowflow.learning.controller.LearningContentController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/knowledge/content\")",
+      "@PostMapping(\"/generate\")",
+      "@PostMapping(\"/accept\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningPlanController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningPlanController.java",
+    "oldType": "com.knowflow.controller.LearningPlanController",
+    "newType": "com.knowflow.learning.controller.LearningPlanController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/plan\")",
+      "@PostMapping(\"/generate\")",
+      "@GetMapping(\"/today\")",
+      "@GetMapping(\"/calendar.ics\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningScenarioController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningScenarioController.java",
+    "oldType": "com.knowflow.controller.LearningScenarioController",
+    "newType": "com.knowflow.learning.controller.LearningScenarioController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/scenarios\")",
+      "@GetMapping",
+      "@GetMapping(\"/{id}\")",
+      "@PostMapping(\"/{id}/submit\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningEvidenceController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningEvidenceController.java",
+    "oldType": "com.knowflow.controller.LearningEvidenceController",
+    "newType": "com.knowflow.learning.controller.LearningEvidenceController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/evidence\")",
+      "@GetMapping",
+      "@GetMapping(\"/{sourceType}/{sourceId}\")",
+      "@PostMapping(\"/{sourceType}/{sourceId}/capture\")",
+      "@PostMapping(\"/retests\")",
+      "@GetMapping(\"/comparisons\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningEventController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningEventController.java",
+    "oldType": "com.knowflow.controller.LearningEventController",
+    "newType": "com.knowflow.learning.controller.LearningEventController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/events\")",
+      "@GetMapping",
+      "@GetMapping(\"/summary\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningReportController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningReportController.java",
+    "oldType": "com.knowflow.controller.LearningReportController",
+    "newType": "com.knowflow.learning.controller.LearningReportController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/report\")",
+      "@GetMapping"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningActionController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningActionController.java",
+    "oldType": "com.knowflow.controller.LearningActionController",
+    "newType": "com.knowflow.learning.controller.LearningActionController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/action-plans\")",
+      "@GetMapping(\"/dashboard\")",
+      "@PostMapping(\"/daily/preview\")",
+      "@PostMapping(\"/daily/changes\")",
+      "@PostMapping(\"/context\")",
+      "@GetMapping(\"/tools\")",
+      "@GetMapping(\"/{id}\")",
+      "@PostMapping(\"/{id}/regenerate\")",
+      "@PostMapping(\"/{id}/confirm\")",
+      "@DeleteMapping(\"/{id}\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningController.java",
+    "oldType": "com.knowflow.controller.LearningController",
+    "newType": "com.knowflow.learning.controller.LearningController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning\")",
+      "@GetMapping(\"/paths\")",
+      "@GetMapping(\"/paths/{id}\")",
+      "@PostMapping(\"/paths/{id}/enroll\")",
+      "@GetMapping(\"/paths/{pathId}/chapters\")",
+      "@GetMapping(\"/paths/{pathId}/dag\")",
+      "@GetMapping(\"/chapters/{id}\")",
+      "@GetMapping(\"/chapters/{id}/knowledge\")",
+      "@PostMapping(\"/chapters/{id}/reading-position\")",
+      "@PostMapping(\"/chapters/{id}/complete\")",
+      "@PostMapping(\"/chapters/{id}/video-progress\")",
+      "@GetMapping(\"/flashcards\")",
+      "@GetMapping(\"/flashcards/due\")",
+      "@PostMapping(\"/flashcards/{id}/review\")",
+      "@GetMapping(\"/tasks\")",
+      "@PostMapping(\"/tasks\")",
+      "@PutMapping(\"/tasks/{id}/status\")",
+      "@DeleteMapping(\"/tasks/{id}\")",
+      "@GetMapping(\"/stats/daily-activity\")",
+      "@GetMapping(\"/stats/mastery\")",
+      "@GetMapping(\"/my/flashcards\")",
+      "@GetMapping(\"/my/flashcards/{id}\")",
+      "@PostMapping(\"/my/flashcards\")",
+      "@PutMapping(\"/my/flashcards/{id}\")",
+      "@DeleteMapping(\"/my/flashcards/{id}\")",
+      "@DeleteMapping(\"/my/flashcards\")",
+      "@PostMapping(\"/my/flashcards/generate\")",
+      "@PostMapping(\"/my/flashcards/import\")",
+      "@GetMapping(\"/my/flashcards/export\")",
+      "@PostMapping(\"/personalized-path\")",
+      "@PostMapping(\"/personalized-path/regenerate\")",
+      "@GetMapping(\"/personalized-paths\")",
+      "@PostMapping(\"/personalized-path/{id}/adopt\")",
+      "@DeleteMapping(\"/personalized-path/{id}\")",
+      "@GetMapping(\"/category-mastery\")",
+      "@GetMapping(\"/certificates\")",
+      "@GetMapping(\"/certificates/{id}\")",
+      "@GetMapping(\"/certificates/verify\")",
+      "@GetMapping(\"/analytics/overview\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/ChapterFavoriteController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/ChapterFavoriteController.java",
+    "oldType": "com.knowflow.controller.ChapterFavoriteController",
+    "newType": "com.knowflow.learning.controller.ChapterFavoriteController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/chapters\")",
+      "@PostMapping(\"/{id}/favorite\")",
+      "@GetMapping(\"/{id}/favorite\")",
+      "@GetMapping(\"/favorites\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningNoteController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningNoteController.java",
+    "oldType": "com.knowflow.controller.LearningNoteController",
+    "newType": "com.knowflow.learning.controller.LearningNoteController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/notes\")",
+      "@GetMapping",
+      "@GetMapping(\"/{id}\")",
+      "@PostMapping",
+      "@PutMapping(\"/{id}\")",
+      "@DeleteMapping(\"/{id}\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/KnowledgeMasteryController.java",
+    "target": "backend/src/main/java/com/knowflow/mastery/controller/KnowledgeMasteryController.java",
+    "oldType": "com.knowflow.controller.KnowledgeMasteryController",
+    "newType": "com.knowflow.mastery.controller.KnowledgeMasteryController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/mastery\")",
+      "@GetMapping",
+      "@GetMapping(\"/weak\")",
+      "@GetMapping(\"/review-required\")",
+      "@GetMapping(\"/{knowledgeId}\")",
+      "@GetMapping(\"/diagnostics\")",
+      "@PostMapping(\"/recalculate\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/LearningFirstPrinciplesController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/LearningFirstPrinciplesController.java",
+    "oldType": "com.knowflow.controller.LearningFirstPrinciplesController",
+    "newType": "com.knowflow.learning.controller.LearningFirstPrinciplesController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/learning/first-principles\")",
+      "@GetMapping(\"/rubric\")",
+      "@PostMapping(\"/submit\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/admin/LearningScenarioAdminController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/admin/LearningScenarioAdminController.java",
+    "oldType": "com.knowflow.controller.admin.LearningScenarioAdminController",
+    "newType": "com.knowflow.learning.controller.admin.LearningScenarioAdminController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/admin/learning-scenarios\")",
+      "@GetMapping",
+      "@GetMapping(\"/{id}\")",
+      "@PostMapping",
+      "@PutMapping(\"/{id}\")",
+      "@DeleteMapping(\"/{id}\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/controller/admin/AdminLearningController.java",
+    "target": "backend/src/main/java/com/knowflow/learning/controller/admin/AdminLearningController.java",
+    "oldType": "com.knowflow.controller.admin.AdminLearningController",
+    "newType": "com.knowflow.learning.controller.admin.AdminLearningController",
+    "expectedAnnotations": [
+      "@RequestMapping(\"/api/admin/learning\")",
+      "@GetMapping(\"/paths\")",
+      "@PostMapping(\"/paths\")",
+      "@PutMapping(\"/paths/{id}\")",
+      "@DeleteMapping(\"/paths/{id}\")",
+      "@GetMapping(\"/chapters\")",
+      "@PostMapping(\"/chapters\")",
+      "@PutMapping(\"/chapters/{id}\")",
+      "@DeleteMapping(\"/chapters/{id}\")",
+      "@GetMapping(\"/flashcards\")",
+      "@PostMapping(\"/flashcards\")",
+      "@PutMapping(\"/flashcards/{id}\")",
+      "@DeleteMapping(\"/flashcards/{id}\")",
+      "@GetMapping(\"/categories\")",
+      "@GetMapping(\"/docs\")",
+      "@PostMapping(\"/ai/generate-path\")",
+      "@PostMapping(\"/chapters/{id}/ai-generate-content\")",
+      "@PostMapping(\"/paths/{id}/ai-generate-flashcards\")",
+      "@PostMapping(\"/flashcards/ai-generate\")",
+      "@PutMapping(\"/paths/{id}/publish\")",
+      "@PutMapping(\"/paths/{id}/unpublish\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningAnalyticsService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningAnalyticsService.java",
+    "oldType": "com.knowflow.service.LearningAnalyticsService",
+    "newType": "com.knowflow.learning.service.LearningAnalyticsService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningEventService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningEventService.java",
+    "oldType": "com.knowflow.service.LearningEventService",
+    "newType": "com.knowflow.learning.service.LearningEventService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningReportService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningReportService.java",
+    "oldType": "com.knowflow.service.LearningReportService",
+    "newType": "com.knowflow.learning.service.LearningReportService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/KnowledgeMasteryService.java",
+    "target": "backend/src/main/java/com/knowflow/mastery/service/KnowledgeMasteryService.java",
+    "oldType": "com.knowflow.service.KnowledgeMasteryService",
+    "newType": "com.knowflow.mastery.service.KnowledgeMasteryService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningService.java",
+    "oldType": "com.knowflow.service.LearningService",
+    "newType": "com.knowflow.learning.service.LearningService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningGoalService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningGoalService.java",
+    "oldType": "com.knowflow.service.LearningGoalService",
+    "newType": "com.knowflow.learning.service.LearningGoalService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningScenarioService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningScenarioService.java",
+    "oldType": "com.knowflow.service.LearningScenarioService",
+    "newType": "com.knowflow.learning.service.LearningScenarioService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/TechVocabSchema.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/service/TechVocabSchema.java",
+    "oldType": "com.knowflow.service.TechVocabSchema",
+    "newType": "com.knowflow.techenglish.service.TechVocabSchema",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/ChapterFavoriteService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/ChapterFavoriteService.java",
+    "oldType": "com.knowflow.service.ChapterFavoriteService",
+    "newType": "com.knowflow.learning.service.ChapterFavoriteService",
+    "expectedAnnotations": [
+      "@TableLogic",
+      "@Transactional(rollbackFor = Exception.class)"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningEventQueryService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningEventQueryService.java",
+    "oldType": "com.knowflow.service.LearningEventQueryService",
+    "newType": "com.knowflow.learning.service.LearningEventQueryService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningPlanService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningPlanService.java",
+    "oldType": "com.knowflow.service.LearningPlanService",
+    "newType": "com.knowflow.learning.service.LearningPlanService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/TechVocabExtractionService.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/service/TechVocabExtractionService.java",
+    "oldType": "com.knowflow.service.TechVocabExtractionService",
+    "newType": "com.knowflow.techenglish.service.TechVocabExtractionService",
+    "expectedAnnotations": [
+      "@Transactional",
+      "@Transactional"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/SrsService.java",
+    "target": "backend/src/main/java/com/knowflow/flashcards/service/SrsService.java",
+    "oldType": "com.knowflow.service.SrsService",
+    "newType": "com.knowflow.flashcards.service.SrsService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/AdminLearningWriteService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/AdminLearningWriteService.java",
+    "oldType": "com.knowflow.service.AdminLearningWriteService",
+    "newType": "com.knowflow.learning.service.AdminLearningWriteService",
+    "expectedAnnotations": [
+      "@Transactional(rollbackFor = Exception.class)",
+      "@Transactional(rollbackFor = Exception.class)"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningContentService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningContentService.java",
+    "oldType": "com.knowflow.service.LearningContentService",
+    "newType": "com.knowflow.learning.service.LearningContentService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/TechVocabService.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/service/TechVocabService.java",
+    "oldType": "com.knowflow.service.TechVocabService",
+    "newType": "com.knowflow.techenglish.service.TechVocabService",
+    "expectedAnnotations": [
+      "@Transactional",
+      "@Transactional",
+      "@Transactional"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningFeynmanService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningFeynmanService.java",
+    "oldType": "com.knowflow.service.LearningFeynmanService",
+    "newType": "com.knowflow.learning.service.LearningFeynmanService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/LearningFirstPrinciplesService.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/LearningFirstPrinciplesService.java",
+    "oldType": "com.knowflow.service.LearningFirstPrinciplesService",
+    "newType": "com.knowflow.learning.service.LearningFirstPrinciplesService",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/TechVocabReviewService.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/service/TechVocabReviewService.java",
+    "oldType": "com.knowflow.service.TechVocabReviewService",
+    "newType": "com.knowflow.techenglish.service.TechVocabReviewService",
+    "expectedAnnotations": [
+      "@Transactional"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningContentServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningContentServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningContentServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningContentServiceImpl",
+    "expectedAnnotations": [
+      "@Transactional"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningFeynmanServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningFeynmanServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningFeynmanServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningFeynmanServiceImpl",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/SrsServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/flashcards/service/impl/SrsServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.SrsServiceImpl",
+    "newType": "com.knowflow.flashcards.service.impl.SrsServiceImpl",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningPlanServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningPlanServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningPlanServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningPlanServiceImpl",
+    "expectedAnnotations": [
+      "@Transactional(rollbackFor = Exception.class)"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningReportServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningReportServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningReportServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningReportServiceImpl",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningContentPrompts.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningContentPrompts.java",
+    "oldType": "com.knowflow.service.impl.LearningContentPrompts",
+    "newType": "com.knowflow.learning.service.impl.LearningContentPrompts",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningScenarioServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningScenarioServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningScenarioServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningScenarioServiceImpl",
+    "expectedAnnotations": [
+      "@TableLogic",
+      "@TableLogic"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningGoalServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningGoalServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningGoalServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningGoalServiceImpl",
+    "expectedAnnotations": [
+      "@Transactional(rollbackFor = Exception.class)",
+      "@Transactional(rollbackFor = Exception.class)"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningServiceImpl",
+    "expectedAnnotations": [
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional",
+      "@Transactional"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningFirstPrinciplesServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningFirstPrinciplesServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningFirstPrinciplesServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningFirstPrinciplesServiceImpl",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningEventQueryServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningEventQueryServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningEventQueryServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningEventQueryServiceImpl",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningAnalyticsServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningAnalyticsServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningAnalyticsServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningAnalyticsServiceImpl",
+    "expectedAnnotations": [
+      "@Transactional(readOnly = true)"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/service/impl/LearningEventServiceImpl.java",
+    "target": "backend/src/main/java/com/knowflow/learning/service/impl/LearningEventServiceImpl.java",
+    "oldType": "com.knowflow.service.impl.LearningEventServiceImpl",
+    "newType": "com.knowflow.learning.service.impl.LearningEventServiceImpl",
+    "expectedAnnotations": [
+      "@Transactional(propagation = Propagation.REQUIRES_NEW)",
+      "@Transactional(propagation = Propagation.REQUIRES_NEW)",
+      "@Transactional(propagation = Propagation.REQUIRES_NEW)",
+      "@Transactional(propagation = Propagation.REQUIRED)"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/ChapterFavoriteMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/ChapterFavoriteMapper.java",
+    "oldType": "com.knowflow.mapper.ChapterFavoriteMapper",
+    "newType": "com.knowflow.learning.mapper.ChapterFavoriteMapper",
+    "expectedAnnotations": [
+      "@TableLogic",
+      "@Select(\"SELECT id FROM learning_chapter WHERE id = #{chapterId} AND deleted = 0 FOR UPDATE\")",
+      "@Select",
+      "@TableLogic",
+      "@Select(\"SELECT deleted FROM chapter_favorite WHERE id = #{id} FOR UPDATE\")",
+      "@Update"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/UserVocabStateMapper.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/mapper/UserVocabStateMapper.java",
+    "oldType": "com.knowflow.mapper.UserVocabStateMapper",
+    "newType": "com.knowflow.techenglish.mapper.UserVocabStateMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningPathMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningPathMapper.java",
+    "oldType": "com.knowflow.mapper.LearningPathMapper",
+    "newType": "com.knowflow.learning.mapper.LearningPathMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/TechVocabCandidateMapper.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/mapper/TechVocabCandidateMapper.java",
+    "oldType": "com.knowflow.mapper.TechVocabCandidateMapper",
+    "newType": "com.knowflow.techenglish.mapper.TechVocabCandidateMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningTaskMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningTaskMapper.java",
+    "oldType": "com.knowflow.mapper.LearningTaskMapper",
+    "newType": "com.knowflow.learning.mapper.LearningTaskMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningUserChapterMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningUserChapterMapper.java",
+    "oldType": "com.knowflow.mapper.LearningUserChapterMapper",
+    "newType": "com.knowflow.learning.mapper.LearningUserChapterMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningChapterMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningChapterMapper.java",
+    "oldType": "com.knowflow.mapper.LearningChapterMapper",
+    "newType": "com.knowflow.learning.mapper.LearningChapterMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningNoteMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningNoteMapper.java",
+    "oldType": "com.knowflow.mapper.LearningNoteMapper",
+    "newType": "com.knowflow.learning.mapper.LearningNoteMapper",
+    "expectedAnnotations": [
+      "@Select(\"SELECT * FROM learning_note WHERE id=#{id} AND user_id=#{userId}\")",
+      "@Select(\"SELECT * FROM learning_note WHERE user_id=#{userId} AND import_key=#{key}\")",
+      "@Update(\"UPDATE learning_note SET folder_id=#{n.folderId},favorite=#{n.favorite},source_doc_id=#{n.sourceDocId},title=#{n.title},content=#{n.content},tags=#{n.tags},source_title=#{n.sourceTitle},chapter_id=#{n.chapterId},path_id=#{n.pathId},source_type=#{n.sourceType},status=#{n.status},deleted=#{n.deleted},revision=revision+1,update_time=CURRENT_TIMESTAMP WHERE id=#{n.id} AND user_id=#{n.userId} AND revision=#{expected} AND deleted=#{previousDeleted}\")",
+      "@Select(\"<script>SELECT * FROM learning_note WHERE user_id=#{userId} AND deleted=#{deleted}<if test='keyword != null and keyword != &quot;&quot;'> AND (title LIKE CONCAT('%',#{keyword},'%') OR content LIKE CONCAT('%',#{keyword},'%'))</if> ORDER BY update_time DESC,id DESC LIMIT #{size} OFFSET #{offset}</script>\")",
+      "@Select(\"<script>SELECT COUNT(*) FROM learning_note WHERE user_id=#{userId} AND deleted=#{deleted}<if test='keyword != null and keyword != &quot;&quot;'> AND (title LIKE CONCAT('%',#{keyword},'%') OR content LIKE CONCAT('%',#{keyword},'%'))</if></script>\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/KnowledgeMasteryMapper.java",
+    "target": "backend/src/main/java/com/knowflow/mastery/mapper/KnowledgeMasteryMapper.java",
+    "oldType": "com.knowflow.mapper.KnowledgeMasteryMapper",
+    "newType": "com.knowflow.mastery.mapper.KnowledgeMasteryMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningMistakeMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningMistakeMapper.java",
+    "oldType": "com.knowflow.mapper.LearningMistakeMapper",
+    "newType": "com.knowflow.learning.mapper.LearningMistakeMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningFlashcardMapper.java",
+    "target": "backend/src/main/java/com/knowflow/flashcards/mapper/LearningFlashcardMapper.java",
+    "oldType": "com.knowflow.mapper.LearningFlashcardMapper",
+    "newType": "com.knowflow.flashcards.mapper.LearningFlashcardMapper",
+    "expectedAnnotations": [
+      "@Select(\"SELECT * FROM learning_flashcard WHERE id=#{id} AND deleted=0 FOR UPDATE\")",
+      "@Select(\"SELECT fsrs_state FROM learning_flashcard WHERE id=#{id} AND deleted=0\")",
+      "@Select(\"SELECT COUNT(*) FROM learning_flashcard_note_card WHERE card_id=#{id}\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningScenarioMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningScenarioMapper.java",
+    "oldType": "com.knowflow.mapper.LearningScenarioMapper",
+    "newType": "com.knowflow.learning.mapper.LearningScenarioMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningGoalMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningGoalMapper.java",
+    "oldType": "com.knowflow.mapper.LearningGoalMapper",
+    "newType": "com.knowflow.learning.mapper.LearningGoalMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningEventMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningEventMapper.java",
+    "oldType": "com.knowflow.mapper.LearningEventMapper",
+    "newType": "com.knowflow.learning.mapper.LearningEventMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/mapper/LearningUserPathMapper.java",
+    "target": "backend/src/main/java/com/knowflow/learning/mapper/LearningUserPathMapper.java",
+    "oldType": "com.knowflow.mapper.LearningUserPathMapper",
+    "newType": "com.knowflow.learning.mapper.LearningUserPathMapper",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/KnowledgeMastery.java",
+    "target": "backend/src/main/java/com/knowflow/mastery/entity/KnowledgeMastery.java",
+    "oldType": "com.knowflow.entity.KnowledgeMastery",
+    "newType": "com.knowflow.mastery.entity.KnowledgeMastery",
+    "expectedAnnotations": [
+      "@TableName(\"knowledge_mastery\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningPath.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningPath.java",
+    "oldType": "com.knowflow.entity.LearningPath",
+    "newType": "com.knowflow.learning.entity.LearningPath",
+    "expectedAnnotations": [
+      "@TableName(\"learning_path\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningChapter.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningChapter.java",
+    "oldType": "com.knowflow.entity.LearningChapter",
+    "newType": "com.knowflow.learning.entity.LearningChapter",
+    "expectedAnnotations": [
+      "@TableName(\"learning_chapter\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningGoal.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningGoal.java",
+    "oldType": "com.knowflow.entity.LearningGoal",
+    "newType": "com.knowflow.learning.entity.LearningGoal",
+    "expectedAnnotations": [
+      "@TableName(\"learning_goal\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/TechVocabCandidate.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/entity/TechVocabCandidate.java",
+    "oldType": "com.knowflow.entity.TechVocabCandidate",
+    "newType": "com.knowflow.techenglish.entity.TechVocabCandidate",
+    "expectedAnnotations": [
+      "@TableName(\"tech_vocab_candidate\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/TechVocabConceptLink.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/entity/TechVocabConceptLink.java",
+    "oldType": "com.knowflow.entity.TechVocabConceptLink",
+    "newType": "com.knowflow.techenglish.entity.TechVocabConceptLink",
+    "expectedAnnotations": [
+      "@TableName(\"tech_vocab_concept_link\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningTask.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningTask.java",
+    "oldType": "com.knowflow.entity.LearningTask",
+    "newType": "com.knowflow.learning.entity.LearningTask",
+    "expectedAnnotations": [
+      "@TableName(\"learning_task\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningNote.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningNote.java",
+    "oldType": "com.knowflow.entity.LearningNote",
+    "newType": "com.knowflow.learning.entity.LearningNote",
+    "expectedAnnotations": [
+      "@TableName(\"learning_note\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/UserVocabState.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/entity/UserVocabState.java",
+    "oldType": "com.knowflow.entity.UserVocabState",
+    "newType": "com.knowflow.techenglish.entity.UserVocabState",
+    "expectedAnnotations": [
+      "@TableName(\"user_vocab_state\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningUserPath.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningUserPath.java",
+    "oldType": "com.knowflow.entity.LearningUserPath",
+    "newType": "com.knowflow.learning.entity.LearningUserPath",
+    "expectedAnnotations": [
+      "@TableName(\"learning_user_path\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningMistake.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningMistake.java",
+    "oldType": "com.knowflow.entity.LearningMistake",
+    "newType": "com.knowflow.learning.entity.LearningMistake",
+    "expectedAnnotations": [
+      "@TableName(\"learning_mistake\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningEvent.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningEvent.java",
+    "oldType": "com.knowflow.entity.LearningEvent",
+    "newType": "com.knowflow.learning.entity.LearningEvent",
+    "expectedAnnotations": [
+      "@TableName(\"learning_event\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/TechVocabTerm.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/entity/TechVocabTerm.java",
+    "oldType": "com.knowflow.entity.TechVocabTerm",
+    "newType": "com.knowflow.techenglish.entity.TechVocabTerm",
+    "expectedAnnotations": [
+      "@TableName(\"tech_vocab_term\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningUserChapter.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningUserChapter.java",
+    "oldType": "com.knowflow.entity.LearningUserChapter",
+    "newType": "com.knowflow.learning.entity.LearningUserChapter",
+    "expectedAnnotations": [
+      "@TableName(\"learning_user_chapter\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/ChapterFavorite.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/ChapterFavorite.java",
+    "oldType": "com.knowflow.entity.ChapterFavorite",
+    "newType": "com.knowflow.learning.entity.ChapterFavorite",
+    "expectedAnnotations": [
+      "@TableName(\"chapter_favorite\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningFlashcard.java",
+    "target": "backend/src/main/java/com/knowflow/flashcards/entity/LearningFlashcard.java",
+    "oldType": "com.knowflow.entity.LearningFlashcard",
+    "newType": "com.knowflow.flashcards.entity.LearningFlashcard",
+    "expectedAnnotations": [
+      "@TableName(\"learning_flashcard\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/LearningScenario.java",
+    "target": "backend/src/main/java/com/knowflow/learning/entity/LearningScenario.java",
+    "oldType": "com.knowflow.entity.LearningScenario",
+    "newType": "com.knowflow.learning.entity.LearningScenario",
+    "expectedAnnotations": [
+      "@TableName(\"learning_scenario\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/entity/TechVocabPronunciation.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/entity/TechVocabPronunciation.java",
+    "oldType": "com.knowflow.entity.TechVocabPronunciation",
+    "newType": "com.knowflow.techenglish.entity.TechVocabPronunciation",
+    "expectedAnnotations": [
+      "@TableName(\"tech_vocab_pronunciation\")"
+    ]
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/dto/LearningNoteDTO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/dto/LearningNoteDTO.java",
+    "oldType": "com.knowflow.dto.LearningNoteDTO",
+    "newType": "com.knowflow.learning.dto.LearningNoteDTO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/dto/FlashcardGenerateDTO.java",
+    "target": "backend/src/main/java/com/knowflow/flashcards/dto/FlashcardGenerateDTO.java",
+    "oldType": "com.knowflow.dto.FlashcardGenerateDTO",
+    "newType": "com.knowflow.flashcards.dto.FlashcardGenerateDTO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/dto/LearningContentAcceptRequest.java",
+    "target": "backend/src/main/java/com/knowflow/learning/dto/LearningContentAcceptRequest.java",
+    "oldType": "com.knowflow.dto.LearningContentAcceptRequest",
+    "newType": "com.knowflow.learning.dto.LearningContentAcceptRequest",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/dto/FlashcardSaveDTO.java",
+    "target": "backend/src/main/java/com/knowflow/flashcards/dto/FlashcardSaveDTO.java",
+    "oldType": "com.knowflow.dto.FlashcardSaveDTO",
+    "newType": "com.knowflow.flashcards.dto.FlashcardSaveDTO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/dto/LearningContentGenerateRequest.java",
+    "target": "backend/src/main/java/com/knowflow/learning/dto/LearningContentGenerateRequest.java",
+    "oldType": "com.knowflow.dto.LearningContentGenerateRequest",
+    "newType": "com.knowflow.learning.dto.LearningContentGenerateRequest",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/dto/TechVocabDtos.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/dto/TechVocabDtos.java",
+    "oldType": "com.knowflow.dto.TechVocabDtos",
+    "newType": "com.knowflow.techenglish.dto.TechVocabDtos",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningNoteVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningNoteVO.java",
+    "oldType": "com.knowflow.vo.LearningNoteVO",
+    "newType": "com.knowflow.learning.vo.LearningNoteVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningCertificateVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningCertificateVO.java",
+    "oldType": "com.knowflow.vo.LearningCertificateVO",
+    "newType": "com.knowflow.learning.vo.LearningCertificateVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/KnowledgeMasteryDetailVO.java",
+    "target": "backend/src/main/java/com/knowflow/mastery/vo/KnowledgeMasteryDetailVO.java",
+    "oldType": "com.knowflow.vo.KnowledgeMasteryDetailVO",
+    "newType": "com.knowflow.mastery.vo.KnowledgeMasteryDetailVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningContentGenerationResultVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningContentGenerationResultVO.java",
+    "oldType": "com.knowflow.vo.LearningContentGenerationResultVO",
+    "newType": "com.knowflow.learning.vo.LearningContentGenerationResultVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/MasteryDistributionVO.java",
+    "target": "backend/src/main/java/com/knowflow/mastery/vo/MasteryDistributionVO.java",
+    "oldType": "com.knowflow.vo.MasteryDistributionVO",
+    "newType": "com.knowflow.mastery.vo.MasteryDistributionVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningGoalVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningGoalVO.java",
+    "oldType": "com.knowflow.vo.LearningGoalVO",
+    "newType": "com.knowflow.learning.vo.LearningGoalVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningPlanVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningPlanVO.java",
+    "oldType": "com.knowflow.vo.LearningPlanVO",
+    "newType": "com.knowflow.learning.vo.LearningPlanVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningReportVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningReportVO.java",
+    "oldType": "com.knowflow.vo.LearningReportVO",
+    "newType": "com.knowflow.learning.vo.LearningReportVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningAnalyticsVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningAnalyticsVO.java",
+    "oldType": "com.knowflow.vo.LearningAnalyticsVO",
+    "newType": "com.knowflow.learning.vo.LearningAnalyticsVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningContentAcceptResultVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningContentAcceptResultVO.java",
+    "oldType": "com.knowflow.vo.LearningContentAcceptResultVO",
+    "newType": "com.knowflow.learning.vo.LearningContentAcceptResultVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/TechVocabVOs.java",
+    "target": "backend/src/main/java/com/knowflow/techenglish/vo/TechVocabVOs.java",
+    "oldType": "com.knowflow.vo.TechVocabVOs",
+    "newType": "com.knowflow.techenglish.vo.TechVocabVOs",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningPathVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningPathVO.java",
+    "oldType": "com.knowflow.vo.LearningPathVO",
+    "newType": "com.knowflow.learning.vo.LearningPathVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/FlashcardVO.java",
+    "target": "backend/src/main/java/com/knowflow/flashcards/vo/FlashcardVO.java",
+    "oldType": "com.knowflow.vo.FlashcardVO",
+    "newType": "com.knowflow.flashcards.vo.FlashcardVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/MasteryDiagnosticsVO.java",
+    "target": "backend/src/main/java/com/knowflow/mastery/vo/MasteryDiagnosticsVO.java",
+    "oldType": "com.knowflow.vo.MasteryDiagnosticsVO",
+    "newType": "com.knowflow.mastery.vo.MasteryDiagnosticsVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/KnowledgeMasteryVO.java",
+    "target": "backend/src/main/java/com/knowflow/mastery/vo/KnowledgeMasteryVO.java",
+    "oldType": "com.knowflow.vo.KnowledgeMasteryVO",
+    "newType": "com.knowflow.mastery.vo.KnowledgeMasteryVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningChapterVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningChapterVO.java",
+    "oldType": "com.knowflow.vo.LearningChapterVO",
+    "newType": "com.knowflow.learning.vo.LearningChapterVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningEventSummaryVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningEventSummaryVO.java",
+    "oldType": "com.knowflow.vo.LearningEventSummaryVO",
+    "newType": "com.knowflow.learning.vo.LearningEventSummaryVO",
+    "expectedAnnotations": []
+  },
+  {
+    "source": "backend/src/main/java/com/knowflow/vo/LearningTaskVO.java",
+    "target": "backend/src/main/java/com/knowflow/learning/vo/LearningTaskVO.java",
+    "oldType": "com.knowflow.vo.LearningTaskVO",
+    "newType": "com.knowflow.learning.vo.LearningTaskVO",
+    "expectedAnnotations": []
+  }
+]

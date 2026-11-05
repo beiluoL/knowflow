@@ -1,12 +1,21 @@
 package com.knowflow.service;
 
+import com.knowflow.ai.mapper.ChatConversationMapper;
+import com.knowflow.ai.mapper.ChatMessageMapper;
+import com.knowflow.ai.service.AiService;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.service.DocChunkService;
+
+
+import com.knowflow.learning.service.LearningEventService;
+
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.ai.capability.AiCapabilityProperties;
-import com.knowflow.dto.ChatSendDTO;
-import com.knowflow.entity.ChatConversation;
-import com.knowflow.mapper.*;
-import com.knowflow.service.impl.ChatServiceImpl;
+import com.knowflow.ai.dto.ChatSendDTO;
+import com.knowflow.ai.entity.ChatConversation;
+import com.knowflow.ai.service.impl.ChatServiceImpl;
 import java.io.Serializable;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

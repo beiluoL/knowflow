@@ -1,20 +1,30 @@
 #!/usr/bin/env node
 /**
  * KnowFlow 统一工程检查（零依赖，Node 18+）。
- * 用法：node scripts/engineering/check.mjs [--json]
+ * 用法：node scripts/engineering/check.mjs [--json] [--code-only]
  *
  * 零容忍项：出现即失败。
  * 棘轮项：与 scripts/engineering/baseline.json 比较，只能持平或下降。
  */
 import { readdir, readFile, stat } from 'node:fs/promises'
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { fingerprint, additions } from './snapshot.mjs'
+import { boundaryViolations } from './module-boundary.mjs'
+import { jdbcBoundaryViolations } from './jdbc-boundary.mjs'
+import { mapperViolations } from './mapper-boundary.mjs'
 import { fileURLToPath } from 'node:url'
 
 const rootArg = process.argv.indexOf('--root')
 const root = rootArg >= 0 ? path.resolve(process.argv[rootArg + 1] || '.') : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const asJson = process.argv.includes('--json')
+// Source-only distributions omit local agent mirrors and process documentation.
+// All code, ownership, architecture, security-pattern and ratchet checks still run.
+const CODE_ONLY = process.argv.includes('--code-only')
+// 格式化合规检查默认关闭：避免对存量（尚未全量格式化的）代码与未提交改动造成破坏性失败。
+// CI/verify 可传入 --format 并搭配 --manifest/--files（仅本次改动文件）开启严格检查。
+const CHECK_FORMAT = process.argv.includes('--format')
 const SKIP_DIRS = /^(node_modules|target|build|dist|\.git|\.idea)$/
 const SKIP_FILES = /^\.DS_Store$/
 
@@ -337,19 +347,138 @@ async function checkSnapshot() {
   record('location-ratchet', fresh.length === 0, fresh.length ? JSON.stringify(keys.filter(x => fresh.includes(x.key))) : '无新增位置违规；改用 unknown / --kf-*', 'zero')
 }
 
+async function checkModuleBoundaries() {
+  const violations = []
+  const entityNames = (await walk(path.join(root, 'backend/src/main/java/com/knowflow/entity'))).filter(file => file.endsWith('.java')).map(file => path.basename(file, '.java'))
+  for (const file of await walk(path.join(root, 'backend/src/main/java'))) {
+    if (!file.endsWith('.java')) continue
+    const relative = path.relative(root, file).split(path.sep).join('/')
+    for (const detail of boundaryViolations(relative, await readFile(file, 'utf8'), entityNames)) {
+      violations.push(`${relative}: ${detail}`)
+    }
+  }
+  record('module-boundary-scoped', violations.length === 0,
+    violations.length ? violations.join('; ') : 'DocServiceImpl user mapper edge absent; QueryPort contracts checked', 'zero')
+}
+
+async function checkJdbcBoundary() {
+  const file = 'backend/src/main/java/com/knowflow/techenglish/service/TechVocabService.java'
+  let source
+  try { source = await readFile(path.join(root, file), 'utf8') }
+  catch (error) { if (error.code === 'ENOENT') return; throw error }
+  const violations = jdbcBoundaryViolations(file, source)
+  record('jdbc-boundary-tech-vocab', violations.length === 0,
+    violations.length ? violations.join('; ') : 'TechVocabService scoped JDBC regression guard passed', 'zero')
+}
+
+async function checkMapperOwnership() {
+  const registryFile = path.join(root, 'scripts/engineering/mapper-ownership.json')
+  if (!existsSync(registryFile)) {
+    record('mapper-ownership', false, 'Missing reviewed mapper ownership registry', 'zero')
+    return
+  }
+  const sources = {}
+  for (const file of await walk(path.join(root, 'backend/src/main/java'))) {
+    if (file.endsWith('.java')) sources[path.relative(root, file).split(path.sep).join('/')] = await readFile(file, 'utf8')
+  }
+  const violations = mapperViolations(sources, JSON.parse(await readFile(registryFile, 'utf8')))
+  record('mapper-ownership', violations.length === 0, violations.length ? violations.join('; ') : 'Mapper identity ratchet and reviewed module dependencies passed', 'zero')
+}
+
+// --- 6. 格式化工具链与（可选）逐文件合规 -------------------------------------
+// 默认只校验「工具链是否齐备」（不扫描全量代码，不影响现有门禁）。
+// 传入 --format 且提供 --manifest/--files 时，才对「本次改动文件」做格式化合规检查。
+async function checkFormatting() {
+  const tooling = [
+    ['.editorconfig', path.join(root, '.editorconfig')],
+    ['frontend/.prettierrc.json', path.join(root, 'frontend', '.prettierrc.json')],
+    ['frontend/.prettierignore', path.join(root, 'frontend', '.prettierignore')],
+    ['scripts/format-changed.mjs', path.join(root, 'scripts', 'format-changed.mjs')],
+    ...(CHECK_FORMAT ? [['backend/tools/google-java-format.jar', path.join(root, 'backend', 'tools', 'google-java-format.jar')]] : [])
+  ]
+  const missing = tooling.filter(([, p]) => !existsSync(p)).map(([n]) => n)
+  if (missing.length) {
+    record('format-tooling', false, `缺少格式化工具链：${missing.join(', ')}`, 'zero')
+    return
+  }
+  let pom = ''
+  try {
+    pom = readFileSync(path.join(root, 'backend', 'pom.xml'), 'utf8')
+  } catch {
+    pom = ''
+  }
+  if (!/spotless-maven-plugin/.test(pom)) {
+    record('format-tooling', false, 'backend/pom.xml 未声明 spotless-maven-plugin', 'zero')
+    return
+  }
+  record('format-tooling', true, '格式化工具链齐备（EditorConfig / Prettier / Spotless / 自动格式化器）', 'zero')
+
+  if (!CHECK_FORMAT) return
+
+  // 仅对显式传入的「本次改动文件」做合规检查（绝不扫描全量未提交改动）
+  const argv = process.argv.slice(2)
+  const files = []
+  const mi = argv.indexOf('--manifest')
+  if (mi >= 0 && argv[mi + 1] && !argv[mi + 1].startsWith('--')) {
+    try {
+      const raw = JSON.parse(readFileSync(path.resolve(root, argv[mi + 1]), 'utf8'))
+      files.push(...(Array.isArray(raw.files) ? raw.files : Array.isArray(raw) ? raw : []))
+    } catch {
+      /* ignore malformed manifest */
+    }
+  }
+  const fi = argv.indexOf('--files')
+  if (fi >= 0) {
+    for (let i = fi + 1; i < argv.length && !argv[i].startsWith('--'); i++) files.push(argv[i])
+  }
+  if (!files.length) {
+    warnings.push('format-compliance: 已开启 --format 但未提供 --manifest/--files，跳过逐文件格式化检查')
+    return
+  }
+  const tmpManifest = path.join(root, 'scripts', '.fmt-check-manifest.json')
+  writeFileSync(tmpManifest, JSON.stringify({ files }))
+  try {
+    const r = spawnSync('node', [path.join(root, 'scripts', 'format-changed.mjs'), '--manifest', tmpManifest, '--dry-run'], {
+      cwd: root,
+      encoding: 'utf8'
+    })
+    const would = (r.stdout.match(/将格式化/g) || []).length
+    if (would > 0) {
+      record('format-compliance', false, `有 ${would} 个改动文件未格式化，请先运行格式化器（node scripts/format-changed.mjs）`, 'zero')
+    } else {
+      record('format-compliance', true, `改动文件（${files.length}）均已符合格式化规范`, 'zero')
+    }
+  } finally {
+    rmSync(tmpManifest, { force: true })
+  }
+}
+
 try {
   const args = process.argv.slice(2)
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--root') { if (!args[++i] || args[i].startsWith('--')) throw new Error('--root requires a path') }
-    else if (args[i] !== '--json') throw new Error(`Unknown argument: ${args[i]}`)
+    else if (args[i] === '--manifest') { if (!args[++i] || args[i].startsWith('--')) throw new Error('--manifest requires a path') }
+    else if (args[i] === '--files') {
+      let j = i + 1
+      while (j < args.length && !args[j].startsWith('--')) j += 1
+      i = j - 1
+    } else if (args[i] === '--json' || args[i] === '--format' || args[i] === '--code-only') {
+      /* 无值 flag */
+    } else throw new Error(`Unknown argument: ${args[i]}`)
   }
   await stat(root)
-  await checkSkillSync()
-  await checkEntryFiles()
+  if (!CODE_ONLY) {
+    await checkSkillSync()
+    await checkEntryFiles()
+  }
   await checkPatterns()
-  await checkDocLinks()
+  if (!CODE_ONLY) await checkDocLinks()
   await checkArchitecture()
+  await checkModuleBoundaries()
+  await checkJdbcBoundary()
+  await checkMapperOwnership()
   await checkSnapshot()
+  await checkFormatting()
 } catch (error) {
   record('checker-error', false, error.message, 'zero')
 }

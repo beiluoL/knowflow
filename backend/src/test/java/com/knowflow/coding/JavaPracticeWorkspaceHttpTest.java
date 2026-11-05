@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.fasterxml.jackson.databind.*;
 import com.knowflow.coding.service.CodeProblemService;
 import com.knowflow.coding.vo.CodingVos;
-import com.knowflow.entity.SysUser;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.utils.JwtUtils;
 import java.util.*;
 import org.junit.jupiter.api.*;
@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class JavaPracticeWorkspaceHttpTest {
 
   @Autowired
-  com.knowflow.mapper.DocCategoryMapper categories;
+  com.knowflow.knowledge.mapper.DocCategoryMapper categories;
 
   @Autowired
   com.knowflow.coding.workspace.JavaPracticeService workspace;
@@ -380,7 +380,7 @@ class JavaPracticeWorkspaceHttpTest {
 
   @Test
   void privateCategoryScopeAlsoProtectsLegacyEntryPoints() throws Exception {
-    var category = new com.knowflow.entity.DocCategory();
+    var category = new com.knowflow.knowledge.entity.DocCategory();
     category.setName("私人测试分类");
     category.setOwnerId(owner);
     category.setStatus(1);

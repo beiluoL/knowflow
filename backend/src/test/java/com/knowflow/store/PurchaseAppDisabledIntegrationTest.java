@@ -1,14 +1,14 @@
 package com.knowflow.store;
 
 import com.knowflow.store.entity.Product;
-import com.knowflow.entity.SysUser;
+import com.knowflow.identity.entity.SysUser;
 import com.knowflow.reward.entity.Wallet;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.store.mapper.EntitlementMapper;
 import com.knowflow.store.mapper.OrderMapper;
 import com.knowflow.store.mapper.ProductMapper;
 import com.knowflow.reward.mapper.RewardLedgerMapper;
-import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.apps.mapper.UserAppMapper;
 import com.knowflow.reward.mapper.WalletMapper;
 import org.junit.jupiter.api.BeforeEach;

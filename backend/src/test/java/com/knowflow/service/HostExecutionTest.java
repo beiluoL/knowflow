@@ -1,8 +1,12 @@
 package com.knowflow.service;
-import com.knowflow.dto.*;
+
+import com.knowflow.coding.dto.CodeRunRequest;
+import com.knowflow.coding.dto.CodeRunResult;
+import com.knowflow.coding.service.CodeWorkspaceService;
+
 import com.knowflow.exception.BusinessException;
 import com.knowflow.security.*;
-import com.knowflow.service.impl.CodeExecutionServiceImpl;
+import com.knowflow.coding.service.impl.CodeExecutionServiceImpl;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

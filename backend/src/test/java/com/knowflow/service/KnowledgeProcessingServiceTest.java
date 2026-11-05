@@ -1,22 +1,25 @@
 package com.knowflow.service;
 
+import com.knowflow.knowledge.service.KnowledgeProcessingService;
+
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.knowflow.dto.KnowledgeProcessAcceptRequestDTO;
-import com.knowflow.dto.KnowledgeProcessRequestDTO;
-import com.knowflow.entity.DocDocument;
-import com.knowflow.entity.KgEntity;
-import com.knowflow.entity.KgRelation;
-import com.knowflow.entity.LearningChapter;
-import com.knowflow.entity.ResourceKnowledgeMapping;
+import com.knowflow.knowledge.dto.KnowledgeProcessAcceptRequestDTO;
+import com.knowflow.knowledge.dto.KnowledgeProcessRequestDTO;
+import com.knowflow.knowledge.entity.DocDocument;
+import com.knowflow.knowledge.entity.KgEntity;
+import com.knowflow.knowledge.entity.KgRelation;
+import com.knowflow.learning.entity.LearningChapter;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.DocDocumentMapper;
-import com.knowflow.mapper.KgEntityMapper;
-import com.knowflow.mapper.KgRelationMapper;
-import com.knowflow.mapper.LearningChapterMapper;
-import com.knowflow.mapper.ResourceKnowledgeMappingMapper;
+import com.knowflow.knowledge.mapper.DocDocumentMapper;
+import com.knowflow.knowledge.mapper.KgEntityMapper;
+import com.knowflow.knowledge.mapper.KgRelationMapper;
+import com.knowflow.learning.mapper.LearningChapterMapper;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
 import com.knowflow.support.FakeAiConfiguration;
-import com.knowflow.vo.KnowledgeAcceptResultVO;
-import com.knowflow.vo.KnowledgeProcessResultVO;
+import com.knowflow.knowledge.vo.KnowledgeAcceptResultVO;
+import com.knowflow.knowledge.vo.KnowledgeProcessResultVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

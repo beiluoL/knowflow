@@ -1,7 +1,10 @@
 package com.knowflow.controller;
 
-import com.knowflow.entity.UserPet;
-import com.knowflow.mapper.UserPetMapper;
+import com.knowflow.reward.controller.UserPetController;
+
+
+import com.knowflow.reward.entity.UserPet;
+import com.knowflow.reward.mapper.UserPetMapper;
 import com.knowflow.support.FakeAiConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +41,7 @@ class UserPetTransactionTest {
             SecurityContextHolder.clearContext();
         }
     }
-    @Autowired com.knowflow.service.UserPetService service;
+    @Autowired com.knowflow.reward.service.UserPetService service;
 
     @Test
     void concurrentFirstFocusAwardsCreateOnePetWithoutLosingMinutes() throws Exception {

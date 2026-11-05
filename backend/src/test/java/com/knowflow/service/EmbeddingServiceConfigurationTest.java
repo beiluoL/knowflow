@@ -1,6 +1,6 @@
 package com.knowflow.service;
 
-import com.knowflow.service.impl.EmbeddingServiceImpl;
+import com.knowflow.ai.service.impl.EmbeddingServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.test.util.ReflectionTestUtils;

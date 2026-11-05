@@ -56,9 +56,9 @@ class LearningEvidenceReliabilityTest {
   assertEquals(first,evidence.capture(USER,"EXAM_ANSWER",97430));assertEquals("保留原答",first.get("answer"));
  }
 
- @Autowired com.knowflow.service.QuizService quiz;
+ @Autowired com.knowflow.learning.service.QuizService quiz;
  @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
- com.knowflow.dto.QuizSubmitDTO submission(long q,String key,String answer){var dto=new com.knowflow.dto.QuizSubmitDTO();dto.setRequestId(key);var item=new com.knowflow.dto.QuizSubmitDTO.Item();item.setQuestionId(q);item.setUserAnswer(answer);dto.setAnswers(List.of(item));return dto;}
+ com.knowflow.learning.dto.QuizSubmitDTO submission(long q,String key,String answer){var dto=new com.knowflow.learning.dto.QuizSubmitDTO();dto.setRequestId(key);var item=new com.knowflow.learning.dto.QuizSubmitDTO.Item();item.setQuestionId(q);item.setUserAnswer(answer);dto.setAnswers(List.of(item));return dto;}
  @Test void newSubmissionsPreserveTextTrackedFirstAndIdempotentOriginal()throws Exception{
   question(97450);var input=submission(97450,"t02-replay-01","  false\n");quiz.submit(input,USER);quiz.submit(input,USER);
   long first=jdbc.queryForObject("SELECT id FROM quiz_answer_record WHERE question_id=97450",Long.class);
@@ -149,7 +149,7 @@ class LearningEvidenceReliabilityTest {
   assertEquals(3,jdbc.queryForObject("SELECT COUNT(*) FROM quiz_answer_record WHERE question_id=97590",Integer.class));
  }
 
- @Autowired com.knowflow.service.LearningEventService events;
+ @Autowired com.knowflow.learning.service.LearningEventService events;
  @Test void requiredEventCannotPointToADifferentOriginalQuestion()throws Exception{
   question(97610);question(97611);answer(97610,97610,0,"2026-01-01 00:00:00",snap("event-link",null),0);
   long before=jdbc.queryForObject("SELECT COUNT(*) FROM learning_event WHERE user_id=97201",Long.class);

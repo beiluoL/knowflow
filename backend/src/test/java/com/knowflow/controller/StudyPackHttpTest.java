@@ -1,7 +1,8 @@
 package com.knowflow.controller;
+import com.knowflow.support.ActiveIdentityFixtures;
 
 import com.fasterxml.jackson.databind.*;
-import com.knowflow.service.impl.AiServiceImpl;
+import com.knowflow.ai.service.impl.AiServiceImpl;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,13 @@ class StudyPackHttpTest {
  @Autowired MockMvc mvc;@Autowired ObjectMapper json;@Autowired JwtUtils jwt;@Autowired JdbcTemplate sql;
  @MockBean AiServiceImpl ai;
  final long owner=98501;
- String auth(long user){return "Bearer "+jwt.generateToken(user,"pack-"+user,user==98503?"ADMIN":"USER");}
+ @BeforeEach void activeActors() {
+  for (long user : new long[]{98501, 98502, 98503}) {
+   ActiveIdentityFixtures.ensureActive(sql, user, "pack-" + user, user == 98503 ? "ADMIN" : "USER");
+  }
+ }
+ String auth(long user){
+  return "Bearer "+jwt.generateToken(user,"pack-"+user,user==98503?"ADMIN":"USER");}
  @BeforeEach void provider(){when(ai.isConfigured(anyLong())).thenReturn(true);when(ai.complete(anyString(),anyString(),isNull(String.class),anyLong())).thenAnswer(inv->{String system=inv.getArgument(0);if(system.contains("SOURCE_NOTE_V1"))return "{\"title\":\"课程学习笔记\",\"content\":\"# Java与Spring\\n\\n## JVM与GC\\nJVM提供GC。\\n\\n## IoC\\nSpring管理Bean。\",\"chapters\":[{\"title\":\"JVM与GC\",\"knowledgePoints\":[\"垃圾回收\"]},{\"title\":\"IoC\",\"knowledgePoints\":[\"依赖注入\"]}]}";if(system.contains("SOURCE_CARDS_V1"))return "{\"flashcards\":[{\"front\":\"GC是什么\",\"back\":\"垃圾回收\"},{\"front\":\"JVM是什么\",\"back\":\"Java虚拟机\"},{\"front\":\"IoC是什么\",\"back\":\"控制反转\"},{\"front\":\"Bean由谁管理\",\"back\":\"Spring容器\"},{\"front\":\"事务保证什么\",\"back\":\"原子性\"}]}";return "[{\"type\":\"TRUE_FALSE\",\"content\":\"JVM提供GC\",\"options\":[],\"answer\":\"true\",\"explanation\":\"原文说明\"},{\"type\":\"TRUE_FALSE\",\"content\":\"IoC管理Bean\",\"options\":[],\"answer\":\"true\",\"explanation\":\"原文说明\"},{\"type\":\"TRUE_FALSE\",\"content\":\"事务没有原子性\",\"options\":[],\"answer\":\"false\",\"explanation\":\"原文说明\"}]";});}
  JsonNode call(String method,String path,Object body,long user,int expected)throws Exception{var req=method.equals("POST")?post(path):get(path);return json.readTree(mvc.perform(req.header("Authorization",auth(user)).contentType("application/json").content(body==null?"":json.writeValueAsString(body))).andExpect(status().is(expected)).andExpect(jsonPath("$.code").value(expected)).andReturn().getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("data");}
  JsonNode upload(String filename,String text)throws Exception{return json.readTree(mvc.perform(multipart("/api/learning/study-packs").file(new MockMultipartFile("file",filename,"text/plain",text.getBytes(java.nio.charset.StandardCharsets.UTF_8))).header("Authorization",auth(owner))).andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200)).andReturn().getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("data");}
