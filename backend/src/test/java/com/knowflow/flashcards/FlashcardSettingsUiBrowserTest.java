@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Opt-in browser fixture; all settings/review writes stay in a fresh test-only H2 database. */
+/** 显式启用的浏览器夹具，设置和复习写入均限于全新测试 H2 数据库。 */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "server.address=127.0.0.1",
         "knowflow.datasource.h2.url=jdbc:h2:mem:flashcard_settings_ui;MODE=MySQL;DB_CLOSE_DELAY=-1"})
@@ -71,7 +71,7 @@ class FlashcardSettingsUiBrowserTest {
                     } finally {
                         if (uri.startsWith("/api/")) {
                             int code = -1;
-                            try { code = json.readTree(wrapped.getContentAsByteArray()).path("code").asInt(-1); } catch (Exception ignored) { /* Non-JSON remains unknown in the evidence. */ }
+                            try { code = json.readTree(wrapped.getContentAsByteArray()).path("code").asInt(-1); } catch (Exception ignored) { /* 非 JSON 响应在证据中仍标为未知。 */ }
                             synchronized (HTTP) { HTTP.add(Map.of("path", uri, "method", request.getMethod(), "http", wrapped.getStatus(), "bodyCode", code)); Files.createDirectories(OUT); Files.writeString(OUT.resolve("server-http.json"), json.writeValueAsString(HTTP)); }
                         }
                         wrapped.copyBodyToResponse();

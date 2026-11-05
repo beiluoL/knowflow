@@ -28,7 +28,7 @@ public class UserVocabState extends BaseEntity {
     /** 是否收藏 */
     private Boolean favorite;
 
-    /** NEW / LEARNING / MASTERED */
+    /** 学习状态：NEW（新建）/ LEARNING（学习中）/ MASTERED（已掌握）。 */
     private String learningStatus;
 
     /** P1 预留：关联既有闪卡 ID */

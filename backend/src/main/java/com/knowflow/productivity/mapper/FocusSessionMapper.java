@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.knowflow.productivity.entity.FocusSession;
 import org.apache.ibatis.annotations.Mapper;
 
+/**
+ * 提供专注会话记录的数据访问映射。
+ */
 @Mapper
 public interface FocusSessionMapper extends BaseMapper<FocusSession> {
     /** 串行化同一会话的结束请求，防止重试重复发奖。 */

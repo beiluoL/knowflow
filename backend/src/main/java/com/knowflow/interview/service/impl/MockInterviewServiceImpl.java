@@ -251,7 +251,7 @@ public class MockInterviewServiceImpl implements MockInterviewService {
         if (sessionId == null) {
             throw new BusinessException(404, "面试记录不存在");
         }
-        // Save and finish share one current row read: JSON answers cannot be merged from stale snapshots.
+        // 保存和结束共享一次当前行读取，不能从过期快照合并 JSON 答案。
         var query = new LambdaQueryWrapper<MockInterviewSession>()
                 .eq(MockInterviewSession::getId, sessionId).eq(MockInterviewSession::getUserId, userId);
         if (lock) query.last("FOR UPDATE");

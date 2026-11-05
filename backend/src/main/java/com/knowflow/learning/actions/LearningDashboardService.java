@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-/** Read projection for a user-requested daily plan, never a second NextAction or mastery engine. */
+/** 为用户主动请求的每日计划提供读取投影，不另建 NextAction 或掌握度引擎。 */
 @Service
 @RequiredArgsConstructor
 public class LearningDashboardService {

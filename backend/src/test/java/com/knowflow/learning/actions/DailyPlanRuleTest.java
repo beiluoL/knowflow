@@ -2,6 +2,9 @@ package com.knowflow.learning.actions;
 import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证每日计划规则的预算、优先级和空历史处理。
+ */
 class DailyPlanRuleTest {
  @Test void emptyHistoryProducesHonestBudgetedFoundationAndRequestedPractice(){
   var req=new PlanModels.Request();req.setAvailableMinutes(180);req.setFocusTopics(List.of("Java并发","RAG"));

@@ -27,6 +27,9 @@ import java.time.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证自适应闭环 HTTP 幂等性、真实复习及任务完成行为。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.config-file=/tmp/knowflow-phase4h-test-no-config.json","knowflow.datasource.h2.url=jdbc:h2:mem:adaptive_4h;DB_CLOSE_DELAY=-1;MODE=MySQL"})
 class AdaptiveLoopHttpTest {

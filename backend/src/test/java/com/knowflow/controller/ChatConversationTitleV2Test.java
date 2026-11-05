@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证聊天标题重命名的归属、幂等和非法输入处理。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.config-file=/tmp/knowflow-chat-title-v2-test-no-config.json","knowflow.datasource.type=h2","knowflow.datasource.h2.url=jdbc:h2:mem:chat_title_v2;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.ai.capability.enabled=true"})
 class ChatConversationTitleV2Test {

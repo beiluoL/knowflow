@@ -19,6 +19,9 @@ import java.util.Base64;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证本地开发工具的身份、角色、密码和回环访问控制。
+ */
 @SpringBootTest(properties = {
         "knowflow.datasource.h2.url=jdbc:h2:mem:local_tools_access;DB_CLOSE_DELAY=-1;MODE=MySQL",
         "knowflow.developer-tools.enabled=true",
@@ -60,7 +63,7 @@ class LocalDeveloperToolsAccessTest {
                 mvc.perform(get(path).header("Authorization", basic(user, "ToolsTest!2026")))
                         .andExpect(status().isOk());
             }
-            // MockMvc does not dispatch to the H2 servlet, so 404 proves only that the security gate passed.
+            // MockMvc 不派发到 H2 Servlet，因此 404 仅证明通过了安全门禁。
             mvc.perform(get("/h2-console/").header("Authorization", basic(user, "ToolsTest!2026")))
                     .andExpect(status().isNotFound());
         }
@@ -119,7 +122,7 @@ class LocalDeveloperToolsAccessTest {
 
     @Test void activeOrdinarySubjectCannotForgeAdminRole() throws Exception {
         String token = jwt.generateToken(98003L, "tools-other", "ADMIN");
-        // The same active subject is authenticated; its database USER role controls authorization.
+        // 认证的是同一有效主体，授权由其数据库中的 USER 角色控制。
         mvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200));
         for (String path : new String[]{"/api-docs", "/api/admin/users"}) {

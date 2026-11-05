@@ -4,6 +4,9 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证 AI 环境变量密钥别名的优先级和供应方隔离。
+ */
 class AiEnvironmentKeyTest {
  private final ApplicationContextRunner context=new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(ConfigurationPropertiesAutoConfiguration.class)).withUserConfiguration(AiConfig.class);
  @Test void deepSeekAliasOverridesLocalFileKey(){context.withPropertyValues("ai.api-key=old-local-test-key","ai.base-url=https://api.deepseek.com/v1","DEEP_SEEK_API_KEY=env-test-key").run(c->assertEquals("env-test-key",c.getBean(AiConfig.class).getApiKey()));}

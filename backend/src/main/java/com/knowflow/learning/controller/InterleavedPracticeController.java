@@ -1,5 +1,8 @@
 package com.knowflow.learning.controller;
 import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.adaptive.InterleavedPracticeService;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
+/**
+ * 提供交错练习题池、会话、历史及提交接口。
+ */
 @RestController @RequestMapping("/api/learning/interleaved-practice") @RequiredArgsConstructor @ConditionalOnProperty(name={"knowflow.product.adaptive-learning.enabled","knowflow.product.private-quiz.enabled"},havingValue="true")
 public class InterleavedPracticeController {
  private final InterleavedPracticeService service;private long user(){return SecurityUtils.getCurrentUserId();}

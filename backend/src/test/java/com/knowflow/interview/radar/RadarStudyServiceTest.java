@@ -16,6 +16,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.nio.charset.StandardCharsets;import java.security.MessageDigest;import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证雷达学习闭卷训练、首次分数及真实计划行为。
+ */
 @SpringBootTest @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:radar_study;DB_CLOSE_DELAY=-1;MODE=MySQL")
 class RadarStudyServiceTest {

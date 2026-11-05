@@ -1,5 +1,8 @@
 package com.knowflow.interview.speech;
 import java.util.*;
+/**
+ * 定义面试音频转写供应方契约。
+ */
 public interface InterviewAsrProvider {
  String transcribe(byte[] audio);
  boolean capability();

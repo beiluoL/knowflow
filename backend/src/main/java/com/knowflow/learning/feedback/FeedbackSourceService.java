@@ -102,8 +102,8 @@ public class FeedbackSourceService {
         return false;
     }
 
-    // Package-private admission for the retest orchestrator, which suppresses all reference-bearing
-    // fields itself.
+    // 包内重测编排器使用的受限入口，由编排器自行屏蔽全部
+    // 携带参考内容的字段。
     Source readForRetest(long user, String type, long id, int index) {
         if (id < 1 || index < 0 || index > 2 || type == null)
             throw new BusinessException(400, "作答来源参数无效");

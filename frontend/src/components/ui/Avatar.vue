@@ -84,6 +84,6 @@ const initials = computed(() => {
 })
 
 const handleError = () => {
-  // Image failed to load, will fall back to icon/initials
+  // 图片加载失败，回退到图标或姓名首字母。
 }
 </script>

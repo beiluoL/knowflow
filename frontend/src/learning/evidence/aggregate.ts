@@ -1,5 +1,5 @@
 /**
- * Architecture-4.1：Evidence Aggregation（§18）
+ * 架构 4.1：证据聚合（§18）。
  *
  * 输入：一段时间窗内的真实 Evidence（来自 resolveEvidenceBatch）。
  * 输出：六维得分（Recall / Understanding / Explanation / Application / Expression / Consistency）。

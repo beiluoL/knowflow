@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.Component;
 import java.util.*;
-/** Additive, idempotent migration for both configured database dialects. */
+/** 为两种已配置数据库方言执行可重复的增量迁移。 */
 @Component @RequiredArgsConstructor
 public class ChatManagementSchema {
  private final JdbcTemplate jdbc;

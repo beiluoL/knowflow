@@ -28,6 +28,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证文档用户计数更新的事务与归属校验。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(FakeAiConfiguration.class)

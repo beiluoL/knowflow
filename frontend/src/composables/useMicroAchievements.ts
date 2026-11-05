@@ -61,7 +61,7 @@ function initFromStorage() {
       });
     }
   } catch {
-    // ignore
+    // 忽略此处可容忍的异常。
   }
   refreshUnlockedList();
 }
@@ -83,7 +83,7 @@ function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
-    // ignore
+    // 忽略此处可容忍的异常。
   }
 }
 

@@ -23,7 +23,7 @@ import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Binding/policy only: conversation, message, Provider and SSE stay in ChatService. */
+/** 仅处理绑定和策略；会话、消息、供应方及 SSE 仍由 ChatService 管理。 */
 @Service
 @RequiredArgsConstructor
 public class TutorContextService {

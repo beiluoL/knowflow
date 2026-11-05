@@ -7,7 +7,7 @@ import lombok.Data;
  */
 @Data
 public class AmbiguityVO {
-    /** missing-file / framework-mismatch / lang-mismatch / underspecified / semantical */
+    /** 问题分类：missing-file（缺文件）/ framework-mismatch（框架不匹配）/ lang-mismatch（语言不匹配）/ underspecified（描述不足）/ semantical（语义问题）。 */
     private String kind;
     /** 歧义点原文或引用 */
     private String point;

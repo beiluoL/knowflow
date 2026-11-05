@@ -20,6 +20,9 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 
+/**
+ * 验证向量模型配置、供应方隔离和故障熔断恢复。
+ */
 class EmbeddingServiceConfigurationTest {
 
     private EmbeddingServiceImpl service(String embeddingUrl, String embeddingKey) {

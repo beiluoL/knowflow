@@ -13,6 +13,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;import java.security.MessageDigest;import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证雷达题库隐藏答案、隔离私有来源并拒绝无答案训练。
+ */
 @SpringBootTest @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:radar_bank;DB_CLOSE_DELAY=-1;MODE=MySQL")
 class RadarInterviewBankTest {

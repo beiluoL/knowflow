@@ -153,7 +153,7 @@
             <span class="form-hint">支持 PNG / JPG / SVG / ICO / GIF / WebP 格式</span>
           </div>
 
-          <!-- iconfont code -->
+          <!-- 图标字体编码。 -->
           <div v-else-if="form.type === 'iconfont'" class="form-group">
             <label class="form-label">iconfont Unicode code <span class="required">*</span></label>
             <input

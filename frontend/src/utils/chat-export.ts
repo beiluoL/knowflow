@@ -11,11 +11,11 @@ export type ChatExportFormat = 'md' | 'txt'
 function visibleContent(content: string): string {
   const action = parseLearningActionMessage(content)
   if (action) return [action.text, ...((action.tasks ?? []).map(task => `- ${task.title}`))].filter(Boolean).join('\n')
-  // Never dump internal envelopes when validation rejects a stale or malformed action.
+  // 校验拒绝过期或非法动作时，不输出内部数据封装。
   try {
     const value = JSON.parse(content)
     if (value?.kind === 'KNOWFLOW_LEARNING_ACTION') return typeof value.text === 'string' ? value.text : '学习操作消息'
-  } catch { /* Ordinary chat text is not JSON. */ }
+  } catch { /* 普通聊天文本不一定是 JSON。 */ }
   return content
 }
 
@@ -66,7 +66,7 @@ function downloadBlob(blob: Blob, filename: string): void {
     anchor.click()
   } finally {
     anchor.remove()
-    // Let the browser consume the URL before releasing its backing memory.
+    // 先让浏览器消费 URL，再释放其后备内存。
     setTimeout(() => URL.revokeObjectURL(url), 0)
   }
 }
@@ -75,7 +75,7 @@ export function downloadChatText(snapshot: ChatExportSnapshot, format: ChatExpor
   downloadBlob(new Blob([serializeChatExport(snapshot, format)], { type: `${format === 'md' ? 'text/markdown' : 'text/plain'};charset=utf-8` }), sanitizeChatFilename(snapshot.title, format))
 }
 
-/** Fixed-size pages contain the entire snapshot, independent of the chat viewport. */
+/** 固定尺寸页面包含完整快照，不依赖聊天视口。 */
 export async function exportChatPng(snapshot: ChatExportSnapshot): Promise<void> {
   const text = serializeChatExport(snapshot, 'txt')
   if (text.length > 100000) throw new Error('对话超过 PNG 导出上限（100000 字符），请使用 Markdown 或 TXT')
@@ -100,7 +100,7 @@ export async function exportChatPng(snapshot: ChatExportSnapshot): Promise<void>
   const linesPerPage = 44
   const pageCount = Math.ceil(lines.length / linesPerPage)
   if (pageCount > 20) throw new Error('对话超过 PNG 导出上限（20 页），请使用 Markdown 或 TXT')
-  // Render all pages before initiating downloads so rendering failures cannot leave partial exports.
+  // 发起下载前先渲染全部页面，避免渲染失败留下不完整导出。
   const pages: Blob[] = []
   for (let page = 0; page < pageCount; page++) {
     canvas.height = 1400

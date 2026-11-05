@@ -24,7 +24,7 @@ const md = new MarkdownIt({
     if (lang && hljs.getLanguage(lang)) {
       try {
         return hljs.highlight(str, { language: lang }).value;
-      } catch { /* fallthrough */ }
+      } catch { /* 继续使用后续回退处理。 */ }
     }
     try {
       return hljs.highlightAuto(str).value;
@@ -133,8 +133,8 @@ md.renderer.rules.fence = (tokens, idx) => {
   if (info === 'quiz-run') {
     return `<div class="interactive-quiz" data-quiz="${md.utils.escapeHtml(code)}"></div>`;
   }
-  // Imported/stored source must never execute with the reader's origin/session.
-  // Preserve legacy *-run material as ordinary highlighted, copyable code.
+  // 导入或存储的来源不得使用读者的源或会话执行。
+  // 将历史 *-run 资料保留为普通高亮、可复制代码。
   const displayOnly = info.endsWith('-run');
   const language = displayOnly ? info.replace(/-run$/, '') : info;
   // 常规代码块：语法高亮 + 行号 + 语言标签 + 复制按钮

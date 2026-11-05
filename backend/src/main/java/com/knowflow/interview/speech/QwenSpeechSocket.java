@@ -17,7 +17,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-/** Bounded, no-retry WebSocket transport. No payloads or upstream errors enter logs. */
+/** 有界且不重试的 WebSocket 传输，载荷和上游错误均不写入日志。 */
 final class QwenSpeechSocket implements WebSocket.Listener {
     private static final int MAX_MESSAGE_CHARS = 262144;
     // 复用TLS/HTTP选择器资源；并发连接另由语音票据和有界会话队列限制。

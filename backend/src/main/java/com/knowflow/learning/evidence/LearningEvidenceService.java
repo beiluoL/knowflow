@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Immutable receipts, not another question bank, score calculator or mastery engine. */
+/** 不可变回执，不另建题库、分数计算器或掌握度引擎。 */
 @Service
 @RequiredArgsConstructor
 public class LearningEvidenceService {
@@ -37,8 +37,8 @@ public class LearningEvidenceService {
     }
 
     private Map<String, Object> captureInternal(long actor, String type, long id, boolean project) {
-        // Lock the original row: concurrent requests serialize across app instances, without
-        // assuming a test-only user row or releasing a UNIQUE identity through logical delete.
+        // 锁定原始行，使多个应用实例的并发请求串行执行，
+        // 不依赖仅测试存在的用户行，也不通过逻辑删除释放 UNIQUE 标识。
         var source =
                 project ? sources.read(actor, type, id, true) : sources.readRequired(actor, type, id);
         var rows = receipts(actor, type, id);

@@ -1,6 +1,6 @@
 export type SelectAtom = string | number | null;
 export type SelectValue = SelectAtom | SelectAtom[];
-/** Keys remain configurable for compatibility with existing API view models. */
+/** 字段键保持可配置，以兼容现有 API 视图模型。 */
 export interface SelectOption {
   [key: string]: any;
 }

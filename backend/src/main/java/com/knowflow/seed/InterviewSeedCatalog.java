@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.*;
 
-/** Authored learning content, not an event fixture. Fail closed on broken references. */
+/** 管理编写好的学习内容，不作为事件夹具；引用损坏时拒绝继续处理。 */
 @Component
 public class InterviewSeedCatalog {
     public static final String KEY="java-ai-interview-v1";

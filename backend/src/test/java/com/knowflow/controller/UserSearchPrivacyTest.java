@@ -10,6 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import java.util.List;
 
+/**
+ * 验证用户搜索结果不泄露邮箱。
+ */
 class UserSearchPrivacyTest {
     @Test
     void searchNeverProjectsEmail() {

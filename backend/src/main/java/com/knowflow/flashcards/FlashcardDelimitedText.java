@@ -3,7 +3,7 @@ package com.knowflow.flashcards;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-/** Bounded RFC4180-style CSV and quoted TSV. Lines are physical, starting at one. */
+/** 有界解析 RFC4180 风格的 CSV 和带引号 TSV，物理行号从 1 开始。 */
 public final class FlashcardDelimitedText {
     public static final int MAX_BYTES = 1_048_576, MAX_ROWS = 1000, MAX_COLUMNS = 32, MAX_FIELD = 50_000;
     public record Row(int line, List<String> cells) {}
@@ -18,7 +18,7 @@ public final class FlashcardDelimitedText {
         List<Row> rows = new ArrayList<>();
         List<String> cells = new ArrayList<>();
         StringBuilder field = new StringBuilder();
-        int state = 0, line = 1, startLine = 1; // 0 start, 1 unquoted, 2 quoted, 3 after closing quote
+        int state = 0, line = 1, startLine = 1; // 0：字段起始，1：无引号字段，2：引号内，3：闭合引号之后。
         for (int i = 0; i < source.length(); i++) {
             char c = source.charAt(i);
             if (state == 2) {
@@ -48,7 +48,7 @@ public final class FlashcardDelimitedText {
         if (rows.size() >= MAX_ROWS + 1) throw new IllegalArgumentException("最多导入1000行内容");
         rows.add(new Row(line, List.copyOf(cells)));
     }
-    /** Exact content export, always quoted; spreadsheet formula execution must be disabled by consumers. */
+    /** 原样导出内容且始终加引号；消费方必须禁用电子表格公式执行。 */
     public static String encode(List<List<String>> rows, char separator) {
         StringBuilder out = new StringBuilder();
         for (var row : rows) {

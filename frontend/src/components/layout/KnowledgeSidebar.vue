@@ -156,7 +156,7 @@ const loadCategories = async () => {
 
 onMounted(loadCategories)
 
-// Expose categories for parent to access
+// 暴露分类供父组件访问。
 defineExpose({ categories })
 </script>
 

@@ -3,6 +3,9 @@ package com.knowflow.service;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+/**
+ * 验证文档操作的用户归属边界。
+ */
 class DocumentUserBoundaryTest {
     @Test
     void documentServiceCannotInjectUserPersistence() {

@@ -23,6 +23,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证学习内容包增量升级、用户隔离及原始历史保护。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local")
 @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:interview_seed;DB_CLOSE_DELAY=-1;MODE=MySQL")
@@ -55,7 +58,7 @@ class InterviewSeedIntegrationTest {
         mvc.perform(post("/api/learning/seed/java-ai-v1/generics-depth").header("Authorization",auth(owner))).andExpect(status().isOk());
         long oldDoc=jdbc.queryForObject("SELECT resource_id FROM interview_seed_resource WHERE seed_key='java-generics-depth-v1' AND resource_key='shared/document'",Long.class);
         jdbc.update("UPDATE doc_document SET content='用户保留的旧版本' WHERE id=?",oldDoc);
-        sqlSession.clearCache(); // Direct fixture SQL bypasses MyBatis' normal write invalidation.
+        sqlSession.clearCache(); // 夹具直接执行 SQL 会绕过 MyBatis 常规写入失效处理。
         var before=history();long indices=jdbc.queryForObject("SELECT COUNT(*) FROM interview_seed_resource",Long.class);
         mvc.perform(post("/api/learning/seed/java-ai-v1/generics-depth").header("Authorization",auth(owner))).andExpect(status().isOk());
         assertEquals(indices,jdbc.queryForObject("SELECT COUNT(*) FROM interview_seed_resource",Long.class));assertEquals(before,history());
@@ -63,7 +66,7 @@ class InterviewSeedIntegrationTest {
         long chapter=jdbc.queryForObject("SELECT resource_id FROM interview_seed_resource WHERE seed_key=? AND resource_key='shared/java-core/chapter/java-core.generics/chapter'",Long.class,InterviewSeedCatalog.KEY);
         mvc.perform(get("/api/learning/seed/java-ai-v1/chapters/"+chapter).header("Authorization",auth(owner))).andExpect(jsonPath("$.data.revision.readingVersion").value("java-generics-reading-v5")).andExpect(jsonPath("$.data.revision.previousReadingDocId").value(oldDoc)).andExpect(jsonPath("$.data.revision.content").value(org.hamcrest.Matchers.containsString("## 03. PECS 原则")));
         mvc.perform(get("/api/learning/seed/java-ai-v1/chapters/"+chapter).header("Authorization",auth(other))).andExpect(jsonPath("$.data.revision").doesNotExist());
-        // Simulate a previously activated v1 reader: no v5 selection, edited old source remains active.
+        // 模拟已激活 v1 的读者：未选择 v5，编辑后的旧来源仍保持激活。
         jdbc.update("DELETE FROM interview_seed_resource WHERE seed_key=? AND resource_key=?",GenericsDepthService.KEY,"user/"+owner.getId()+"/reading/"+GenericsDepthService.READING_VERSION);
         mvc.perform(get("/api/learning/seed/java-ai-v1/chapters/"+chapter).header("Authorization",auth(owner))).andExpect(jsonPath("$.data.readingUpgradeAvailable").value(true)).andExpect(jsonPath("$.data.revision.content").value("用户保留的旧版本"));
         mvc.perform(post("/api/learning/seed/java-ai-v1/generics-depth").header("Authorization",auth(owner))).andExpect(status().isOk());

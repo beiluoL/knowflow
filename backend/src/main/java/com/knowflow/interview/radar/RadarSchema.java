@@ -3,7 +3,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-/** Only stage metadata for existing V2 sessions; no new session state or review scheduler. */
+/** 仅维护已有 V2 会话的阶段元数据，不另建会话状态或复习调度器。 */
 @Component @RequiredArgsConstructor
 public class RadarSchema {
  private final JdbcTemplate jdbc;

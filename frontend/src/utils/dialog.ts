@@ -13,7 +13,7 @@ export interface DialogOptions {
   disabled?: boolean
   confirmButtonProps?: DialogButtonProps
   cancelButtonProps?: DialogButtonProps
-  /** Await the real operation before closing. Throw to retain the dialog with an error. */
+  /** 等待真实操作后再关闭；抛出异常则保留对话框并展示错误。 */
   onConfirm?: (value: string | boolean) => void | boolean | Promise<void | boolean>
 
   /** 标题，缺省按类型给默认值 */
@@ -38,7 +38,7 @@ export interface DialogOptions {
 
 export interface DialogState extends DialogOptions {
   id: number
-  /** Only confirmations requested by an awaiting action may overlay their parent. */
+  /** 只有正在等待的动作所请求的确认框可覆盖父框。 */
   parentId?: number
   type: 'confirm' | 'prompt' | 'alert'
   loading?: boolean
@@ -85,7 +85,7 @@ export const dialog = {
       ...opts,
     }) as Promise<void>
   },
-  /** One in-flight operation per queue item; failures remain visible for retry. */
+  /** 每个队列项只允许一个进行中的操作，失败保持可见以便重试。 */
   async submit(id: number, value: string | boolean) {
     const state = dialogQueue.find(item => item.id === id)
     if (!state || state.loading || state.disabled || state.confirmButtonProps?.disabled) return

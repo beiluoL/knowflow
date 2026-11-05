@@ -85,14 +85,14 @@ public class InterviewV2Service {
   if(req!=null&&req.track()!=null&&req.track().startsWith("RADAR_"))throw new BusinessException(409,"雷达训练请通过来源确认入口创建");
   return startInternal(user,req,false);
  }
- /** Internal entry after RadarStudyService has checked source ownership and the training stage. */
+ /** RadarStudyService 校验来源归属和训练阶段后使用的内部入口。 */
  public Map<String,Object> startRadar(Long user,Start req){return startInternal(user,req,true);}
- /** Internal curated entry: callers authorize every source; the original engine owns all state and grading. */
+ /** 内部精选入口：调用方逐项授权来源，状态和评分仍由原引擎管理。 */
  public Map<String,Object> startCuratedRadar(Long user,Start request,List<SeedQuestion> questions){
   if(questions==null||questions.size()!=3||questions.stream().anyMatch(q->!q.id().matches("RADAR-[0-9]+")))throw new BusinessException(400,"模拟面试需要三道已授权原题");
   return startInternal(user,request,true,request.projectDocumentIds()!=null&&!request.projectDocumentIds().isEmpty()?null:List.copyOf(questions));
  }
- /** Starts a new original-engine session with the exact completed root snapshot. No score/answer is copied. */
+ /** 使用已完成的根快照创建原引擎新会话，不复制分数或答案。 */
  public Map<String,Object> startFrozenRetest(Long user,long baselineTurn,String requestId){
   var turns=jdbc.queryForList("SELECT session_id,depth,prompt,question_id FROM mock_interview_v2_turn WHERE id=? AND user_id=?",baselineTurn,user);
   if(turns.isEmpty())throw new BusinessException(404,"原作答不存在");var t=turns.get(0);long sid=number(t,"session_id");var state=own(user,sid,false);
@@ -147,7 +147,7 @@ public class InterviewV2Service {
  public Map<String,Object> answer(Long user,Long sid,Answer req){
   return answerInternal(user,sid,req,null,()->false);
  }
- /** Readiness uses the authenticated user's existing model configuration; no remote probe. */
+ /** 使用认证用户已有模型配置检查就绪状态，不进行远程探测。 */
  public boolean streamingAvailable(Long user){return engine.streamingAvailable(user);}
  public Map<String,Object> answerStreaming(Long user,Long sid,Answer req,java.util.function.Consumer<String> onDelta,java.util.function.BooleanSupplier cancelled){
   Objects.requireNonNull(onDelta);Objects.requireNonNull(cancelled);
@@ -272,7 +272,7 @@ public class InterviewV2Service {
   if(user==null)throw new BusinessException(401,"未登录");
   var rows=jdbc.queryForList("SELECT v.* FROM mock_interview_v2_state v JOIN mock_interview_session s ON s.id=v.session_id WHERE v.session_id=? AND v.user_id=? AND s.user_id=? AND s.deleted=0"+(lock?" FOR UPDATE":""),sid,user,user);
   if(rows.isEmpty())throw new BusinessException(404,"面试记录不存在");var state=rows.get(0);
-  // Batch03 sessions must retain current source access on every original-engine entry point.
+  // Batch03 会话进入原引擎的每个入口时，均须继续拥有来源访问权限。
   var curated=jdbc.queryForList("SELECT session_id FROM interview_radar_session_binding WHERE session_id=? AND user_id=? AND (source_review_status LIKE 'PRODUCT03_%' OR source_review_status='ORIGINAL_REFERENCE_RETAINED')",Long.class,sid,user);
   if(!curated.isEmpty()){
    for(var question:questions(sid))if(question.id().matches("RADAR-[0-9]+"))curatedBank.material(user,Long.parseLong(question.id().substring(6)));

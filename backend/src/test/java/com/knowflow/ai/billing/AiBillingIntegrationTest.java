@@ -15,6 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+/**
+ * 验证 AI 额度预留、并发限制、结算及取消用量处理。
+ */
 @SpringBootTest
 @ActiveProfiles("local")
 class AiBillingIntegrationTest {

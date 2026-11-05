@@ -213,7 +213,7 @@ function safeSet(key: string, value: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // ignore
+    // 忽略此处可容忍的异常。
   }
 }
 

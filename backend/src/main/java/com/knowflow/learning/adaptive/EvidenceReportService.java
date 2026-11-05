@@ -16,9 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-/**
-  * Read projection of original records. Does not capture/regrade evidence or calculate NextAction.
-  */
+/** 投影原始记录，不采集或重新评分证据，也不计算 NextAction。 */
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(
@@ -139,8 +137,8 @@ public class EvidenceReportService {
         var items = new ArrayList<Item>();
         var unavailable = new ArrayList<String>();
         var bounds = new LinkedHashMap<String, Boolean>();
-        // T02 frozen receipts remain untouched. Current comparison checks are delegated to the original
-        // service below.
+        // T02 冻结回执保持不变，当前比较校验委托给下方原有
+        // 服务。
         var receiptRows =
                 sql.queryForList(
                         "SELECT source_type,source_id,occurred_at FROM learning_evidence_receipt WHERE"
@@ -184,8 +182,8 @@ public class EvidenceReportService {
                         () -> q.load().apply(r),
                         u);
         }
-        // Resolve only explicit identities. A session's manual topic association never rewrites T02 or
-        // Mastery.
+        // 仅解析显式标识，会话手工关联的主题不重写 T02 或
+        // Mastery 掌握度。
         var resolved = resolveItems(u, filter, items, unavailable);
         resolved.sort(Comparator.comparing(Item::at).reversed());
         var counts = new LinkedHashMap<String, Long>();

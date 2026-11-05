@@ -130,8 +130,8 @@ public class CodeWorkspaceServiceImpl implements CodeWorkspaceService {
         return resolved;
     }
 
-    // Server-owned workspace storage stays available without host opt-in,
-    // but must never follow caller-created links into host files.
+    // 服务端工作区存储无需启用宿主机特权即可使用，
+    // 但不得沿调用方创建的链接访问宿主机文件。
     private void rejectLinks(Path root,Path target) {
         if (!target.startsWith(root)) throw new BusinessException(403,"非法的工作区路径");
         Path current=root;

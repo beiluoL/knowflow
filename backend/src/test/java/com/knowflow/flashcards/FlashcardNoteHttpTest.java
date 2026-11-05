@@ -18,6 +18,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * 验证闪卡笔记的 HTTP 归属隔离与稳定标识。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")

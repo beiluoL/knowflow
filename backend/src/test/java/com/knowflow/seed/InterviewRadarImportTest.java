@@ -16,6 +16,9 @@ import java.nio.file.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证面试雷达来源私有导入的幂等性和 HTTP 认证边界。
+ */
 @SpringBootTest
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 @Import(FakeAiConfiguration.class)

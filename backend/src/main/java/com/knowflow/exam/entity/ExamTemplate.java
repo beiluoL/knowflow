@@ -41,7 +41,7 @@ public class ExamTemplate extends BaseEntity {
     /** 及格分 */
     private Integer passScore;
 
-    /** PRACTICE / EXAM */
+    /** 模式：PRACTICE（练习）/ EXAM（考试）。 */
     private String mode;
 
     /** 1 启用 / 0 停用 */

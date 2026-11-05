@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import static com.knowflow.learning.privatequiz.PrivateQuizRequests.*;
 
+/**
+ * 提供私有题目预览、确认、作答及历史接口。
+ */
 @RestController @RequestMapping("/api/learning/private-quizzes") @RequiredArgsConstructor
 @ConditionalOnProperty(name="knowflow.product.private-quiz.enabled",havingValue="true")
 public class PrivateQuizController {

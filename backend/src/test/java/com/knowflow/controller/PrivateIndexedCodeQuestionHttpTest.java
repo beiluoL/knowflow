@@ -21,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证私有导入台账约束下编程题的 HTTP 访问。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.type=h2","knowflow.datasource.config-file=/tmp/knowflow-private-code-test-missing-config.json","knowflow.datasource.h2.url=jdbc:h2:mem:private_indexed_code;DB_CLOSE_DELAY=-1;MODE=MySQL"})
 class PrivateIndexedCodeQuestionHttpTest {

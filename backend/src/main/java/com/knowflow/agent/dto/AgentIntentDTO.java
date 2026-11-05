@@ -35,6 +35,6 @@ public class AgentIntentDTO {
     @Data
     public static class ProjectFile {
         private String path;
-        private String type; // 'file' | 'directory'
+        private String type; // 节点类型：'file'（文件）| 'directory'（目录）。
     }
 }

@@ -144,7 +144,7 @@ export function toDocument(record: CareerRecord): ResumeDocumentViewModel {
     })
   }
 
-  // Source fallback is presentation only; it never creates claims or persisted sections.
+  // 来源回退仅用于展示，不创建声明或持久化区块。
   const source = record.source ?? ''
   const unavailableSource = '[原文件未提取到可用正文，请手动粘贴简历文本后再确认]'
   if (!sectionList.length && source.trim() && source.trim() !== unavailableSource) {
@@ -191,7 +191,7 @@ export function orderSections(
   return result
 }
 
-/** Title/contact metadata alone is not an exportable resume body. */
+/** 仅有标题和联系方式元数据不足以导出简历正文。 */
 export function hasResumeDocumentContent(doc: ResumeDocumentViewModel, theme: { sectionOrder: string[]; visibleSections: string[] }): boolean {
   return orderSections(doc, theme.sectionOrder, theme.visibleSections).some((section) =>
     section.chips.some((chip) => Boolean(chip.trim())) || section.items.some((item) =>

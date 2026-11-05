@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.stereotype.Component;
 
-/** Qwen streaming synthesis; raw signed PCM16 little-endian mono at 24 kHz. */
+/** Qwen 流式合成：24 kHz、单声道、有符号 PCM16 小端原始音频。 */
 @Component("qwenTtsProvider")
 public class QwenTtsProvider implements InterviewTtsProvider {
     private static final int SAMPLE_RATE = 24000;

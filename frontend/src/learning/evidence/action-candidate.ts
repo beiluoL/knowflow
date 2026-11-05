@@ -1,5 +1,5 @@
 /**
- * Architecture-4.1-§25/§26：Strategy → Action Candidate。
+ * 架构 4.1 §25/§26：策略 → 动作候选。
  *
  * §25 不重写 NextAction：本模块只产出「候选动作」，
  *   最终的优先级排序仍然交给既有 `resolveNextAction`（Review > Task > …）。

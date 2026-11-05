@@ -30,7 +30,7 @@ public class TechVocabCandidate extends BaseEntity {
     /** 归一化键：小写 + 空白折叠，用于个人候选去重 */
     private String normalizedKey;
 
-    /** WORD / ACRONYM / PHRASE */
+    /** 词条类型：WORD（单词）/ ACRONYM（缩写）/ PHRASE（短语）。 */
     private String termType;
 
     /** 建议领域编码 */
@@ -63,7 +63,7 @@ public class TechVocabCandidate extends BaseEntity {
     /** 提取方式：RULE / AI */
     private String extractor;
 
-    /** PENDING / APPROVED / REJECTED */
+    /** 审核状态：PENDING（待审核）/ APPROVED（批准）/ REJECTED（拒绝）。 */
     private String reviewStatus;
 
     /** 与既有词库重复时记录的正式词条 ID */

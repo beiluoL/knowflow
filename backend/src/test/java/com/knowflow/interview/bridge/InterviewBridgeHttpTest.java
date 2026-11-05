@@ -9,6 +9,9 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证面试学习桥接的 HTTP 身份、归属及确认参数。
+ */
 class InterviewBridgeHttpTest {
     MockMvc http; InterviewLearningBridge bridge;
     @BeforeEach void setup(){bridge=mock(InterviewLearningBridge.class);http=MockMvcBuilders.standaloneSetup(new InterviewLearningBridgeController(bridge)).build();}

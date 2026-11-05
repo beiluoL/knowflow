@@ -954,7 +954,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         if(docs.size()!=new java.util.HashSet<>(ids).size()) throw new BusinessException(404,"文档不存在");
         docs.forEach(d->access.requireEdit(d,access.actor()));
     }
-    /** Do not accept persistence/audit/download fields or counters from JSON entities. */
+    /** 不接受 JSON 实体传入持久化、审计、下载字段或计数器。 */
     private void sanitize(DocDocument doc,boolean create) {
         doc.setDeleted(null);doc.setCreateTime(null);doc.setUpdateTime(null);doc.setFileUrl(null);doc.setFileName(null);doc.setFileSize(null);
         doc.setSourcePath(null);doc.setContentHash(null);doc.setCategoryPath(null);

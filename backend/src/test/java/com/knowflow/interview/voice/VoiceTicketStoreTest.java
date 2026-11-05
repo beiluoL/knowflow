@@ -14,6 +14,9 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证语音票据单次消费、摘要存储、有效期和并发额度。
+ */
 class VoiceTicketStoreTest {
     private static final String ORIGIN = "http://localhost:5173";
     private JdbcTemplate jdbc;

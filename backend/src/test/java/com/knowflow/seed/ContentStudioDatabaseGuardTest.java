@@ -7,6 +7,9 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.mock.env.MockEnvironment;
 import java.nio.file.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证内容工作室拒绝普通数据库、生产配置及符号链接越界。
+ */
 class ContentStudioDatabaseGuardTest {
  private MockEnvironment env(){Path root=Path.of(System.getProperty("user.dir"));if(root.getFileName().toString().equals("backend"))root=root.getParent();var e=new MockEnvironment().withProperty("knowflow.content-studio.qa.package",root.resolve("content-studio/java-ai-interview-v2").toString()).withProperty("server.address","127.0.0.1").withProperty("knowflow.datasource.allow-runtime-switch","false");e.setActiveProfiles("local");return e;}
  @Test void refusesOrdinaryDatabaseEvenWithFlagAndLocalProfile()throws Exception{var d=new DriverManagerDataSource("jdbc:h2:mem:not_a_studio_database","sa","");var s=new ContentStudioHashMapService(new JdbcTemplate(d),new ObjectMapper(),env());var e=assertThrows(BusinessException.class,()->s.dryRun(1));assertEquals(403,e.getCode());}

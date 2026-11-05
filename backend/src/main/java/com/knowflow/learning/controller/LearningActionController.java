@@ -6,6 +6,9 @@ import com.knowflow.common.SecurityUtils;
 import com.knowflow.learning.actions.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+/**
+ * 提供学习动作仪表盘、上下文、计划预览及确认接口。
+ */
 @RestController @RequestMapping("/api/learning/action-plans") @RequiredArgsConstructor
 public class LearningActionController {
  private final LearningDashboardService dashboard;

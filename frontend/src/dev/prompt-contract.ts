@@ -1,4 +1,4 @@
-// Generated from knowflow-ui/component-manifest.json; run node scripts/check-dual-catalog.mjs
+// 由 knowflow-ui/component-manifest.json 生成；运行 node scripts/check-dual-catalog.mjs 校验。
 export const promptContract = {
   "version": 1,
   "id": "promptbar",

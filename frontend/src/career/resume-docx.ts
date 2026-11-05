@@ -1,4 +1,4 @@
-/** Native editable OOXML; shared semantic model with HTML/PDF. docx: MIT. */
+/** 原生可编辑 OOXML，与 HTML/PDF 共用语义模型；docx 使用 MIT 许可。 */
 import { BorderStyle, Document, ExternalHyperlink, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
 import type { ResumeTheme } from '@/api/career/types';
 import { hasResumeDocumentContent, orderSections, type ResumeDocumentViewModel } from './resume-document';

@@ -6,7 +6,7 @@ import com.knowflow.flashcards.dto.FlashcardSaveDTO;
 import java.security.MessageDigest;
 import java.util.*;
 
-/** Pure source digest and response key projections for study packs. */
+/** 仅提供学习包来源摘要与响应键投影。 */
 final class StudyPackProjection {
     private StudyPackProjection() {}
 

@@ -2,7 +2,7 @@
  * Architecture-1：Mini App 核心类型定义
  *
  * KnowFlow 从「功能集合」收敛为「Core + Mini Apps」：
- *   - Core：User / Knowledge / LearningEvent / KnowledgeMastery / Learning Path / AI / Settings
+ * 核心对象：用户 / 知识 / 学习事件 / 知识掌握度 / 学习路径 / AI / 设置。
  *   - Mini App：围绕一个明确学习任务的独立工具（闪卡/练习/错题/专注/费曼/康奈尔…）
  *
  * 本文件只定义「类型与边界」（§61-62），不实现沙箱/动态执行（§4 禁止动态代码下载与 eval）。

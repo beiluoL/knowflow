@@ -2748,7 +2748,7 @@ onUnmounted(() => {
   outline: none;
   box-shadow: 0 0 0 2px var(--kf-ring, rgba(59, 111, 224, 0.4));
 }
-/* Phase B: embedded workspace follows Phase A shell spacing, without negative margins. */
+/* 阶段 B：嵌入工作区沿用阶段 A 外壳间距，不使用负外边距。 */
 .knowledge-layout.knowledge-v2 { margin:0;min-height:0;min-width:0; }
 .knowledge-v2 .knowledge-main { padding:var(--kf-space-5);height:calc(100dvh - var(--kf-nav-height) - var(--kf-space-6) * 2); }
 .knowledge-v2 .greeting-title { font-family:inherit;font-size:var(--kf-page-title-size);line-height:1.3; }

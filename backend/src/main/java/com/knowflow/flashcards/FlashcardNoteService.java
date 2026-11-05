@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Statement;
 import java.util.*;
 
-/** Content notes and links only. All reviewable instances remain in learning_flashcard. */
+/** 仅管理内容笔记和链接，可复习实例统一保存在 learning_flashcard。 */
 @Service
 @RequiredArgsConstructor
 public class FlashcardNoteService {
@@ -75,8 +75,8 @@ public class FlashcardNoteService {
             }
             if (input.getType().equals("CODE_CLOZE")) {
                 var rendered = new TreeMap<Integer, ClozeParser.CardText>();
-                // Fence longer than any source backtick run prevents user content from ending the
-                // code block.
+                // 使用比来源中连续反引号更长的围栏，防止用户内容提前结束
+                // 代码块。
                 String fence = "`".repeat(Math.max(3, maxBackticks(input.getFront()) + 1));
                 for (var entry : cards.entrySet())
                     rendered.put(

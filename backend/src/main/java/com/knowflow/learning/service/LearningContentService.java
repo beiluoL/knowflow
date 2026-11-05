@@ -21,7 +21,7 @@ import com.knowflow.learning.vo.LearningContentGenerationResultVO;
  */
 public interface LearningContentService {
 
-    /** Small source-bound study-pack drafts; no invented KG identity or mastery mapping. */
+    /** 基于来源的小型学习包草稿，不伪造知识图谱标识或掌握度映射。 */
     java.util.Map<String,Object> generateFromDocument(Long docId,String kind,Long userId);
 
     /** AI 生成三类 Draft（默认三种全生成；非法 JSON 自动重试一次，仍失败明确报错，绝不保存假数据）。 */

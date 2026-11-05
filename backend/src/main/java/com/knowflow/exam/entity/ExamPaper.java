@@ -18,11 +18,11 @@ public class ExamPaper extends BaseEntity {
     private String domain;
     private String topics;
 
-    /** TEMPLATE / SMART / AI */
+    /** 试卷来源：TEMPLATE（模板）/ SMART（智能）/ AI（模型生成）。 */
     private String source;
     private String templateKey;
 
-    /** RANDOM / FREQUENCY / BALANCED / GRADIENT / MISTAKE / WEAK / SCENARIO */
+    /** 策略：RANDOM（随机）/ FREQUENCY（频次）/ BALANCED（均衡）/ GRADIENT（梯度）/ MISTAKE（错题）/ WEAK（薄弱项）/ SCENARIO（场景）。 */
     private String strategy;
 
     private Long seedValue;
@@ -30,7 +30,7 @@ public class ExamPaper extends BaseEntity {
     private Integer totalScore;
     private Integer passScore;
 
-    /** PRACTICE / EXAM */
+    /** 模式：PRACTICE（练习）/ EXAM（考试）。 */
     private String mode;
 
     private Integer shuffleQuestion;
@@ -44,7 +44,7 @@ public class ExamPaper extends BaseEntity {
     private String bankVersion;
     /** AI 出卷元数据 JSON */
     private String aiMeta;
-    /** APPROVED / PENDING_REVIEW */
+    /** 审核状态：APPROVED（已批准）/ PENDING_REVIEW（待审核）。 */
     private String reviewStatus;
     /** NULL 系统公共卷；AI 个人卷归属用户 */
     private Long ownerUserId;

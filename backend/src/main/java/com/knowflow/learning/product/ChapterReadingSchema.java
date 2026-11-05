@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-/** Additive fields in the existing chapter record. No historical completion is rewritten. */
+/** 在现有章节记录中追加字段，不重写历史完成情况。 */
 @Component
 @RequiredArgsConstructor
 public class ChapterReadingSchema {

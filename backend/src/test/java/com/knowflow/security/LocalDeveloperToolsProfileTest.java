@@ -6,6 +6,9 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 验证本地工具须显式启用且生产配置不能开启浏览器凭据。
+ */
 class LocalDeveloperToolsProfileTest {
     private final ApplicationContextRunner context = new ApplicationContextRunner()
             .withUserConfiguration(LocalDeveloperToolsSecurityConfig.class);

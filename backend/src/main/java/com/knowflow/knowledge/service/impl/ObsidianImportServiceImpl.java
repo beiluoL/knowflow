@@ -196,7 +196,7 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
             try {
                 String batch = UUID().substring(0, 12);
                 String tempDir = prepareTempDir(absPath, batch);
-                // This directory is created by the server, never supplied by a client.
+                // 此目录由服务端创建，不由客户端指定。
                 java.nio.file.Path prepared=java.nio.file.Path.of(tempDir).toRealPath();
                 try (var paths=Files.walk(prepared)) {
                     List<MultipartFile> generated=new ArrayList<>();

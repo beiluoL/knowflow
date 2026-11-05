@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/** Offline contract checks: no credentials, DNS, sockets or paid provider requests. */
+/** 离线契约检查，不使用凭据、DNS、套接字或付费供应方请求。 */
 class RealtimeSpeechProviderTest {
     @Test void disabledByDefaultAndIndependentOfBatch() {
         var config = new RealtimeSpeechProperties();

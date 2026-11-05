@@ -21,6 +21,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证面试薄弱项精确映射、幂等性、归属及文档授权。
+ */
 class InterviewBridgeTest {
     JdbcTemplate jdbc;
     MockInterviewService sessions;
@@ -77,8 +80,8 @@ class InterviewBridgeTest {
         when(categories.selectById(20L)).thenReturn(category);
         var membership=new com.knowflow.knowledge.entity.KbMember();
         when(members.listByCategory(20L)).thenReturn(List.of(membership));
-        when(members.canView(20L,8L)).thenReturn(true); // EDITOR
-        when(members.canView(20L,9L)).thenReturn(true); // READER
+        when(members.canView(20L,8L)).thenReturn(true); // 编辑者角色：EDITOR。
+        when(members.canView(20L,9L)).thenReturn(true); // 只读成员角色：READER。
         when(members.canViewAll(99L)).thenReturn(true);
         var entity=new KgEntity();entity.setId(3L);entity.setName("Transactions");entity.setCategoryId(20L);
         for(long actor : List.of(7L,8L,9L,99L)) assertTrue(policy.canReadKnowledge(entity,actor));

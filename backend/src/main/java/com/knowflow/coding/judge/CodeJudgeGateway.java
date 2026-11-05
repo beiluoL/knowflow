@@ -21,6 +21,6 @@ public interface CodeJudgeGateway {
     /** 独立Runner隔离验收证明；已有宿主与mock实现始终不具备普通用户执行资格。 */
     default boolean isolatedExecutionVerified() { return false; }
 
-    /** DISABLED / MOCK / LOCAL_HOST / ISOLATED。 */
+    /** 判题模式：DISABLED（停用）/ MOCK（模拟）/ LOCAL_HOST（本机）/ ISOLATED（隔离）。 */
     String mode();
 }

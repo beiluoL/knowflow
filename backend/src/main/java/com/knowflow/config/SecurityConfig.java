@@ -17,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * 配置业务请求的安全过滤链及密码编码器。
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -38,7 +41,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
-                        // Only a continuation of an already-authorized request, never a new HTTP request.
+                        // 仅允许已授权请求的后续派发，不允许新 HTTP 请求。
                         .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
                                 "/api/auth/login",

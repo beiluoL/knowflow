@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
+/**
+ * 提供雷达题目、训练会话、复习和计划接口。
+ */
 @RestController @RequiredArgsConstructor @RequestMapping("/api/interview/radar")
 public class RadarStudyController {
  private final RadarStudyService study;

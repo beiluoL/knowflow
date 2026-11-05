@@ -136,8 +136,8 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
 
   /* =====================================================================
-   * Typography：Display32/40、H1 28/36、H2 24/32、H3 20/28、Section18/26。
-   * Body16/28、14/22、Label13/20、Caption12/18、Meta11/16。
+   * 字体层级：Display32/40、H1 28/36、H2 24/32、H3 20/28、Section18/26。
+   * 正文与辅助字级：Body16/28、14/22、Label13/20、Caption12/18、Meta11/16。
    * kb-* 为唯一真源；Tailwind 与 text-* 语义别名均引用此处。
    * ===================================================================== */
   --kf-fs-display:32px; --kf-lh-display:1.25; --kf-fw-display:700;
@@ -152,7 +152,7 @@
   --kf-fw-label:500;
   --kf-fs-caption:12px; --kf-lh-caption:1.5; --kf-fw-caption:400;
   --kf-fs-xs:11px; --kf-lh-xs:1.454545; --kf-fw-xs:500;
-  /* Public semantic aliases refer to the canonical kb scale. */
+  /* 公共语义别名引用标准 kb 字级。 */
   --text-display:var(--kf-fs-display); --text-h1:var(--kf-fs-h1);
   --text-h2:var(--kf-fs-h2); --text-h3:var(--kf-fs-h3);
   --text-body-lg:var(--kf-fs-body-lg); --text-body:var(--kf-fs-body-md);
@@ -660,7 +660,7 @@ button:focus-visible,
   border-radius: var(--radius-sm);
 }
 
-/* Scrollbar styles */
+/* 滚动条样式。 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -680,19 +680,19 @@ button:focus-visible,
   background-color: #9CA3AF;
 }
 
-/* Firefox scrollbar */
+/* Firefox 滚动条。 */
 * {
   scrollbar-width: thin;
   scrollbar-color: #D1D5DB transparent;
 }
 
-/* Selection */
+/* 文本选中样式。 */
 ::selection {
   background-color: rgba(59, 111, 224, 0.2);
   color: var(--color-text-primary);
 }
 
-/* Common utility classes */
+/* 公共工具类。 */
 @layer components {
   .transition-base {
     transition: all 0.2s ease;
@@ -783,7 +783,7 @@ button:focus-visible,
     text-transform: uppercase;
   }
 
-  /* ===== Design-system shared components ===== */
+  /* ===== 设计系统共享组件 ===== */
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -1054,7 +1054,7 @@ button:focus-visible,
     opacity: 0.5;
   }
 
-  /* C-end top nav dropdown */
+  /* 用户端顶部导航下拉菜单。 */
   .nav-dropdown {
     position: absolute;
     top: 100%;
@@ -1093,7 +1093,7 @@ button:focus-visible,
     background: var(--kf-muted);
   }
 
-  /* B-end sidebar nav item */
+  /* 管理端侧栏导航项。 */
   .sidebar-group-label {
     padding: 10px 12px 6px;
     font-size: var(--kf-sidebar-label-fs);
@@ -1121,7 +1121,7 @@ button:focus-visible,
     color: var(--kf-primary-foreground);
   }
 
-  /* B-end topbar search */
+  /* 管理端顶栏搜索。 */
   .topbar-search {
     width: 100%;
     height: 36px;
@@ -1451,7 +1451,7 @@ textarea.kf-input,.kf-textarea{height:auto;min-height:var(--kf-textarea-min-heig
 @media(forced-colors:active){.kf-input:focus-visible,.kf-textarea:focus-visible,.kf-field:has(:focus-visible){outline:var(--kf-field-focus-width) solid Highlight;outline-offset:var(--kf-space-1);box-shadow:none}}
 
 /* 复选框：自定义方框 + 对勾/横线指示器 */
-/* Checkbox V3: no native chrome or gray halo; focus belongs only to the visible square. */
+/* Checkbox V3：无原生装饰或灰色光晕，聚焦反馈仅属于可见方框。 */
 .kf-checkbox {display:inline-flex;align-items:center;gap:var(--kf-checkbox-gap);min-height:var(--kf-checkbox-hit-size);min-width:var(--kf-checkbox-hit-size);max-width:100%;background:transparent;border:0;box-shadow:none;filter:none;cursor:pointer;user-select:none;font-size:var(--kf-fs-body-md);font-weight:400;line-height:var(--kf-lh-body-md)}
 .kf-checkbox.kf-checkbox--embedded{min-width:var(--kf-checkbox-size);min-height:var(--kf-checkbox-size)}
 .kf-checkbox-box {position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;flex:none;width:var(--kf-checkbox-size);height:var(--kf-checkbox-size);border:var(--kf-checkbox-border-width) solid var(--kf-border);border-radius:var(--kf-checkbox-radius);background:var(--kf-card);box-shadow:none;filter:none;outline:0;transition:border-color var(--kf-control-motion),background-color var(--kf-control-motion)}
@@ -1804,13 +1804,13 @@ textarea.kf-input,.kf-textarea{height:auto;min-height:var(--kf-textarea-min-heig
   to { opacity: 1; }
 }
 
-/* Button owns one keyboard ring; pages must not stack a second Tailwind ring. */
+/* Button 统一提供键盘聚焦环，页面不得叠加第二层 Tailwind 聚焦环。 */
 .kf-button:focus-visible {outline:var(--kf-field-focus-width) solid var(--kf-ring);outline-offset:var(--kf-space-1);}
 .kf-select-option:focus-visible,.kf-dropdown-item:focus-visible {outline:var(--kf-field-focus-width) solid var(--kf-field-focus-indicator);outline-offset:calc(-1 * var(--kf-field-focus-width));}
 .kf-select-option:disabled {color:var(--kf-muted-foreground);cursor:not-allowed;}
 .kf-select-option:disabled:hover {background:transparent;}
 
-/* Readonly is editable-looking enough to select/copy, but visually distinct from disabled. */
+/* 只读控件保留可选择、复制的外观，并与禁用态区分。 */
 .kf-field:has(input[readonly]),.kf-field:has(textarea[readonly]),.kf-input[readonly],.kf-textarea[readonly]{background:var(--kf-field-readonly)}
 
 /* Focus V2：仅管理文本类字段。组合控件由外壳绘制，内部不重复绘制。 */

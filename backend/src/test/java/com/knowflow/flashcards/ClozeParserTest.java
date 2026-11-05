@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * 验证挖空语法、嵌套括号、转义与非法输入处理。
+ */
 class ClozeParserTest {
     @Test
     void multipleOrdinalsAndRepeatedHints() {

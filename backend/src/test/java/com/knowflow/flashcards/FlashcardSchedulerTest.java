@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.*;
 
-/** Reference fixture from open-spaced-repetition/java-fsrs v1.0.0 FSRSTest.testReviewCard (MIT). */
+/** 参考夹具来自 open-spaced-repetition/java-fsrs v1.0.0 的 FSRSTest.testReviewCard（MIT）。 */
 class FlashcardSchedulerTest {
     @Test
     void upstreamReviewCardReference() {

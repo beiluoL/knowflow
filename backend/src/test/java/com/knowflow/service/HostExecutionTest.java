@@ -17,6 +17,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证已授权宿主机上的多语言代码执行。
+ */
 class HostExecutionTest {
     @TempDir Path temp;
     CodeExecutionServiceImpl engine; CodeWorkspaceService workspace;

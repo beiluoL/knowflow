@@ -1,5 +1,5 @@
 /**
- * Architecture-4.1-§22~§24：Strategy Resolver + App Availability。
+ * 架构 4.1 §22–§24：策略解析与应用可用性。
  *
  * §22 Diagnosis → Strategy（能力维度 → 学习策略，不是 Diagnosis → App 一对一硬绑）：
  *   LOW_RECALL        → ACTIVE_RECALL     （主动回忆）
@@ -28,7 +28,7 @@ export type EvidenceStrategyType =
   | 'SPACED_REVIEW'
   | 'CONTINUE'
 
-/** §22 Diagnosis → Strategy */
+/** §22 诊断 → 策略。 */
 export function resolveEvidenceStrategy(d: BehaviorDiagnosis): EvidenceStrategyType {
   switch (d.type) {
     case 'LOW_RECALL':

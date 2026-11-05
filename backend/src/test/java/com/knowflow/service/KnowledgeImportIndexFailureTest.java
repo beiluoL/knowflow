@@ -46,6 +46,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+/**
+ * 验证导入索引失败后的记录保护、回滚及重试。
+ */
 @SpringBootTest
 @ActiveProfiles("local")
 @Import(FakeAiConfiguration.class)

@@ -1,5 +1,5 @@
 <template>
-  <!-- Ordinary requests are serial; an awaited child overlays its processing parent. -->
+  <!-- 普通请求串行执行；等待中的子框覆盖正在处理的父框。 -->
   <component :is="d.type === 'confirm' ? ConfirmDialog : AppDialog" v-for="d in visibleDialogs" :key="d.id"
     open :title="d.title" :message="d.description || d.message" :variant="d.variant" :icon="d.icon"
     :confirm-text="d.confirmText" :cancel-text="d.cancelText" :show-cancel="d.type!=='alert'" :persistent="d.persistent"

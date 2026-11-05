@@ -27,7 +27,7 @@ public class InterviewFollowupEngine {
  public Proposal evaluate(Long actor,SeedQuestion question,String evaluatedPrompt,String confirmed,int depth,int maxDepth,List<String> asked,String role,String mode,String project,List<Map<String,Object>> history){
   return evaluateInternal(actor,question,evaluatedPrompt,confirmed,depth,maxDepth,asked,role,mode,project,history,null,()->false);
  }
- /** Provisional deltas do not become canonical questions until the existing validation succeeds. */
+ /** 现有校验通过前，临时增量不作为正式题目。 */
  public boolean streamingAvailable(Long actor){return capability.isEnabled()&&ai.structuredStreamingAvailable(actor);}
  public Proposal evaluateStreaming(Long actor,SeedQuestion question,String evaluatedPrompt,String confirmed,int depth,int maxDepth,List<String> asked,String role,String mode,String project,List<Map<String,Object>> history,java.util.function.Consumer<String> delta,java.util.function.BooleanSupplier cancelled){
   return evaluateInternal(actor,question,evaluatedPrompt,confirmed,depth,maxDepth,asked,role,mode,project,history,delta,cancelled);

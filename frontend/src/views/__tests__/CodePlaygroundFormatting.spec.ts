@@ -8,7 +8,7 @@ vi.mock('@/api/codeWorkspace', () => ({ codeWorkspaceApi: { save: api.save, list
 vi.mock('@/stores/aiCapability', () => ({ useAiCapabilityStore: () => ({ aiAvailable: false, refresh: vi.fn() }) }))
 vi.mock('@/utils/toast', () => ({ notify: vi.fn(), getApiError: (e: Error) => e.message, confirmDialog: async () => true }))
 vi.mock('vue-router', () => ({ useRoute: () => ({ params: { id: '1' }, query: {} }), useRouter: () => ({ push: vi.fn() }), onBeforeRouteLeave: vi.fn(), onBeforeRouteUpdate: vi.fn() }))
-// Only replace the Worker transport; parsing and formatting still use real Prettier.
+// 仅替换 Worker 传输，解析和格式化仍使用真实 Prettier。
 vi.mock('@/code-format/client', async () => {
   const { formatSource } = await import('@/code-format/engine')
   const { supportsFormatting } = await import('@/code-format/contracts')

@@ -22,6 +22,9 @@ import com.knowflow.learning.mapper.LearningPathMapper;
 import com.fasterxml.jackson.databind.*;import com.knowflow.support.FakeAiConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.context.annotation.Import;import org.junit.jupiter.api.*;import org.junit.jupiter.api.condition.EnabledIfSystemProperty;import org.springframework.security.crypto.password.PasswordEncoder;import org.springframework.jdbc.core.JdbcTemplate;
 import java.nio.file.*;import java.util.*;import java.util.concurrent.TimeUnit;import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 通过隔离浏览器验证 HashMap 错题、FSRS 复习及复测恢复。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"server.address=127.0.0.1","knowflow.datasource.h2.url=jdbc:h2:mem:hashmap_browser;MODE=MySQL;DB_CLOSE_DELAY=-1"})
 @Import(FakeAiConfiguration.class) @EnabledIfSystemProperty(named="hashmap.loop.browser",matches="true")
 class HashMapLoopBrowserTest {

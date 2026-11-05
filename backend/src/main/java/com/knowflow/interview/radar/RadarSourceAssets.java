@@ -23,7 +23,7 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.regex.*;
 
-/** Private inline attachment documents; original chapter Markdown and its hash are never rewritten. */
+/** 私有内联附件文档，不重写原始章节 Markdown 或其哈希。 */
 @Component @RequiredArgsConstructor
 public class RadarSourceAssets {
  private final JdbcTemplate jdbc;

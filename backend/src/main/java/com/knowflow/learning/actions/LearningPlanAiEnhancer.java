@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import org.springframework.stereotype.Component;
 
-/** Bounded optional tool call: candidate keys only, no resource/owner IDs or document bodies. */
+/** 可选且有界的工具调用，仅含候选键，不含资源标识、所有者标识或文档正文。 */
 @Component
 public class LearningPlanAiEnhancer {
     private final AiService ai;

@@ -21,9 +21,9 @@ public final class ExamRequests {
         private String domain;
         /** 知识点 key 列表（对应 quiz_question.tags 首标签）；空=不限 */
         private List<String> topics;
-        /** RANDOM / FREQUENCY / BALANCED / GRADIENT / MISTAKE / WEAK / SCENARIO */
+        /** 策略：RANDOM（随机）/ FREQUENCY（频次）/ BALANCED（均衡）/ GRADIENT（梯度）/ MISTAKE（错题）/ WEAK（薄弱项）/ SCENARIO（场景）。 */
         private String strategy;
-        /** Default true for compatibility; false selects never-answered canonical identities. */
+        /** 默认 true 以保持兼容；false 表示仅选择从未作答的标准题目标识。 */
         private Boolean includeAnswered;
         private Long seed;
         /** 题型 → 题量；为空时按题量平均抽取 */
@@ -34,7 +34,7 @@ public final class ExamRequests {
         private Integer totalScore;
         private Integer durationMinutes;
         private Integer passScore;
-        /** PRACTICE / EXAM */
+        /** 模式：PRACTICE（练习）/ EXAM（考试）。 */
         private String mode;
         private Integer shuffleQuestion;
         private Integer shuffleOption;
@@ -58,7 +58,7 @@ public final class ExamRequests {
     /** AI 智能出卷请求（个人临时卷，不进共享题库）。 */
     @Data
     public static class AiComposeRequest {
-        /** Preserve real-history exclusion when AI falls back to the published bank. */
+        /** AI 回退到已发布题库时，仍按真实历史排除已作答题目。 */
         private Boolean includeAnswered;
         private String name;
         private String topic;

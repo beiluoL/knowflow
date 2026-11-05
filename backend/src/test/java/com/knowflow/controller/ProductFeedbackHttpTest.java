@@ -12,6 +12,9 @@ import java.util.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证产品反馈的 HTTP 契约。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.interview-learning.enabled=true","knowflow.product.private-quiz.enabled=true","knowflow.product.tutor.enabled=true","knowflow.product.tutor-coaching.enabled=true","server.address=127.0.0.1"}) @ActiveProfiles("local")
 class ProductFeedbackHttpTest {
  @Autowired ObjectMapper json;@Autowired JdbcTemplate sql;@Autowired JwtUtils jwt;@MockBean AiServiceImpl ai;
@@ -25,13 +28,13 @@ class ProductFeedbackHttpTest {
   owner = registerAccount();
   otherUser = registerAccount();
   adminUser = registerAccount();
-  // Authentication reads the current database role; a token claim cannot grant admin access.
+  // 认证读取数据库当前角色，令牌声明不能授予管理员访问权限。
   assertEquals(1, sql.update("UPDATE sys_user SET role='ADMIN' WHERE id=? AND deleted=0", adminUser));
   when(ai.isConfigured(anyLong())).thenReturn(true);
   when(ai.currentScope(anyLong())).thenReturn("test:contract");
  }
 
- /** Create an independent persisted subject so cross-owner requests reach business authorization. */
+ /** 创建独立持久化主体，使跨所有者请求进入业务授权校验。 */
  private long registerAccount() throws Exception {
   String name = "p03" + UUID.randomUUID().toString().replace("-", "");
   var user = call("POST", "/api/auth/register",

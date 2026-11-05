@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Real owner-scoped attempted identities. Pending/platform failures never become wrong-answer evidence. */
+/** 查询所有者真实作答标识；待处理或平台失败不得作为错题证据。 */
 @Component
 @RequiredArgsConstructor
 public class QuestionHistoryLookup {
@@ -26,9 +26,9 @@ public class QuestionHistoryLookup {
         return new HashSet<>(jdbc.queryForList(HISTORY,Long.class,userId,userId,userId));
     }
     public Set<String> answeredCanonicalKeys(Long userId) {
-        // Logical deletion/unpublishing cannot erase a user's earlier question identity.
+        // 逻辑删除或取消发布不能抹除用户之前作答的题目标识。
         Set<String> result=new HashSet<>(jdbc.queryForList("SELECT DISTINCT q.canonical_key FROM quiz_question q JOIN ("+HISTORY+") h ON h.question_id=q.id WHERE q.canonical_key IS NOT NULL AND TRIM(q.canonical_key)<>''",String.class,userId,userId,userId));
-        // The immutable exam identity survives later edits to the source's canonical key.
+        // 即使来源的标准键后续变更，考试中的不可变标识仍保留。
         var reader=new com.fasterxml.jackson.databind.ObjectMapper();
         for(String snapshot:jdbc.queryForList("SELECT p.snapshot FROM exam_answer a JOIN exam_attempt t ON t.id=a.attempt_id JOIN exam_paper_question p ON p.id=a.paper_question_id WHERE t.user_id=? AND t.deleted=0 AND a.deleted=0 AND p.deleted=0 AND a.user_answer IS NOT NULL AND TRIM(a.user_answer)<>''",String.class,userId)) {
             try {var node=reader.readTree(snapshot);String key=node==null?"":node.path("canonicalKey").asText("").trim();if(!key.isEmpty())result.add(key);}

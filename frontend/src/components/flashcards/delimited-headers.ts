@@ -1,4 +1,4 @@
-/** Read only the first record for mapping; the backend remains the authoritative full-file parser. */
+/** 仅读取首条记录用于映射，后端仍是完整文件解析的权威来源。 */
 export function delimitedHeaders(content: string, separator: ',' | '\t'): string[] {
  const headers:string[]=[];let field='',quoted=false,closed=false
  const source=content.replace(/^\uFEFF/,'')

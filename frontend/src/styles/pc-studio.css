@@ -1,4 +1,4 @@
-/* Ordinary-user visual layer only. Login/admin and data/route contracts stay untouched. */
+/* 仅调整普通用户视觉层，保留登录、管理端及数据路由契约。 */
 .pc-studio .clayout-container {
   max-width: none;
   padding-inline: var(--kf-page-padding-x);

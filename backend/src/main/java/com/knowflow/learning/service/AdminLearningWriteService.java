@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
-/** Persists generated learning content atomically after external AI work completes. */
+/** 外部 AI 执行结束后，原子持久化生成的学习内容。 */
 @Service
 @RequiredArgsConstructor
 public class AdminLearningWriteService {
@@ -22,7 +22,7 @@ public class AdminLearningWriteService {
     private final LearningChapterMapper chapterMapper;
     private final LearningFlashcardMapper flashcardMapper;
 
-    /** Creates a draft path, all chapters and statistics; any write failure rolls back the entire draft. */
+    /** 创建路径草稿、全部章节及统计，任一写入失败则回滚整个草稿。 */
     @Transactional(rollbackFor = Exception.class)
     public LearningPath createGeneratedPath(Map<String, Object> generated, String topic, String level) {
         // 创建学习路径
@@ -65,7 +65,7 @@ public class AdminLearningWriteService {
         return path;
     }
 
-    /** Inserts a generated batch; partial persistence is rolled back on any failed card write. */
+    /** 插入生成批次，任一卡片写入失败时回滚已写入部分。 */
     @Transactional(rollbackFor = Exception.class)
     public List<LearningFlashcard> createGeneratedCards(List<LearningFlashcard> cards) {
         for (LearningFlashcard card : cards) {

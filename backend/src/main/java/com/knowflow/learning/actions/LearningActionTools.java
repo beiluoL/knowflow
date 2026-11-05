@@ -4,7 +4,7 @@ import com.knowflow.ai.ModelAdapter.ToolSpec;
 import com.knowflow.exception.BusinessException;
 import java.util.*;
 
-/** The existing provider-neutral schema contract; model calls never grant write authorization. */
+/** 复用现有供应方无关结构契约，模型调用不授予写入权限。 */
 public final class LearningActionTools {
     private LearningActionTools() {}
 

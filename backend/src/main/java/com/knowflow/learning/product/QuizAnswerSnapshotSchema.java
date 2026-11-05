@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.Component;
 
-/** Nullable additive field. Historical answers are never backfilled or rescored. */
+/** 可空的增量字段，不回填历史答案，也不重新评分。 */
 @Component
 @RequiredArgsConstructor
 public class QuizAnswerSnapshotSchema {

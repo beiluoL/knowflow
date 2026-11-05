@@ -9,7 +9,7 @@
   gap: 24px;
 }
 
-/* ===== Hero ===== */
+/* ===== 主视觉区 ===== */
 .wb-hero {
   position: relative;
   overflow: hidden;
@@ -136,7 +136,7 @@
 }
 .wb-loop-step.is-current .wb-loop-num { opacity: 1; }
 
-/* ===== Section title ===== */
+/* ===== 区块标题 ===== */
 .wb-section-title {
   display: flex;
   align-items: center;
@@ -155,7 +155,7 @@
   color: var(--kf-muted-foreground);
 }
 
-/* ===== Filter Bar ===== */
+/* ===== 筛选栏 ===== */
 .wb-filter {
   display: flex;
   align-items: center;
@@ -229,7 +229,7 @@
   max-width: 220px;
 }
 
-/* ===== Empty ===== */
+/* ===== 空状态 ===== */
 .wb-empty {
   display: flex;
   flex-direction: column;
@@ -264,7 +264,7 @@
   margin: 0 0 8px;
 }
 
-/* ===== Skeleton ===== */
+/* ===== 骨架屏 ===== */
 .wb-skeleton {
   display: flex;
   flex-direction: column;
@@ -280,7 +280,7 @@
   50% { opacity: 0.5; }
 }
 
-/* ===== Drawer ===== */
+/* ===== 抽屉 ===== */
 .wb-drawer-mask {
   position: fixed;
   inset: 0;
@@ -348,7 +348,7 @@
   background: var(--kf-card);
 }
 
-/* ===== Icon button ===== */
+/* ===== 图标按钮 ===== */
 .wb-icon-btn {
   display: inline-flex;
   align-items: center;
@@ -365,7 +365,7 @@
   color: var(--kf-foreground);
 }
 
-/* ===== Responsive ===== */
+/* ===== 响应式 ===== */
 @media (max-width: 768px) {
   .wb-hero-inner { padding: 20px 16px 16px; }
   .wb-title { font-size: 24px; }

@@ -4,7 +4,7 @@ import {stories,storyDefaults} from '../stories'
 import {createExample} from '../code-examples'
 describe('all copied production SFCs',()=>{
  it('typechecks real imports required props events and v-model with vue-tsc',async()=>{
- // Node-only harness: dynamic module names keep Node globals out of the DOM app type environment.
+ // 仅用于 Node 的测试工具，通过动态模块名避免 Node 全局类型进入 DOM 应用环境。
  const nodePrefix='node:'
  const {mkdtempSync,writeFileSync,rmSync}=await import(nodePrefix+'fs')
  const {resolve,join}=await import(nodePrefix+'path')

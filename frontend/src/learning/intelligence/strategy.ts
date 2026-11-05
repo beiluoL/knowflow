@@ -1,5 +1,5 @@
 /**
- * Architecture-6：Learning Strategy（§47-52/§54）
+ * 架构 6：学习策略（§47–52/§54）。
  *
  * 回答「针对这个问题应该采取什么学习策略？」（§48）。
  * 纯函数（§51）：Diagnosis → StrategyType + 用户可读建议。
@@ -19,7 +19,7 @@ export type LearningStrategyType =
   | 'RESTART' // 从今天一个小任务重新开始
   | 'CONTINUE' // 保持节奏
 
-/** Diagnosis → Strategy（§49） */
+/** 诊断 → 策略（§49）。 */
 export function resolveLearningStrategy(d: LearningDiagnosis): LearningStrategyType {
   switch (d.type) {
     case 'REVIEW_OVERDUE':

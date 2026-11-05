@@ -15,7 +15,7 @@ export const learningActionApi = {
  cancel: (id: string) => apiDelete<void>(`/learning/action-plans/${encodeURIComponent(id)}`),
  chat: (conversationId: number, message: string, preferences?: PlanRequest, selectedTask?: TaskRef, signal?: AbortSignal) => apiPost<LearningActionResponse>('/chat/learning-actions',{ conversationId,message,preferences,selectedTaskId:selectedTask?.id,selectedTaskSource:selectedTask?.source }, {signal, timeout:30000}),
 }
-/** Server-owned structured message payload is reloaded with conversation history. */
+/** 服务端维护的结构化消息载荷随会话历史重新加载。 */
 export function parseLearningActionMessage(content: string): Partial<LearningActionResponse>|null {
  try { const value: unknown = JSON.parse(content); if(!value||typeof value!=='object')return null;const v=value as Record<string,unknown>;
   if(v.kind!=='KNOWFLOW_LEARNING_ACTION'||typeof v.text!=='string')return null;
@@ -26,7 +26,7 @@ export function parseLearningActionMessage(content: string): Partial<LearningAct
  } catch { return null }
 }
 
-/** UI routing hint only. The server repeats intent and authorization checks. */
+/** 仅作界面路由提示，服务端重复校验意图和授权。 */
 export function isLearningActionInstruction(text:string):boolean {
  if(/不要生成|无需生成|不用安排|不要安排/.test(text))return false
  return /今天应该学什么|今日应该学什么|今天学什么|哪里.*薄弱|做错.*(?:CAS|题)|闪卡.*复习|哪些闪卡|下一步怎么学/s.test(text)||/(?:今天|今日).*(?:还有|有什么|查询|查看).*(?:任务|计划)/s.test(text)||/(?:我已|我已经|已经完成|完成了).+/s.test(text)||/(?:重新安排|重新规划|调整计划|只剩|没完成的任务调整到).+/s.test(text)||/(?:生成|安排|制定|规划).*(?:学习|今日|今天).*(?:任务|计划|小时|分钟)/s.test(text)

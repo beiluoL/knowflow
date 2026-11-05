@@ -29,6 +29,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证统一题目目录的权限、分页、审核及批量回滚。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:question-catalog-test;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.datasource.allow-runtime-switch=false","knowflow.exam.timeout-scheduler.enabled=false","knowflow.coding.seed.algorithm.enabled=false"})
 class QuestionCatalogIntegrationTest {

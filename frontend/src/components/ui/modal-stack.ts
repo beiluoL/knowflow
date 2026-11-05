@@ -1,4 +1,4 @@
-// Shared only by opted-in AppDialog modals; one lock survives nested dialogs.
+// 仅显式启用的 AppDialog 模态框共享滚动锁，嵌套对话框期间保留同一把锁。
 const stack: number[] = []
 const surfaces=new Map<number,HTMLElement>()
 let savedOverflow = ''

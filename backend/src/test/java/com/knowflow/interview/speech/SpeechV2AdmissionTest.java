@@ -5,6 +5,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证 V2 面试语音入口的状态、题目和归属准入。
+ */
 class SpeechV2AdmissionTest {
  JdbcTemplate jdbc;SpeechV2Admission admission;
  @BeforeEach void setup(){jdbc=new JdbcTemplate(new DriverManagerDataSource("jdbc:h2:mem:admission_"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa",""));admission=new SpeechV2Admission(jdbc);}

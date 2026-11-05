@@ -128,14 +128,14 @@ export const runSql = (sql: string): SqlRunResult => {
   try {
     const upper = code.toUpperCase()
 
-    // SHOW TABLES
+    // 显示表：SHOW TABLES。
     if (upper === 'SHOW TABLES' || upper === 'SHOW TABLES;') {
       const cols = ['Tables_in_sample_db']
       const rows: Row[] = Object.keys(SAMPLE_DB).map((t) => ({ Tables_in_sample_db: t }))
       return { output: formatRows(cols, rows), error: null, rows: rows.length }
     }
 
-    // DESCRIBE table
+    // 描述表结构：DESCRIBE table。
     const descMatch = code.match(/^DESCRIBE\s+(\w+)$/i) || code.match(/^DESC\s+(\w+)$/i)
     if (descMatch) {
       const t = findTable(descMatch[1])
@@ -148,7 +148,7 @@ export const runSql = (sql: string): SqlRunResult => {
       return { output: formatRows(cols, rows), error: null, rows: rows.length }
     }
 
-    // SELECT
+    // 查询：SELECT。
     if (upper.startsWith('SELECT')) {
       // 提取各子句
       const selectMatch = code.match(
@@ -160,13 +160,13 @@ export const runSql = (sql: string): SqlRunResult => {
       if (!table) return { output: '', error: `表 ${tableName} 不存在，可用表：${Object.keys(SAMPLE_DB).join(', ')}` }
 
       let rows = [...table.rows]
-      // WHERE
+      // 条件：WHERE。
       if (whereRaw) {
         // 简化：拆分 AND
         const conds = whereRaw.split(/\s+AND\s+/i)
         rows = rows.filter((r) => conds.every((c) => evalCondition(r, c)))
       }
-      // ORDER BY
+      // 排序：ORDER BY。
       if (orderRaw) {
         const orderParts = orderRaw.trim().split(/\s+/)
         const orderCol = orderParts[0]
@@ -182,27 +182,27 @@ export const runSql = (sql: string): SqlRunResult => {
             : String(va).localeCompare(String(vb))
         })
       }
-      // LIMIT
+      // 行数限制：LIMIT。
       if (limitRaw) {
         rows = rows.slice(0, Number(limitRaw))
       }
 
       // 列选择
       const colsTrim = colsRaw.trim()
-      // COUNT(*)
+      // 统计行数：COUNT(*)。
       const countMatch = colsTrim.match(/^COUNT\s*\(\s*\*\s*\)$/i)
       if (countMatch) {
         const out = `COUNT(*)\n---\n${rows.length}\n\n1 row in set`
         return { output: out, error: null, rows: 1 }
       }
-      // COUNT(col)
+      // 统计非空列：COUNT(col)。
       const countColMatch = colsTrim.match(/^COUNT\s*\(\s*([\w.]+)\s*\)$/i)
       if (countColMatch) {
         const cnt = rows.filter((r) => r[countColMatch[1]] != null).length
         const out = `COUNT(${countColMatch[1]})\n---\n${cnt}\n\n1 row in set`
         return { output: out, error: null, rows: 1 }
       }
-      // SUM/AVG/MAX/MIN
+      // 聚合函数：SUM/AVG/MAX/MIN。
       const aggMatch = colsTrim.match(/^(SUM|AVG|MAX|MIN)\s*\(\s*([\w.]+)\s*\)$/i)
       if (aggMatch) {
         const [, fn, col] = aggMatch
@@ -216,7 +216,7 @@ export const runSql = (sql: string): SqlRunResult => {
         return { output: out, error: null, rows: 1 }
       }
 
-      // SELECT *
+      // 全列查询：SELECT *。
       let selectedCols: string[] = []
       if (colsTrim === '*') {
         selectedCols = [...table.columns]
@@ -230,7 +230,7 @@ export const runSql = (sql: string): SqlRunResult => {
         }
       }
 
-      // DISTINCT
+      // 去重：DISTINCT。
       if (distinctRaw) {
         const seen = new Set<string>()
         rows = rows.filter((r) => {

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.regex.*;
 
-/** Owner-private reference practice. Pending content never becomes an approved public bank. */
+/** 所有者私有的参考练习，待审核内容不成为已批准公共题库。 */
 @Component @RequiredArgsConstructor
 public class RadarInterviewBank {
  public static final String TRACK="RADAR_PRIVATE";

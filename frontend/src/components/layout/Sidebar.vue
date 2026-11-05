@@ -14,7 +14,7 @@
     ]"
     :style="sidebarStyle"
   >
-    <!-- Logo -->
+    <!-- 品牌标识。 -->
     <div
       class="h-14 shrink-0 flex items-center border-b"
       :class="collapsed ? 'justify-center px-0' : 'px-5'"
@@ -36,7 +36,7 @@
     </div>
 
     <button v-if="mobileOpen" type="button" class="lg:hidden px-4 py-3 text-foreground" aria-label="关闭后台导航" @click="$emit('close')">关闭目录</button>
-    <!-- Navigation -->
+    <!-- 导航。 -->
     <nav class="flex-1 overflow-y-auto no-scrollbar py-3" :class="collapsed ? 'px-2' : 'px-3'">
       <div v-for="group in visibleGroups" :key="group.title" class="mb-2">
         <p
@@ -63,7 +63,7 @@
       </div>
     </nav>
 
-    <!-- Bottom: Back to frontend + collapse -->
+    <!-- 底部：返回前台与折叠。 -->
     <div class="shrink-0 border-t" style="border-color: var(--kf-border);">
       <router-link
         to="/"

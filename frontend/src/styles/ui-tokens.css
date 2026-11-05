@@ -277,7 +277,7 @@
 /* 知识画布列表：思维导图 / 绘图共用的目录尺寸。 */
 :root { --kf-canvas-list-width: 280px; }
 
-/* UI V2 compatibility aliases; old tokens remain the source, including dark overrides. */
+/* UI V2 兼容别名，旧令牌及深色覆盖仍为来源。 */
 :root {
   --kf-surface: var(--kf-card);
   --kf-surface-elevated: var(--kf-popover);
@@ -293,10 +293,10 @@
   --kf-control-hit-size: 2.5rem;
 }
 
-/* Phase B: semantic alias of the existing shared Markdown code palette. */
+/* 阶段 B：为现有共享 Markdown 代码配色提供语义别名。 */
 :root { --kf-content-code-background: #1a1d23; }
 
-/* Modern AI Workspace: semantic aliases, no parallel palette. */
+/* 现代 AI 工作区使用语义别名，不另建配色。 */
 :root {
   --kf-shadow-md: var(--shadow-dropdown-2);
   --kf-border-hover: color-mix(in srgb, var(--kf-border) 65%, var(--kf-muted-foreground));
@@ -319,7 +319,7 @@
   --kf-control-motion: 160ms;
 }
 
-/* Unified select variants share the existing field/menu palette. */
+/* 统一选择控件变体共用现有字段和菜单配色。 */
 :root {
   --kf-select-trigger-bg: var(--kf-muted);
   --kf-select-trigger-hover: color-mix(in srgb, var(--kf-muted) 80%, var(--kf-border));
@@ -333,7 +333,7 @@
 .kf-font-display{font-family:var(--font-serif);font-size:var(--text-display);line-height:var(--kf-lh-display);font-weight:var(--kf-fw-display)}
 .kf-font-technical{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 
-/* Shared secondary confirmation geometry; existing colors remain canonical. */
+/* 共享二次确认布局，仍以现有颜色为准。 */
 :root {
   --kf-confirm-width: 560px;
   --kf-confirm-radius: 22px;
@@ -344,7 +344,7 @@
   --kf-confirm-shadow: 0 12px 40px color-mix(in srgb, var(--kf-foreground) 12%, transparent);
 }
 
-/* Ordinary form controls share surfaces and aligned label/control/meta tracks. */
+/* 普通表单控件共用表面及对齐的标签、控件、元信息轨道。 */
 :root {
   --kf-field-hover: color-mix(in srgb, var(--kf-muted) 80%, var(--kf-border));
   --kf-field-active: color-mix(in srgb, var(--kf-muted) 65%, var(--kf-border));
@@ -380,7 +380,7 @@ select.kf-form-control{padding-inline-end:var(--kf-space-8)}
   --kf-field-focus-color: color-mix(in srgb,var(--kf-muted-foreground) 45%,transparent);
 }
 
-/* Checkbox V3: square visual proxy; native input retains form/keyboard semantics. */
+/* Checkbox V3：方形视觉代理，原生输入保留表单及键盘语义。 */
 :root {
   --kf-checkbox-size:20px;
   --kf-checkbox-radius:3px;
@@ -393,7 +393,7 @@ select.kf-form-control{padding-inline-end:var(--kf-space-8)}
   --kf-checkbox-focus-offset:2px;
 }
 
-/* UI V3 button semantics; reuse the existing size/colour/type scales. */
+/* UI V3 按钮语义复用现有尺寸、颜色和字体层级。 */
 :root {
   --kf-button-gap: var(--kf-space-2);
   --kf-button-line-height: 20px;

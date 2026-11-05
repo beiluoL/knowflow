@@ -32,7 +32,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import java.util.List;
 import java.util.Set;
 
-/** Browser Basic authentication is confined to explicitly enabled, loopback-only local tools. */
+/** 浏览器 Basic 认证仅用于显式启用且仅监听回环地址的本地工具。 */
 @Configuration
 @Profile("local & !prod & !production")
 @ConditionalOnProperty(name = "knowflow.developer-tools.enabled", havingValue = "true")
@@ -52,7 +52,7 @@ public class LocalDeveloperToolsSecurityConfig {
             response.setHeader("WWW-Authenticate", "Basic realm=\"KnowFlow local tools\"");
             entryPoint.commence(request, response, failure);
         };
-        // Match the request path across both DispatcherServlet and H2's separate servlet mapping.
+        // 同时匹配 DispatcherServlet 与 H2 独立 Servlet 映射下的请求路径。
         http.securityMatcher(new OrRequestMatcher(
                         new AntPathRequestMatcher("/h2-console/**"),
                         new AntPathRequestMatcher("/swagger-ui/**"),
@@ -65,7 +65,7 @@ public class LocalDeveloperToolsSecurityConfig {
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .requestCache(AbstractHttpConfigurer::disable)
-                // Chain-local manager: Basic credentials must never authenticate normal business APIs.
+                // 认证管理器仅限本过滤链，Basic 凭据不得用于认证普通业务 API。
                 .authenticationManager(new ProviderManager(new LocalToolsAuthenticationProvider()))
                 .httpBasic(basic -> basic.authenticationEntryPoint(browserEntryPoint))
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(browserEntryPoint).accessDeniedHandler(deniedHandler))
@@ -74,7 +74,7 @@ public class LocalDeveloperToolsSecurityConfig {
                     boolean allowed = LOOPBACK.contains(context.getRequest().getRemoteAddr())
                             && actor != null && actor.isAuthenticated() && actor.getPrincipal() instanceof Long;
                     if (allowed) {
-                        // Read the current database identity, not a username/role supplied in a URL or stale JWT.
+                        // 读取数据库中的当前身份，不信任 URL 或过期 JWT 中的用户名、角色。
                         SysUser user = users.selectById((Long) actor.getPrincipal());
                         allowed = user != null && Integer.valueOf(0).equals(user.getDeleted())
                                 && ("ADMIN".equals(user.getRole()) || "seed-personal-v1".equals(user.getUsername()));

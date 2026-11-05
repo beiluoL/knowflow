@@ -3,7 +3,7 @@ type Markdown = InstanceType<typeof MarkdownIt>
 const labels:Record<string,string>={info:'信息',tip:'学习技巧',warning:'注意事项',danger:'错误示例'}
 const symbols:Record<string,string>={info:'ℹ',tip:'💡',warning:'⚠',danger:'✗'}
 
-/** A small allowlist of authored blocks, not executable HTML or arbitrary components. */
+/** 仅允许少量编写好的区块，不执行 HTML 或任意组件。 */
 export function learningBlocks(md:Markdown) {
  md.block.ruler.before('fence','learning_blocks',(state,start,end,silent)=>{
   if(state.sCount[start]-state.blkIndent>=4)return false
@@ -33,7 +33,7 @@ export function learningBlocks(md:Markdown) {
    if(/^:::(info|tip|warning|danger|details)(?:\s|$)/.test(line))depth++
    if(line===':::'&&--depth===0)break
   }
-  // An unclosed container stays readable literal Markdown.
+  // 未闭合容器保留为可读的字面 Markdown。
   if(close>=end)return false
   const open=state.push('learning_block_open',kind==='details'?'details':'aside',1)
   open.meta={kind,title:arg.slice(0,160)||labels[kind]||'展开内容'}

@@ -9,7 +9,7 @@
  *
  * ── 明确禁止（§25）──
  *   不得把六维平均成一个「万能分数」：
- *     (Recall + Understanding + Explanation + Application + Expression + Consistency) / 6
+ * 计算六维均值：(Recall + Understanding + Explanation + Application + Expression + Consistency) / 6。
  *   这种平均会把「记忆 90 / 应用 20」和「六项都 55」算成同一结果，
  *   系统因此失去「该练什么」的判断力。本文件**只产出 Profile，不产出总分**。
  *
@@ -124,7 +124,7 @@ export function profileExtremes(
   }
 }
 
-/* ============================ §38 Mastery Review Report ============================ */
+/* ============================ §38 掌握度复习报告 ============================ */
 
 /** 内部调试报告（§38：普通用户 UI 不展示，只用于观察差异） */
 export interface MasteryReviewReport {

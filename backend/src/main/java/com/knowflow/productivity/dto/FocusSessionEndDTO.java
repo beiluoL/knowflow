@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * 承载结束专注会话时提交的参数。
+ */
 @Data
 public class FocusSessionEndDTO {
 

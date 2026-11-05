@@ -34,6 +34,9 @@ import java.nio.file.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证资料导入完整正向链路及功能关闭时的兼容行为。
+ */
 @SpringBootTest @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:oct2_import;DB_CLOSE_DELAY=-1;MODE=MySQL")
 class ImportPositiveChainTest {

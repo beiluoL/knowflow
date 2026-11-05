@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-/** Keeps user persistence and row locking in Identity, joining the existing caller transaction. */
+/** 用户持久化与行锁保留在身份模块内，并加入调用方现有事务。 */
 @Service
 @RequiredArgsConstructor
 public class RewardMemberAccessService implements RewardMemberAccess {

@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 验证统一响应、分页、异常原因及 HTTP 错误契约。
+ */
 class CommonResponseContractTest {
   private record TestCode(int code, String message, int httpStatus) implements ErrorCode {}
 

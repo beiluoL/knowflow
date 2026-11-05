@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Opt-in CUA browser harness. All writes stay in this class's private H2 database. */
+/** 显式启用的 CUA 浏览器测试工具，所有写入仅进入本类私有 H2 数据库。 */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"server.address=127.0.0.1","knowflow.datasource.h2.url=jdbc:h2:mem:today_actions_ui;MODE=MySQL;DB_CLOSE_DELAY=-1"})
 @Import({FakeAiConfiguration.class,TodayActionsUiBrowserTest.Observation.class})
 @EnabledIfSystemProperty(named="today.ui.browser",matches="true")
@@ -49,7 +49,7 @@ class TodayActionsUiBrowserTest {
       else chain.doFilter(request,wrapped);
      } finally {
       if(uri.startsWith("/api/")){
-       int code=-1;try{code=json.readTree(wrapped.getContentAsByteArray()).path("code").asInt(-1);}catch(Exception ignored){/* Non-JSON response remains explicitly unknown. */}
+       int code=-1;try{code=json.readTree(wrapped.getContentAsByteArray()).path("code").asInt(-1);}catch(Exception ignored){/* 非 JSON 响应仍明确标为未知。 */}
        synchronized(HTTP){HTTP.add(Map.of("path",uri,"method",request.getMethod(),"http",wrapped.getStatus(),"bodyCode",code));Files.createDirectories(OUT);Files.writeString(OUT.resolve("server-http.json"),json.writeValueAsString(HTTP));}
       }
       wrapped.copyBodyToResponse();

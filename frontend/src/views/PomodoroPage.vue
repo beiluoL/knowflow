@@ -1597,7 +1597,7 @@ onUnmounted(() => {
   color: var(--kf-warning);
 }
 
-/* ===== Section Header ===== */
+/* ===== 区块标题 ===== */
 .section-header {
   display: flex;
   align-items: center;

@@ -3,6 +3,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证面试学习包题目内容及主题分类的完整性。
+ */
 class InterviewSeedContentTest {
  @Test void javaQuestionsHaveSpecificPitfallsInsteadOfTheSameGenericFooter() {
   Set<String> pitfalls=new HashSet<>();

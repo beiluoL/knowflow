@@ -8,9 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
-/** Read published authored material through the same document ownership boundary.
- * Existing sessions keep their question snapshots even when content changes.
- */
+/** 通过相同文档归属边界读取已发布的编写资料；内容变化后，已有会话仍保留题目快照。 */
 @Component @RequiredArgsConstructor
 public class ContentStudioInterviewBank {
     private final QuizQuestionMapper questions;

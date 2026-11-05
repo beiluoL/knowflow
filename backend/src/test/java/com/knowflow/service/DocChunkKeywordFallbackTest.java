@@ -23,6 +23,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+/**
+ * 验证向量不可用时的关键词检索回退与文档权限。
+ */
 class DocChunkKeywordFallbackTest {
 
     @Test

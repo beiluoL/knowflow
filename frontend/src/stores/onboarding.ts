@@ -9,7 +9,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
   const completed = new Set<number>()
   const pending = new Set<number>()
   function read(id: number) { try { return localStorage.getItem(key(id)) } catch { return null } }
-  function write(id: number, value: string) { try { localStorage.setItem(key(id), value) } catch { /* UI preference; session memory remains available. */ } }
+  function write(id: number, value: string) { try { localStorage.setItem(key(id), value) } catch { /* 仅保存界面偏好，会话内存仍可用。 */ } }
   function markNewUser(id: number) { pending.add(id); write(id, 'pending') }
   function syncUser(user: Pick<UserVO, 'id' | 'role' | 'createTime'> | null) {
     const switched = userId.value !== (user?.id ?? null)

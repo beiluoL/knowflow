@@ -16,6 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
+/**
+ * 验证检索索引替换失败时保留旧分块与版本。
+ */
 @SpringBootTest
 @ActiveProfiles("local")
 class RagIndexPublicationTest {

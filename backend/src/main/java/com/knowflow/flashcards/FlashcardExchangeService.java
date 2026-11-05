@@ -15,7 +15,7 @@ import java.security.*;
 import java.time.Instant;
 import java.util.*;
 
-/** Content exchange only. All instances and review events remain in the existing learning tables. */
+/** 仅交换内容，所有实例与复习事件仍保存在现有学习表中。 */
 @Service
 @RequiredArgsConstructor
 public class FlashcardExchangeService {
@@ -26,7 +26,7 @@ public class FlashcardExchangeService {
     private static final List<String> FIELDS = List.of("type","front","back","language","category","tags","deck","source","externalId","textEncoding");
     @Data public static class Request {
         private String format = "csv", content, source = "personal-import";
-        // Semantic field -> zero-based source column; an absent field auto-matches a canonical header.
+        // 语义字段映射到从 0 开始的来源列；缺少字段时自动匹配标准表头。
         private Map<String,Integer> mapping = new TreeMap<>();
     }
     @Data public static class Confirmation {
@@ -91,7 +91,7 @@ public class FlashcardExchangeService {
                 note.setLanguage(value(values,"language","java")); note.setCategory(values.getOrDefault("category","")); note.setTags(values.getOrDefault("tags",""));
                 source=value(values,"source",r.getSource()); external=values.getOrDefault("externalId",""); deck=values.getOrDefault("deck","");
                 if (source.length()>200 || external.length()>200 || deck.length()>100) throw bad("来源/外部编号最多200字符，卡组最多100字符");
-                // Markdown is allowed. Raw HTML is rejected instead of trusting external templates or SVG.
+                // 允许 Markdown；拒绝原始 HTML，不信任外部模板或 SVG。
                 if ((!note.getType().equals("CODE_CLOZE") && hasHtml(note.getFront())) || hasHtml(note.getBack())) throw bad("不接受外部HTML模板，请转换为Markdown或纯文本");
                 if (unsafeResource(note.getFront()) || unsafeResource(note.getBack())) throw bad("不接受外部图片/媒体或脚本链接，请导入后通过授权附件添加");
                 var expanded=notes.preview(note);
@@ -100,7 +100,7 @@ public class FlashcardExchangeService {
                 if (cards>100) throw bad("单Note最多100张卡");
                 fingerprint=fingerprint(note,deck);
                 identity=hash(jsonText(List.of(source, external.isEmpty()?"fingerprint:"+fingerprint:"external:"+external)));
-                // Our own content exports carry stable original IDs; verify ownership AND full content.
+                // 本系统内容导出携带稳定的原始标识，必须同时验证归属和完整内容。
                 if (source.equals("knowflow:"+uid) && external.matches("(note|card):[0-9]+")) {
                     boolean ownNote=external.startsWith("note:"); long localId;
                     try {localId=Long.parseLong(external.substring(external.indexOf(':')+1));}catch(NumberFormatException e){throw bad("外部编号超出范围");}

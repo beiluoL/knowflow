@@ -939,7 +939,7 @@ async function finishSession() {
     session.value = finished
     clearInterval(timer)
     clearTimeout(draftSaveTimer)
-    try { localStorage.removeItem(draftStorageKey.value) } catch { /* ignore */ }
+    try { localStorage.removeItem(draftStorageKey.value) } catch { /* 忽略此处可容忍的异常。 */ }
     for (const q of session.value.questions) saveStatus[q.id] = 'saved'
     refOpen.value = true
     notify(`面试完成，自评均分 ${session.value.avgSelfScore}/5`, 'success')
@@ -1014,11 +1014,11 @@ function restoreTiming(s: InterviewSession) {
       const start = raw.starts?.[q.id]
       if (typeof start === 'number' && Number.isFinite(start) && start > 0 && start <= Date.now()) questionStarts[q.id] = start
     }
-  } catch { /* Invalid timing metadata never changes server answers. */ }
+  } catch { /* 非法计时元数据不改变服务端答案。 */ }
 }
 function persistTiming() {
   if (!session.value || readonly.value) return
-  try { localStorage.setItem(`knowflow:interview:timing:${session.value.id}`, JSON.stringify({ limitSec:limitSec.value, currentQuestionId:current.value?.id, starts:questionStarts })) } catch { /* Training timer only; draft failure has separate visible feedback. */ }
+  try { localStorage.setItem(`knowflow:interview:timing:${session.value.id}`, JSON.stringify({ limitSec:limitSec.value, currentQuestionId:current.value?.id, starts:questionStarts })) } catch { /* 仅供训练计时使用，草稿失败另有可见反馈。 */ }
 }
 watch(limitSec, () => startQuestionTimer())
 watch(() => route.query.id, value => {

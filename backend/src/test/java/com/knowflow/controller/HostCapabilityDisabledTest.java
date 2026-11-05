@@ -27,6 +27,9 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证关闭宿主机能力时普通用户及管理员均不能绕过。
+ */
 @SpringBootTest
 @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:host_disabled;DB_CLOSE_DELAY=-1;MODE=MySQL", "knowflow.host-capabilities.enabled=false"})

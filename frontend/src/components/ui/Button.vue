@@ -20,13 +20,13 @@ defineEmits<{click:[event:MouseEvent]}>()
 .kf-button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:var(--kf-button-gap);height:var(--kf-btn-height-md);padding:0 var(--kf-btn-padding-md);border:1px solid transparent;border-radius:var(--kf-btn-radius);font-family:var(--font-sans);font-size:var(--kf-fs-body-md);line-height:var(--kf-button-line-height);font-weight:var(--kf-fw-label);white-space:nowrap;box-shadow:none;cursor:pointer;transition:background-color .16s,color .16s,border-color .16s}
 .kf-button--sm{height:var(--kf-btn-height-sm);padding-inline:var(--kf-btn-padding-sm)}.kf-button--lg{height:var(--kf-btn-height-lg)}
 .kf-button__icon{display:inline-flex;align-items:center;justify-content:center;width:var(--kf-button-icon-slot);flex:0 0 var(--kf-button-icon-slot)}.kf-button__icon--trailing{order:1}.kf-button__label{display:inline-flex;align-items:center;justify-content:center;gap:var(--kf-button-gap);min-width:0;white-space:nowrap}
-/* Loading without an icon overlays the preserved label box. */
+/* 无图标加载态覆盖在保留尺寸的标签框上。 */
 .kf-button--loading-text .kf-button__icon{position:absolute;inset:0;width:auto}.kf-button--loading-text .kf-button__label{color:transparent}
 .kf-button[aria-busy=true]:not(:has(.kf-button__icon + .kf-button__label)){cursor:wait}
 .kf-button--icon-only{width:var(--kf-btn-height-md);padding:0}.kf-button--icon-only.kf-button--sm{width:var(--kf-btn-height-sm)}.kf-button--icon-only.kf-button--lg{width:var(--kf-btn-height-lg)}
 .kf-button--primary{background:var(--kf-primary);color:var(--kf-primary-foreground)}.kf-button--danger{background:var(--kf-danger-text);color:var(--kf-destructive-foreground)}
 .kf-button--secondary{background:var(--kf-card);color:var(--kf-foreground);border-color:var(--kf-border)}
-/* ghost retains its historical outlined contract; outline is the explicit alias. */
+/* ghost 保留历史描边契约，outline 为显式别名。 */
 .kf-button--outline,.kf-button--ghost{background:transparent;color:var(--kf-primary);border-color:var(--kf-primary)}.kf-button--text{background:transparent;color:var(--kf-primary)}
 .kf-button:hover:not(:disabled){filter:brightness(.96)}.kf-button--text:hover:not(:disabled){background:var(--kf-primary-soft)}.kf-button:active:not(:disabled){filter:brightness(.9)}
 .kf-button:focus-visible{outline:2px solid var(--kf-ring);outline-offset:var(--kf-space-1)}.kf-button:disabled{opacity:.5;cursor:not-allowed}.kf-button__spinner{animation:kf-button-spin 1s linear infinite}

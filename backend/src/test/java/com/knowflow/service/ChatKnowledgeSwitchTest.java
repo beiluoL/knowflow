@@ -21,6 +21,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证聊天知识开关在流式和非流式调用中的行为一致。
+ */
 class ChatKnowledgeSwitchTest {
  @Test void disabledKnowledgeNeverRetrievesInEitherTransport() throws Exception {
   var chunks=mock(DocChunkService.class);var ai=mock(AiService.class);var messages=mock(ChatMessageMapper.class);

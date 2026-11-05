@@ -8,6 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+/**
+ * 提供 AI 计费记录及额度初始化的数据访问映射。
+ */
 @Mapper
 public interface AiBillingEntryMapper extends BaseMapper<AiBillingEntry> {
   @Insert(

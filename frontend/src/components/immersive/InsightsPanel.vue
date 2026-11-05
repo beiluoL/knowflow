@@ -574,7 +574,7 @@ async function loadAllData(): Promise<void> {
             streakDays.value = us?.streakDays ?? 0;
           }
         } catch {
-          // skip parse
+          // 跳过解析。
         }
       } else {
         notify(`加载${labels[idx]}失败：${getApiError(r.reason, '网络异常')}`, 'warning');
@@ -1126,7 +1126,7 @@ const TabSkeleton = defineComponent({
   font-variant-numeric: tabular-nums;
 }
 
-/* skeleton */
+/* 骨架屏。 */
 .ip-skeleton {
   display: flex;
   flex-direction: column;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Explicit deployment trust, independent from business roles and tool toggles. */
+/** 显式配置部署信任，与业务角色和工具开关相互独立。 */
 @Getter @Setter @Component
 @ConfigurationProperties(prefix="knowflow.host-capabilities")
 public class HostCapabilityProperties {

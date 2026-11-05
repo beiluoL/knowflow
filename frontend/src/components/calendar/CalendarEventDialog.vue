@@ -140,7 +140,7 @@ function onSave() {
     const payload = buildPayload()
     emit('save', payload, props.event ? props.event.id : null)
   } catch {
-    /* error shown */
+    /* 已展示错误。 */
   }
 }
 

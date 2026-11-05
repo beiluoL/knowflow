@@ -8,6 +8,9 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
+/**
+ * 表示持久化的专注会话记录。
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("focus_session")

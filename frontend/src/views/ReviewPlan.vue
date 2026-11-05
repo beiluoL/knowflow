@@ -44,7 +44,7 @@
       >重新加载</button>
     </div>
 
-    <!-- Loading state -->
+    <!-- 加载状态。 -->
     <template v-else-if="loading">
       <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex flex-col md:flex-row md:items-center gap-6">
@@ -80,7 +80,7 @@
       </div>
     </template>
 
-    <!-- Content -->
+    <!-- 内容。 -->
     <template v-else>
 
     <Card hoverable>
@@ -388,7 +388,7 @@ function mapDifficulty(raw?: number): 'easy' | 'medium' | 'hard' {
   return 'easy';
 }
 
-// Date-only display of the actual backend dueAt; no local scheduling fallback.
+// 仅按日期展示后端真实 dueAt，不使用本地调度回退。
 function computeNextReviewDate(c: FlashcardVO): string | undefined {
  if(!c.nextReviewTime)return undefined
  const date=new Date(c.nextReviewTime)

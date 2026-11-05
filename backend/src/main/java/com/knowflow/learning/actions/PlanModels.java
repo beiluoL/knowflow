@@ -4,7 +4,7 @@ import java.time.*;
 import java.util.*;
 import lombok.Data;
 
-/** Only authenticated server code supplies owners and resource identities. */
+/** 所有者和资源标识仅由已认证服务端代码提供。 */
 public final class PlanModels {
     private PlanModels() {}
 

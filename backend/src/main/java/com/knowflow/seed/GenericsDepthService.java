@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-/** Append-only content revision using the existing Seed/Quiz/Flashcard/Code entities. */
+/** 复用现有 Seed、Quiz、Flashcard、Code 实体，以只追加方式修订内容。 */
 @Service @RequiredArgsConstructor
 public class GenericsDepthService {
     public static final String KEY="java-generics-depth-v1";
@@ -62,7 +62,7 @@ public class GenericsDepthService {
     public String preview(Long chapter){return available(chapter)?file("generics-reading-v5.md"):null;}
     public boolean readingUpgradeAvailable(Long actor,Long chapter){return available(chapter)&&active(actor)&&jdbc.queryForObject("SELECT COUNT(*) FROM interview_seed_resource WHERE seed_key=? AND resource_key=?",Integer.class,KEY,readingChoice(actor))==0;}
     private String readingChoice(Long actor){return "user/"+actor+"/reading/"+READING_VERSION;}
-    /** Explicit append-only selection; never updates old documents or training rows. Pack lock is held by activate. */
+    /** 显式追加选用版本，不更新旧文档或训练记录；内容包锁由 activate 持有。 */
     private void selectReading(Long actor,long category){
         var existing=jdbc.queryForList("SELECT resource_id FROM interview_seed_resource WHERE seed_key=? AND resource_key=?",KEY,READING_KEY);
         if(existing.isEmpty()){

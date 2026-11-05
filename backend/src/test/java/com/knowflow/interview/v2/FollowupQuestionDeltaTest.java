@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证追问 JSON 的增量提取和跨令牌转义。
+ */
 class FollowupQuestionDeltaTest {
     @Test void emitsIncrementallyBeforeObjectIsCompleteAndNeverStreamsEvaluation() {
         var emitted = new ArrayList<String>();

@@ -479,7 +479,7 @@ async function onPurchase(p: ProductVO): Promise<void> {
   try {
     const res = await storeApi.purchase(p.id)
     walletStore.refresh()
-    if (p.appKey) await store.install(p.appKey) // Entitlement → UserApp（§133-140）
+    if (p.appKey) await store.install(p.appKey) // 购买权益转换为用户应用记录（§133–140）。
     notify(`兑换成功！「${res.productName}」已加入我的应用`, 'success')
     await fetchProducts()
     // 从「下一步」进入的兑换 → 自动打开（§141-142：走 Registry route，不接受远程路由）

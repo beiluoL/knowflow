@@ -3,6 +3,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证 OpenAI 兼容 ASR 的请求协议、超时和响应上限。
+ */
 class OpenAiCompatibleAsrProviderTest {
  @Test void defaultOffHasNoUsableCapability(){var p=new OpenAiCompatibleAsrProvider(new SpeechProperties(),new ObjectMapper());assertFalse(p.capability());assertFalse(p.healthCheck());assertThrows(IllegalStateException.class,()->p.transcribe(new byte[1]));}
  @Test void callsRealMultipartProtocolWithoutRetryOrExposingRemoteErrors()throws Exception{try(var server=new MockWebServer()){server.start();var cfg=new SpeechProperties();cfg.setEnabled(true);cfg.setApiKey("server-secret");cfg.setModel("whisper-1");cfg.setEndpoint(server.url("/v1/audio/transcriptions").toString());var p=new OpenAiCompatibleAsrProvider(cfg,new ObjectMapper());server.enqueue(new MockResponse().setBody("{\"text\":\"真实文本\"}"));assertEquals("真实文本",p.transcribe(new byte[]{1,2,3}));var req=server.takeRequest();assertEquals("Bearer server-secret",req.getHeader("Authorization"));assertEquals("/v1/audio/transcriptions",req.getPath());assertTrue(req.getBody().readUtf8().contains("filename=\"speech.wav\""));server.enqueue(new MockResponse().setResponseCode(401).setBody("server-secret"));assertFalse(assertThrows(IllegalStateException.class,()->p.transcribe(new byte[]{1})).getMessage().contains("secret"));assertEquals(2,server.getRequestCount());}}

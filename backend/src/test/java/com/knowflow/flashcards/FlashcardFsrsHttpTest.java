@@ -19,6 +19,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * 验证 FSRS 复习的 HTTP 幂等性、并发、归属及调度回滚。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")

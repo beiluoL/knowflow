@@ -1,4 +1,4 @@
-/** Logs only bounded local demo values; DOM events, functions and secret fields are never dumped. */
+/** 仅记录有界本地示例值，不输出 DOM 事件、函数或敏感字段。 */
 export function safeFixtureLog(value:unknown):string{
  const seen=new WeakSet<object>()
  try{return JSON.stringify(value,(key,item)=>{

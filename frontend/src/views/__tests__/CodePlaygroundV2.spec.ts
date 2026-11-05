@@ -53,7 +53,7 @@ describe('代码工作台安全与编辑保护', () => {
   })
   it('工作区保存失败保留草稿，只有成功响应才能解除未保存状态', async () => {
     const w = render(); await flushPromises()
-    // This existing API failure test deliberately saves raw, non-JS draft text.
+    // 此既有 API 失败测试有意保存非 JavaScript 的原始草稿文本。
     await w.get('.format-settings input[type="checkbox"]').setValue(false)
     await w.get('.ws-toggle-btn').trigger('click'); await flushPromises()
     await w.get('.code-textarea').setValue('workspace draft')

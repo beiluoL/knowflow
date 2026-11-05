@@ -19,6 +19,9 @@ import com.fasterxml.jackson.databind.*;
 import com.knowflow.mastery.service.KnowledgeMasteryService;import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.test.context.ActiveProfiles;
 import java.util.*;import java.time.LocalDateTime;import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证知识图谱洞察的 HTTP 契约。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.adaptive-learning.enabled=true","server.address=127.0.0.1"}) @ActiveProfiles("local")
 class ProductGraphInsightHttpTest {
  @Autowired ObjectMapper json;@Autowired JwtUtils jwt;@Autowired SysUserMapper users;@Autowired DocCategoryMapper categories;@Autowired DocDocumentMapper docs;@Autowired KgEntityMapper knowledge;@Autowired QuizQuestionMapper questions;@Autowired QuizAnswerRecordMapper answers;@Autowired ResourceKnowledgeMappingMapper mappings;@Autowired KnowledgeMasteryService mastery;@Autowired com.knowflow.knowledge.service.NoteService notes;

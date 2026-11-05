@@ -36,7 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.math.BigDecimal;
 import java.util.*;
 
-/** Versioned authored content only. Existing content and learning results are never updated. */
+/** 仅管理版本化的编写内容，不更新现有内容或学习结果。 */
 @Service @RequiredArgsConstructor
 public class ContentRebuildService {
     public static final String KEY="java-ai-content-rebuild-v1";

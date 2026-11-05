@@ -493,10 +493,10 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
   }
 
   return {
-    // state
+    // 状态。
     settings,
     runtime,
-    // computed
+    // 计算属性。
     totalDuration,
     progress,
     progressPct,
@@ -504,7 +504,7 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
     modeColor,
     timeFormatted,
     setProgress,
-    // actions
+    // 操作。
     applyPreset,
     saveSettings,
     updateNoiseSettings,

@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.stereotype.Component;
 
-/** Additive, repeatable migration; never backfills historical answers or knowledge mappings. */
+/** 可重复的增量迁移，不回填历史答案或知识映射。 */
 @Component
 @RequiredArgsConstructor
 public class LearningEvidenceSchema {

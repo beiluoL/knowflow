@@ -272,7 +272,7 @@ const privateConvs = ref<PrivateConversationVO[]>([])
 const groups = ref<StudyGroupVO[]>([])
 const messages = ref<PrivateMessageVO[]>([])
 
-// WebSocket
+// WebSocket 连接。
 let ws: WebSocket | null = null
 
 const currentUserId = ref<number | null>(null)
@@ -328,7 +328,7 @@ async function loadMessages(convId: number) {
   }
 }
 
-// WebSocket
+// WebSocket 连接。
 let disposed=false
 let reconnectTimer:ReturnType<typeof setTimeout>|undefined
 function connectWebSocket() {

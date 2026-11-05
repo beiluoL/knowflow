@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Links existing notes, tasks, actual F07 submissions and immutable T02 receipts. */
+/** 关联现有笔记、任务、真实 F07 提交及不可变 T02 回执。 */
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(
@@ -322,7 +322,7 @@ public class InterviewRetestService {
         var previous = interviews.get(user, n(r, "retest_session"));
         if (!"COMPLETED".equals(previous.get("state"))) throw new BusinessException(409, "请先完成正在进行的复测");
         if (r.get("retest_turn") == null) throw new BusinessException(409, "请先保存当前显式复测关联");
-        // Idempotent finish also backfills history for plans created before this additive migration.
+        // 幂等结束同时为本次增量迁移前创建的计划补充历史。
         finish(user, id);
         var next = interviews.startFrozenRetest(user, n(r, "baseline_turn"), request);
         sql.update(

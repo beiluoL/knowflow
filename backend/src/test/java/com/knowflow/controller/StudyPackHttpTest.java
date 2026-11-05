@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证学习资料包的 HTTP 生命周期与归属。
+ */
 @SpringBootTest(properties={"knowflow.product.private-quiz.enabled=true","knowflow.product.tutor.enabled=true","knowflow.product.study-pack.enabled=true"})
 @AutoConfigureMockMvc @ActiveProfiles("local")
 class StudyPackHttpTest {
@@ -49,7 +52,7 @@ class StudyPackHttpTest {
  }
  @Test void individualFailureKeepsSuccessfulNoteAndRetryDoesNotRegenerateIt()throws Exception{
   java.util.concurrent.atomic.AtomicBoolean failCards=new java.util.concurrent.atomic.AtomicBoolean(true);
-  // The fixture delegates all other calls to the deterministic provider established above.
+  // 夹具的其他调用均委托给上方已建立的确定性供应方。
   var normal=ai.complete("SOURCE_NOTE_V1","",(String)null,owner);String normalCards=ai.complete("SOURCE_CARDS_V1","",(String)null,owner);String normalQuiz=ai.complete("QUIZ","",(String)null,owner);
   when(ai.complete(anyString(),anyString(),isNull(String.class),anyLong())).thenAnswer(inv->{String system=inv.getArgument(0);if(system.contains("SOURCE_CARDS_V1")){if(failCards.get())throw new IllegalStateException("controlled provider failure");return normalCards;}return system.contains("SOURCE_NOTE_V1")?normal:normalQuiz;});
   long id=upload("partial.txt","JVM提供GC，Spring管理Bean。部分失败测试").path("id").asLong();var partial=terminal(id);assertEquals("PARTIAL_READY",partial.path("state").asText());long note=partial.path("note").path("id").asLong();assertTrue(note>0);

@@ -13,7 +13,7 @@
  *   - 可见性（§41）：app.navVisible && 平台 ACTIVE && userApp.installed && userApp.enabled。
  *   - 排序（§18/§86）：UserApp.sortOrder 优先，缺省用 AppDefinition.order。
  *
- * ── UI/UX 3.2 Core Menu Minimalism（§60-67/§84）──────────────────────────────
+ * ── UI/UX 3.2 核心菜单精简原则（§60–67/§84）──────────────────────────────
  * 每个工作区的输出恒为：**1 个核心固定入口 + N 个 enabled App**（§28/§29/§31）。
  * 固定入口不参与 sortOrder（§84-85：核心入口永远稳定，App 由用户自己组织），
  * 因此排序只对动态部分生效，统一由本文件输出（§87），Sidebar / Mobile / Home 共用。

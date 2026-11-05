@@ -1,6 +1,6 @@
 package com.knowflow.learning.studypack;
 
-/** Persists ordered job and step transition events using the caller transaction. */
+/** 使用调用方事务持久化有序任务及步骤迁移事件。 */
 final class StudyPackEventWriter {
     private StudyPackEventWriter() {}
 

@@ -486,7 +486,7 @@ class MasteryEngineIntegrationTest {
     @Test
     @DisplayName("S19 列表：listWeak / listReviewRequired 按状态过滤")
     void listByStatus() {
-        // WEAK
+        // 薄弱状态：WEAK。
         long weakKid = kg("CONCEPT");
         long wq = 93022L;
         map(weakKid, MasteryConfig.RES_QUIZ, wq, MasteryConfig.MAP_STATUS_ACCEPTED);
@@ -495,7 +495,7 @@ class MasteryEngineIntegrationTest {
         wr.setCreateTime(LocalDateTime.now()); quizMapper.insert(wr);
         masteryService.recalc(UID, weakKid);
 
-        // REVIEW_REQUIRED
+        // 需要复习：REVIEW_REQUIRED。
         long revKid = kg("PRINCIPLE");
         long rc = 93023L;
         map(revKid, MasteryConfig.RES_REVIEW_CARD, rc, MasteryConfig.MAP_STATUS_ACCEPTED);

@@ -2,7 +2,7 @@ import { ref, watch } from 'vue'
 export interface CodeFormatPreferences { enabled: boolean; paste: boolean; save: boolean; input: boolean }
 const KEY = 'knowflow:code-format:v1'
 const defaults = (): CodeFormatPreferences => ({ enabled: true, paste: true, save: true, input: false })
-// Follow existing browser-local UI preference composables; stores/learning stays untouched.
+// 沿用现有浏览器本地界面偏好组合函数，不改动 stores/learning。
 export function useCodeFormatPreferences() {
   let initial = defaults()
   try {
@@ -13,7 +13,7 @@ export function useCodeFormatPreferences() {
         if (typeof value === 'boolean') initial[key] = value
       }
     }
-  } catch { /* Unavailable/corrupt browser storage falls back to defaults. */ }
+  } catch { /* 浏览器存储不可用或损坏时回退到默认值。 */ }
   const settings = ref(initial)
   const persistenceError = ref('')
   watch(settings, value => {

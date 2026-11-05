@@ -17,7 +17,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 
-/** Structured model judgement attached to original Chat turns; never an objective grade. */
+/** 附着于原聊天轮次的结构化模型判断，不作为客观成绩。 */
 @Service
 @RequiredArgsConstructor
 public class TutorAssessmentService {
@@ -236,7 +236,7 @@ public class TutorAssessmentService {
         }
     }
 
-    /** Claims the existing request under the original transaction and retry checks. */
+    /** 按原事务和重试校验规则领取已有请求。 */
     private Map<String, Object> claimAssessment(
             long conv, long user, Input input, String rubric, String model) {
         return tx(

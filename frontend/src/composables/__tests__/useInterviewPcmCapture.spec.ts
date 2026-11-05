@@ -29,7 +29,7 @@ describe('realtime PCM microphone lifecycle', () => {
     vi.useFakeTimers();
     let grant: ((stream: MediaStream) => void) | undefined;
     const {capture,wrapper} = fixture(vi.fn(() => new Promise<MediaStream>((resolve) => { grant=resolve; })));
-    // Vue Test Utils may own a mount timer; capture must leave that baseline unchanged.
+    // Vue Test Utils 可能持有挂载计时器，采集过程必须保留该基线不变。
     const existingTimers = vi.getTimerCount();
     const pending = capture.start(options());
     expect(capture.state.value).toBe('starting');

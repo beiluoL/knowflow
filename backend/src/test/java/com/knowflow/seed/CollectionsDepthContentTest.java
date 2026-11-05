@@ -9,6 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证集合进阶内容中的示例可编译运行并区分接口契约与实现细节。
+ */
 class CollectionsDepthContentTest {
     @TempDir Path directory;
     @Test void structuredReadingExamplesCompileAndDemonstrateTypesAndImmutableValues() throws Exception {

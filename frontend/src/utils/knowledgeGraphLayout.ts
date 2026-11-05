@@ -118,8 +118,8 @@ function relationLayout(nodes: CanvasGraphNode[], edges: CanvasGraphEdge[], widt
     }
     groups.push(group)
   }
-  // Pack disconnected components against the viewport aspect, not a fixed-width vertical shelf.
-  // Candidate widths are bounded/deterministic; edges and component membership remain unchanged.
+  // 按视口比例排列不连通分量，不使用固定宽度纵向堆叠。
+  // 候选宽度有界且确定，边及分量归属保持不变。
   const items=groups.map((group,index)=>({group,index,bounds:graphBounds(group)})).sort((a,b)=>b.bounds.height-a.bounds.height||a.index-b.index)
   if(!items.length)return[]
   const area=items.reduce((total,item)=>total+(item.bounds.width+52)*(item.bounds.height+52),0)
@@ -162,7 +162,7 @@ export function layoutKnowledgeGraph(nodes: CanvasGraphNode[], edges: CanvasGrap
   for(const [,level] of [...levels].sort(([a],[b])=>a-b)) {level.forEach((n,i)=>result.push({...n,x:(i%columns)*224+92,y:y+Math.floor(i/columns)*112+38,width:184,height:76}));y+=Math.ceil(level.length/columns)*112+40}
   return result
 }
-/** Two lines measured in approximate 14px glyph units; short Latin names need not break at ten characters. */
+/** 按约 14px 字形单位测量两行，短拉丁名称无需在十字符处强制换行。 */
 export function graphLabelLines(label: string, columns = 10) {
   const remaining=Array.from(label.replace(/\s+/g,' ').trim()),budget=columns*14,lines:string[]=[]
   const glyphWidth=(char:string)=>/[MW@]/.test(char)?13.5:/[A-Z]/.test(char)?10.5:/[ilI.,:;!|' ]/.test(char)?5:/[\x00-\xff]/.test(char)?8.5:14

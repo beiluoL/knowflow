@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * 提供闪卡内容笔记的预览、创建、读取和更新接口。
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/learning/my/flashcard-notes")

@@ -3,7 +3,7 @@ package com.knowflow.exam.diagnosis;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Exam-local observations, never a replacement for Evidence aggregation or global Mastery. */
+/** 仅提供考试内的表现观察，不替代 Evidence 聚合或全局 Mastery。 */
 public record ExamDiagnosis(String ruleVersion,Long attemptId,String scope,int objectiveAnsweredCount,
  int objectiveCorrectCount,Double objectiveAccuracy,int unansweredCount,int ungradedCount,
  List<Topic> topics,Comparison comparison) {

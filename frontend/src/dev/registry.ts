@@ -107,7 +107,7 @@ export const entries:(PlaygroundEntry & {production:ProductionMetadata})[]=[...b
  return {...entry,production:productionMetadata(entry)}
 })
 export function searchEntries(query:string,category='全部'){const q=query.trim().toLowerCase();return entries.filter(e=>(category==='全部'||e.category===category)&&`${e.name} ${e.title} ${e.category} ${e.description} ${e.props.map(p=>p.name).join(' ')} ${Object.keys(e.designSpecs).join(' ')}`.toLowerCase().includes(q))}
-// Names only; every value is read from the existing computed CSS, never copied into another theme.
+// 仅保存名称，值均从现有计算后的 CSS 读取，不复制为另一套主题。
 export const tokenGroups:Record<string,string[]>={
  颜色:['--kf-primary','--kf-foreground','--kf-background','--kf-card','--kf-border','--kf-muted','--kf-state-success','--kf-state-warning','--kf-state-error','--kf-danger-text'],
  字体:['--font-sans','--font-mono','--kf-fs-h1','--kf-fs-h2','--kf-fs-h3','--kf-fs-h4','--kf-fs-body-lg','--kf-fs-body-md','--kf-fs-body-sm','--kf-fs-caption','--kf-lh-body-md','--kf-lh-h1','--kf-fw-label','--kf-fw-h1'],

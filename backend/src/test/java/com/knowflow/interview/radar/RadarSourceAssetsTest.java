@@ -15,6 +15,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;import java.nio.charset.StandardCharsets;import java.security.MessageDigest;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证雷达私有来源附件的幂等存储和归属。
+ */
 @SpringBootTest @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:radar_assets;DB_CLOSE_DELAY=-1;MODE=MySQL")
 class RadarSourceAssetsTest {

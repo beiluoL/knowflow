@@ -1,11 +1,11 @@
 package com.knowflow.apps.contract;
 
-/** Apps operations used by the Store purchase transaction. */
+/** 商店购买事务使用的应用操作契约。 */
 public interface AppPurchaseAccess {
 
-    /** Returns whether the official app is available for purchase. */
+    /** 返回官方应用是否可购买。 */
     boolean isActive(String appKey);
 
-    /** Installs and enables the app for the buyer within the current purchase transaction. */
+    /** 在当前购买事务中为买方安装并启用应用。 */
     void markInstalledAndEnabled(Long userId, String appKey);
 }

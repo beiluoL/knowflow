@@ -18,12 +18,12 @@ import lombok.EqualsAndHashCode;
 public class AgentMessage extends BaseEntity {
     private Long sessionId;
     private Long userId;
-    /** system / user / assistant / tool */
+    /** 消息角色：system（系统）/ user（用户）/ assistant（助手）/ tool（工具）。 */
     private String role;
     private String content;
     /** user 消息附带的文件路径，可空 */
     private String filePath;
-    /** normal / tool_call / tool_result / summary */
+    /** 消息类型：normal（普通）/ tool_call（工具调用）/ tool_result（工具结果）/ summary（摘要）。 */
     private String messageType;
     /** 工具调用ID（tool 角色回灌时关联） */
     private String toolCallId;

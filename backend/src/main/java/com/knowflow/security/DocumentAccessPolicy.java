@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
-/** Shared document boundary. Membership roles remain owned by KbMemberService. */
+/** 共享文档访问边界，成员角色仍由 KbMemberService 管理。 */
 @Component @RequiredArgsConstructor
 public class DocumentAccessPolicy {
     private final DocCategoryMapper categories;
@@ -36,7 +36,7 @@ public class DocumentAccessPolicy {
     public boolean canEditCategory(Long categoryId, Long userId) { return userId != null && allowed(categoryId,userId,true); }
     private boolean allowed(Long categoryId,Long userId,boolean edit) {
         if (admin(userId)) return true;
-        if (categoryId == null) return !edit; // Historical uncategorized published documents.
+        if (categoryId == null) return !edit; // 历史上未分类的已发布文档。
         Set<Long> visited=new HashSet<>(); Long cursor=categoryId;
         while(cursor != null && cursor != 0 && visited.add(cursor)) {
             DocCategory cat=categories.selectById(cursor);
@@ -47,13 +47,13 @@ public class DocumentAccessPolicy {
             Long parent=cat.getParentId();
             if(cat.getOwnerId()!=null) {
                 DocCategory ancestor=parent==null||parent==0 ? null : categories.selectById(parent);
-                // Imported descendants with the same owner inherit the root's members.
+                // 同一所有者的导入后代节点继承根节点成员。
                 if(ancestor==null || !Objects.equals(cat.getOwnerId(),ancestor.getOwnerId())) return false;
             }
             if(parent==null || parent==0) return !edit && cat.getOwnerId()==null;
             cursor=parent;
         }
-        return false; // Orphans and cycles fail closed.
+        return false; // 孤立节点和循环引用均拒绝访问。
     }
     public boolean canRead(DocDocument doc,Long userId) {
         return doc!=null && (studyPacks==null || studyPacks.canRead(doc.getId(),userId)) && !Integer.valueOf(1).equals(doc.getDeleted()) && canReadCategory(doc.getCategoryId(),userId)
@@ -79,7 +79,7 @@ public class DocumentAccessPolicy {
         var readable=categories.selectList(new LambdaQueryWrapper<DocCategory>()).stream()
                 .filter(c->canReadCategory(c.getId(),userId)).map(DocCategory::getId).toList();
         query.and(w->{w.isNull(DocDocument::getCategoryId);if(!readable.isEmpty()) w.or().in(DocDocument::getCategoryId,readable);});
-        // Public listings never expose drafts, regardless of caller-controlled query status.
+        // 公开列表不得暴露草稿，即使调用方自行指定查询状态。
         query.eq(DocDocument::getStatus,1);
         return query;
     }

@@ -1,5 +1,5 @@
 // 红黑树核心算法实现 - 支持步骤追踪、可视化布局与规则校验
-// Red-Black Tree core algorithm with step tracking for visualization
+// 带步骤跟踪的红黑树核心算法，用于可视化。
 
 /** 节点颜色 */
 export type NodeColor = 'RED' | 'BLACK';

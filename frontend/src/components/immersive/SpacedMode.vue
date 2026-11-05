@@ -281,7 +281,7 @@ function toggleTimer() {
   timerRunning.value = !timerRunning.value;
   if (timerRunning.value && !isActive()) {
     start('SPACED').catch(() => {
-      /* useFocusSession already notified */
+      /* useFocusSession 已发出通知。 */
     });
   }
 }
@@ -346,7 +346,7 @@ onUnmounted(async () => {
     try {
       await end({ completedPomodoros: reviewedCount.value });
     } catch {
-      /* useFocusSession already notified */
+      /* useFocusSession 已发出通知。 */
     }
   }
 });

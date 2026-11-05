@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Serializes pet creation and read-modify-write operations on the owning user row. */
+/** 锁定所属用户行，串行执行宠物创建及读改写操作。 */
 @Service
 @RequiredArgsConstructor
 public class UserPetService {
@@ -160,7 +160,7 @@ public class UserPetService {
         vo.setUpdateTime(pet.getUpdateTime());
         return vo;
     }
-    /** Adds completed focus minutes and pomodoros within the caller's transaction. */
+    /** 在调用方事务内累计完成的专注分钟数和番茄钟数量。 */
     @Transactional(rollbackFor = Exception.class)
     public UserPetVO grantFocus(Long userId, int minutes, int pomodoros) {
         lockOwner(userId);

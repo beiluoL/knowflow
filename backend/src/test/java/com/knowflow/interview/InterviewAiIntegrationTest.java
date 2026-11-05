@@ -23,6 +23,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.http.MediaType;
 
+/**
+ * 验证面试 AI 任务的集成行为。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local")
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:interview-ai;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.datasource.allow-runtime-switch=false","knowflow.exam.timeout-scheduler.enabled=false","knowflow.coding.seed.algorithm.enabled=false","knowflow.ai.capability.enabled=true"})
 class InterviewAiIntegrationTest {

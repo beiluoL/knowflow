@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * 提供闪卡复习、会话、设置及统计接口。
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/learning")

@@ -8,14 +8,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Persists generated suggestions after external AI processing has completed. */
+/** 外部 AI 处理完成后持久化生成建议。 */
 @Service
 @RequiredArgsConstructor
 public class AiSuggestionCacheService {
     private final AiLearningSuggestionMapper mapper;
     private final com.knowflow.identity.mapper.SysUserMapper users;
 
-    /** Replaces the owner's period cache atomically; a failed insert retains old rows. */
+    /** 原子替换所有者的周期缓存，插入失败时保留旧行。 */
     @Transactional(rollbackFor = Exception.class)
     public void replace(AiLearningSuggestion suggestion) {
         lockOwner(suggestion.getUserId());
@@ -25,7 +25,7 @@ public class AiSuggestionCacheService {
         persist(suggestion);
     }
 
-    /** Inserts a generated cache row; AI generation occurs before this transaction. */
+    /** 插入生成缓存行；AI 生成在此事务之前执行。 */
     @Transactional(rollbackFor = Exception.class)
     public void insert(AiLearningSuggestion suggestion) {
         lockOwner(suggestion.getUserId());

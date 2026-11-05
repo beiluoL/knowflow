@@ -18,7 +18,7 @@ import java.nio.file.*;
 import java.security.MessageDigest;
 import java.util.*;
 
-/** Read-only author-package projection inside the existing guarded QA channel. Never approves or imports. */
+/** 在现有受控 QA 通道中只读展示作者内容包，不执行批准或导入。 */
 @Component @RequiredArgsConstructor
 @ConditionalOnProperty(name="knowflow.content-studio.qa.enabled",havingValue="true")
 public class HashMapAuthorPreview {

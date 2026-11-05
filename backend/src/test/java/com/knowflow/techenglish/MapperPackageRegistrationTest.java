@@ -14,7 +14,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Exercises actual mapper registration and persistence after the package-only move. */
+/** 验证仅移动包后真实 Mapper 注册及持久化行为。 */
 @SpringBootTest
 class MapperPackageRegistrationTest {
     @Autowired ApplicationContext context;

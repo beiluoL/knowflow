@@ -16,6 +16,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
+/**
+ * 验证 AI 网络传输的超时、边界和安全处理。
+ */
 class AiTransportSafetyTest {
   @Test
   void retainsStatusWithoutRetainingProviderErrorBody() {

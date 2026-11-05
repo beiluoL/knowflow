@@ -14,7 +14,7 @@ public class QuizExplainVO {
 
     private Long questionId;
 
-    /** AI / BASIC。 */
+    /** 处理方式：AI（模型）/ BASIC（基础）。 */
     private String mode;
 
     /** BASIC 时的失败分类（AI_UNCONFIGURED / AI_TIMEOUT …），可空。 */

@@ -69,7 +69,7 @@ export const LEARNING_ENTRY_CONTEXT: Record<string, EntryContextParam[]> = {
   '/learning/first-principles': ['knowledgeId', 'knowledgeName'],
   '/learning/writing': ['knowledgeId', 'knowledgeName'],
   '/learning/review': ['knowledgeId', 'knowledgeName'],
-  // ChapterResourceLinks validates and consumes this chapter context.
+  // ChapterResourceLinks 校验并消费此章节上下文。
   '/doc/:id': ['chapterId'],
   '/learning/code-practice/:id': ['chapterId'],
   '/learning/knowledge-mastery/:id': ['chapterId'],
@@ -144,7 +144,7 @@ export function resolveContextualRoute(
 ): string {
   const base = resolveActionRoute(action)
   const target = pathOnly(base)
-  // Existing NextAction behavior is retained; resource context is explicit user navigation.
+  // 保留现有 NextAction 行为，资源上下文来自用户显式导航。
   if (resourceEntryPath(target) && action.type !== 'EVIDENCE_PRACTICE') return base
   if (!LEARNING_ENTRY_CONTEXT[resourceEntryPath(target) || target]) return base
 
@@ -202,7 +202,7 @@ export function describeEntryContext(ctx: LearningEntryContext): string | null {
   return null
 }
 
-/** Query is a hint; ChapterResourceLinks checks the authenticated chapter relation. */
+/** 查询参数仅作提示，ChapterResourceLinks 校验认证用户的章节关系。 */
 export function readChapterContext(query: Record<string, unknown>): number | null {
   const value = query.chapterId
   return typeof value === 'string' && /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : null
@@ -213,13 +213,13 @@ export function resolveChapterResourceRoute(kind: 'chapter'|'knowledge'|'documen
   return resolveContextualRoute(stampActionContext({type: 'EVIDENCE_PRACTICE', title: '章节资源', reason: '用户选择关联资源', route: `${prefixes[kind]}/${id}`}, {learningNodeId: chapterId}))
 }
 
-/** Flashcard filters are session inputs; remount when they change to avoid stale cards/events. */
+/** 闪卡筛选是会话输入，变化时重新挂载，避免使用过期卡片或事件。 */
 export function learningEntryViewKey(route: {path:string;query:Record<string,unknown>}): string {
   if(route.path !== '/learning/flashcards') return route.path
   return route.path + JSON.stringify(['chapterId','pathId','knowledgeId','knowledgeName'].map(key=>route.query[key]??null))
 }
 
-/** Exact resource navigation; IDs are actual consumed resource selectors, not invented knowledge context. */
+/** 精确资源导航，标识是页面实际消费的资源选择条件，不伪造知识上下文。 */
 export function resolvePlanResourceSelector(kind: 'QUIZ'|'FLASHCARD', id: number, action: NextLearningAction, ctx: LearningEntryContext = {}): string {
   if (!Number.isSafeInteger(id) || id <= 0) return '/learning/center'
   const target = kind === 'QUIZ' ? '/learning/quiz' : '/learning/flashcards'

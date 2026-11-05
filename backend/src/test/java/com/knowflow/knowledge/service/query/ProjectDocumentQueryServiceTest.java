@@ -9,6 +9,9 @@ import com.knowflow.knowledge.mapper.DocDocumentMapper;
 import com.knowflow.security.DocumentAccessPolicy;
 import org.junit.jupiter.api.Test;
 
+/**
+ * 验证项目文档查询在授权后保留空值并传播原始异常。
+ */
 class ProjectDocumentQueryServiceTest {
     @Test
     void returnsUnmodifiedNullableFieldsOnlyAfterReadAuthorization() {

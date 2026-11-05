@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
+/**
+ * 验证工具参数拒绝非法根结构、字段及约束值。
+ */
 class ToolArgumentsTest {
   @Test
   void rejectsInvalidRootsFieldsAndConstraints() throws Exception {

@@ -1,5 +1,5 @@
 /**
- * Architecture-4.1：Evidence Resolver（§7）
+ * 架构 4.1：证据解析器（§7）。
  *
  * 职责：LearningEvent → BehaviorEvidence。
  * 纯函数、无副作用、不调 API；同一事件无论算多少次结果完全一致（可重算 = 不成为真相源）。

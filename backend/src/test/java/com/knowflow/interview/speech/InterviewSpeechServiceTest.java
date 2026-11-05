@@ -11,6 +11,9 @@ import org.springframework.mock.web.MockMultipartFile;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+/**
+ * 验证面试转写的幂等、绑定、错误净化及付费调用边界。
+ */
 class InterviewSpeechServiceTest {
  JdbcTemplate jdbc;InterviewSpeechService service;InterviewAsrProvider provider;MockInterviewService sessions;
  @BeforeEach void setup(){var ds=new DriverManagerDataSource("jdbc:h2:mem:speech_"+UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");jdbc=new JdbcTemplate(ds);jdbc.execute("CREATE TABLE mock_interview_session(id BIGINT PRIMARY KEY,user_id BIGINT,deleted INT,status VARCHAR(30))");new ResourceDatabasePopulator(new ClassPathResource("db/h2/migration/V20261016__interview_speech.sql")).execute(ds);jdbc.update("INSERT INTO mock_interview_session VALUES(1,7,0,'IN_PROGRESS')");sessions=mock(MockInterviewService.class);provider=mock(InterviewAsrProvider.class);var session=new SessionVO();session.setStatus("IN_PROGRESS");var q=new QuestionVO();q.setId("q1");session.setQuestions(List.of(q));when(sessions.getOwn(7L,1L)).thenReturn(session);when(provider.capability()).thenReturn(true);when(provider.auditName()).thenReturn("test-provider");when(provider.transcribe(any())).thenReturn("真实转写");service=new InterviewSpeechService(jdbc,sessions,provider,new SpeechProperties(),new DataSourceTransactionManager(ds),new SpeechV2Admission(jdbc));}

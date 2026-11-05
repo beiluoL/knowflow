@@ -31,6 +31,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证商店映射注册、购买归属、并发扣款及事务边界。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")

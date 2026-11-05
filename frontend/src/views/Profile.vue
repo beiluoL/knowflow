@@ -1,8 +1,8 @@
 <template>
   <div class="animate-fade-in">
-    <!-- ===== User Profile Hero Card ===== -->
+    <!-- ===== 用户资料主卡片 ===== -->
     <section class="rounded-xl border overflow-hidden mb-6 hero-card" style="background: var(--kf-card); border-color: var(--kf-border);">
-      <!-- Banner -->
+      <!-- 横幅。 -->
       <div class="h-28 relative" style="background: linear-gradient(135deg, var(--kf-primary), rgba(59,111,224,0.6));">
         <div class="absolute inset-0 banner-dots"></div>
         <!-- 装饰圆 -->
@@ -11,7 +11,7 @@
       </div>
       <div class="px-6 pb-6 -mt-12 relative">
         <div class="flex items-end gap-5 flex-wrap">
-          <!-- Avatar 100px -->
+          <!-- 100px 头像。 -->
           <div class="relative shrink-0">
             <div
               v-if="user.avatar"
@@ -97,7 +97,7 @@
       </div>
     </section>
 
-    <!-- ===== Learning Data Overview (4 cards) ===== -->
+    <!-- ===== 学习数据概览（四张卡片）===== -->
     <section class="mb-6">
       <h2 class="kf-h3 mb-4">学习数据概览</h2>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -238,7 +238,7 @@
       </div>
     </section>
 
-    <!-- ===== Achievement Badges (Horizontal) ===== -->
+    <!-- ===== 成就徽章（横向）===== -->
     <section class="rounded-xl border p-6 mb-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5">
         <h2 class="kf-h3">学习成就</h2>
@@ -268,7 +268,7 @@
       </div>
     </section>
 
-    <!-- ===== My Certificates (G-CERT-01) ===== -->
+    <!-- ===== 我的证书（G-CERT-01）===== -->
     <section class="rounded-xl border p-6 mb-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5">
         <h2 class="kf-h3">我的证书</h2>
@@ -298,7 +298,7 @@
       </div>
     </section>
 
-    <!-- ===== Recent Activity Timeline ===== -->
+    <!-- ===== 近期活动时间线 ===== -->
     <section class="rounded-xl border p-6 mb-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5">
         <h2 class="kf-h3">最近活动</h2>
@@ -327,7 +327,7 @@
       </div>
     </section>
 
-    <!-- ===== Settings Shortcuts ===== -->
+    <!-- ===== 设置快捷入口 ===== -->
     <section class="rounded-xl border p-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <h2 class="kf-h3 mb-4">快捷设置</h2>
       <div class="grid grid-cols-3 gap-4">
@@ -352,7 +352,7 @@
       </div>
     </section>
 
-    <!-- ===== Settings Drawer (Modal) ===== -->
+    <!-- ===== 设置抽屉（模态）===== -->
     <div v-if="settingsOpen" class="settings-mask" @click.self="settingsOpen = false">
       <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
         <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--kf-border);">
@@ -891,7 +891,7 @@ onMounted(async () => {
   text-align: center;
 }
 
-/* Quick setting button */
+/* 快捷设置按钮。 */
 .quick-setting {
   display: flex;
   flex-direction: column;
@@ -909,7 +909,7 @@ onMounted(async () => {
   border-color: var(--kf-primary);
 }
 
-/* Settings drawer */
+/* 设置抽屉。 */
 .settings-mask {
   position: fixed;
   inset: 0;

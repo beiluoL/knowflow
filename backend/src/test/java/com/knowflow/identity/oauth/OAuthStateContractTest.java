@@ -13,6 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * 验证 OAuth 状态与供应方、浏览器绑定且仅消费一次。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")

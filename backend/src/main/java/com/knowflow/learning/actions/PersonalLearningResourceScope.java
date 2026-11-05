@@ -10,9 +10,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/**
-  * Personal planning selects public, owned or explicitly shared sources, not admin moderation scope.
-  */
+/** 个人计划选择公开、自有或明确共享的来源，不使用管理员审核范围。 */
 @Component
 @RequiredArgsConstructor
 public class PersonalLearningResourceScope {

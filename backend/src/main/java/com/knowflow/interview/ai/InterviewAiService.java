@@ -18,7 +18,7 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Independent AI suggestions; never mutates source answers, scores, Evidence or Mastery. */
+/** 独立生成 AI 建议，不修改原答案、分数、Evidence 或 Mastery。 */
 @Service
 public class InterviewAiService {
  @org.springframework.beans.factory.annotation.Autowired private com.knowflow.interview.v2.InterviewV2Guard v2Guard;
@@ -100,7 +100,7 @@ public class InterviewAiService {
  private List<String> strings(JsonNode n,boolean nonempty){if(n==null||!n.isArray()||n.size()>5||(nonempty&&n.isEmpty()))throw new IllegalArgumentException("invalid list");List<String> values=new ArrayList<>();for(var value:n)values.add(text(value,500));return values;}
  private void fail(long id,String reason){jdbc.update("UPDATE mock_interview_ai_turn SET status='FAILED',error_message=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND status IN ('QUEUED','RUNNING')",reason,id);}
  public List<Turn> list(Long user,Long sid,String qid){var s=sessions.getOwn(user,sid);if(!"BASIC".equals(s.getMode())||(v2Guard!=null&&v2Guard.isV2(sid)))throw new BusinessException(409,"V2会话请使用受控面试入口");requireQuestion(s,qid);expire(sid);String fingerprint=sourceFingerprint(s,qid);return jdbc.queryForList("SELECT * FROM mock_interview_ai_turn WHERE session_id=? AND user_id=? AND question_id=? ORDER BY round_no",sid,user,qid).stream().map(r->turn(r,fingerprint)).toList();}
- private void expireTasks(){for(var entry:started.entrySet())if(System.currentTimeMillis()-entry.getValue()>120_000){try{fail(entry.getKey(),"AI 任务超时，请继续基础面试");var future=tasks.remove(entry.getKey());if(future!=null)future.cancel(true);started.remove(entry.getKey());workers.purge();}catch(Exception ignored){/* Retry cleanup on next deadline tick; late result still uses status CAS. */}}}
+ private void expireTasks(){for(var entry:started.entrySet())if(System.currentTimeMillis()-entry.getValue()>120_000){try{fail(entry.getKey(),"AI 任务超时，请继续基础面试");var future=tasks.remove(entry.getKey());if(future!=null)future.cancel(true);started.remove(entry.getKey());workers.purge();}catch(Exception ignored){/* 下次截止时间轮询时重试清理；迟到结果仍通过状态 CAS 处理。 */}}}
  private void expire(Long sid){jdbc.update("UPDATE mock_interview_ai_turn SET status='FAILED',error_message='任务已过期，未产生点评',updated_at=CURRENT_TIMESTAMP WHERE session_id=? AND status IN ('QUEUED','RUNNING') AND updated_at < ?",sid,java.sql.Timestamp.valueOf(java.time.LocalDateTime.now().minusMinutes(5)));}
  public Turn cancel(Long user,Long sid,Long id){sessions.getOwn(user,sid);var rows=jdbc.queryForList("SELECT * FROM mock_interview_ai_turn WHERE id=? AND session_id=? AND user_id=?",id,sid,user);if(rows.isEmpty())throw new BusinessException(404,"建议轮次不存在");jdbc.update("UPDATE mock_interview_ai_turn SET status='CANCELLED',updated_at=CURRENT_TIMESTAMP WHERE id=? AND status IN ('QUEUED','RUNNING')",id);var future=tasks.remove(id);started.remove(id);if(future!=null)future.cancel(true);workers.purge();return getTurn(id,sourceFingerprint(sessions.getOwn(user,sid),String.valueOf(rows.get(0).get("question_id"))));}
  private Turn getTurn(long id,String fingerprint){return turn(jdbc.queryForMap("SELECT * FROM mock_interview_ai_turn WHERE id=?",id),fingerprint);}

@@ -13,6 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证 AI 建议 HTTP 接口的归属、周期兼容及认证。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(FakeAiConfiguration.class)

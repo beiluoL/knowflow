@@ -132,7 +132,7 @@ export const useLearningStore = defineStore('learning', () => {
     tasks.value.length === 0 ? 0 : Math.round((doneTaskCount.value / tasks.value.length) * 100),
   )
 
-  /* ==================== Evidence → Diagnosis → Strategy ==================== */
+  /* ==================== 证据 → 诊断 → 策略 ==================== */
   /** 事件 → 证据（不可解析的事件自动丢弃） */
   const evidences = computed(() => resolveEvidenceBatch(recentEvents.value))
   /** 证据 → 六维聚合（30 天窗口、时间衰减、样本上限） */
@@ -359,7 +359,7 @@ export const useLearningStore = defineStore('learning', () => {
     await loadContext()
   }
 
-  // UI resume draft only. Ratings are always reloaded from the server's original learning events.
+  // 仅恢复界面草稿，评分始终从服务端原始学习事件重新加载。
   function readFlashcardSession(scope: string): FlashcardSessionDraft | null {
     if (!uid.value) return null
     try {
@@ -374,7 +374,7 @@ export const useLearningStore = defineStore('learning', () => {
     if (!uid.value) return
     const key = `knowflow:flashcards:v2:${uid.value}:${scope}`
     try { if (draft) sessionStorage.setItem(key, JSON.stringify(draft)); else sessionStorage.removeItem(key) }
-    catch { /* Storage restrictions do not change server review persistence. */ }
+    catch { /* 存储限制不改变服务端复习持久化。 */ }
   }
 
   /** 用户隔离：切换账号 / 登出时清空，杜绝串号 */

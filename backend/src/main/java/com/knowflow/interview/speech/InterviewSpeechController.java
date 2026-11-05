@@ -2,6 +2,9 @@ package com.knowflow.interview.speech;
 import com.knowflow.common.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+/**
+ * 提供面试语音能力查询及转写接口。
+ */
 @RestController @RequestMapping("/api/interview")
 public class InterviewSpeechController {
  private final InterviewSpeechService service;

@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+/**
+ * 提供导师会话创建、消息追加及模式管理接口。
+ */
 @RestController @RequestMapping("/api/learning/tutor/sessions") @RequiredArgsConstructor
 @ConditionalOnProperty(name="knowflow.product.tutor.enabled",havingValue="true")
 public class TutorController {

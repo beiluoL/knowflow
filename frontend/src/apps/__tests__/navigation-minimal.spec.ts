@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 /**
- * UI/UX 3.2 Core Menu Minimalism（§140-153）
+ * UI/UX 3.2 核心菜单精简原则（§140–153）。
  *
  * 核心断言：Sidebar = 「核心工作区固定入口」 + 「用户 enabled 的 App」，
  * 任何固定二级业务菜单都不再进入 Resolver 输出；同时 Route 全部保留（§51）。
@@ -283,7 +283,7 @@ describe('排序（3.2 §84-§87）', () => {
   })
 
   it('未设 sortOrder 时回落到 registry.order', () => {
-    // flashcard(order=1) < quiz(order=2) < mistake(order=3)
+    // 排序优先级：flashcard(order=1) < quiz(order=2) < mistake(order=3)。
     const paths = pathsOf('学习', {
       quiz: state(true, true, 0),
       mistake: state(true, true, 0),

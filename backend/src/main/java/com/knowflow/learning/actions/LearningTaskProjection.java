@@ -9,7 +9,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/** Same task records surfaced to learning UI, never copied to learning_task. */
+/** 向学习界面展示同一批任务记录，不复制到 learning_task。 */
 @Service
 @RequiredArgsConstructor
 public class LearningTaskProjection {

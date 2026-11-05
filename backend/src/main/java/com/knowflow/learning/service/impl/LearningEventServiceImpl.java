@@ -103,7 +103,7 @@ public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, L
         try { event.setMetadata(MAPPER.writeValueAsString(metadata)); }
         catch (com.fasterxml.jackson.core.JsonProcessingException ex) { throw new IllegalStateException("Cannot serialize learning event", ex); }
         if (!save(event)) throw new IllegalStateException("Cannot persist learning event");
-        // Downstream engines must read the committed card, without holding the review row lock.
+        // 下游引擎必须读取已提交卡片，且不持有复习行锁。
         org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
             new org.springframework.transaction.support.TransactionSynchronization() {
                 @Override public void afterCommit() {

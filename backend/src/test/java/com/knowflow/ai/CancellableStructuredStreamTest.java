@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证结构化流增量输出及主动取消行为。
+ */
 class CancellableStructuredStreamTest {
     @Test void deliversActualFramesBeforeDoneAndSuppressesLateFrames() {
         var tokens = new ArrayList<String>();

@@ -280,7 +280,7 @@ async function consumeSse(
 
 export interface ChatShare {id:number;urlPath?:string;createdAt?:string;expiresAt:string;revoked?:boolean;redactions?:string[]}
 export interface PublicChatSnapshot {title:string;createdAt:string;expiresAt:string;messages:{role:string;content:string;createTime?:string}[];redactions?:string[]}
-/** Public capability endpoint deliberately sends neither bearer credentials nor referrer. */
+/** 公开能力端点不发送持有者凭据或来源地址。 */
 export async function readPublicChat(token:string):Promise<PublicChatSnapshot>{
   if(!/^[A-Za-z0-9_-]{40,100}$/.test(token))throw new Error('分享不存在、已过期或已撤销')
   const response=await fetch(`/api/public/chat-shares/${encodeURIComponent(token)}`,{credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer'})

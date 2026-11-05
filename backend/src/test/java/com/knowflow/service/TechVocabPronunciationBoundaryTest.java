@@ -16,6 +16,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证技术词汇发音功能的访问边界。
+ */
 @SpringBootTest(properties={
  "knowflow.datasource.h2.url=jdbc:h2:mem:vocab_pron_boundary;DB_CLOSE_DELAY=-1;MODE=MySQL",
  "knowflow.datasource.config-file=/tmp/vocab-pron-boundary-no-overrides.json",

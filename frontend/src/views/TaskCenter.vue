@@ -1,5 +1,5 @@
 <template><TaskManager /></template>
 <script setup lang="ts">
-// Phase4E: the task center uses the existing persisted task UI, rather than fabricated growth tasks.
+// 阶段 4E：任务中心使用现有持久化任务界面，不伪造成长任务。
 import TaskManager from './TaskManager.vue'
 </script>

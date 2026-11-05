@@ -1,4 +1,4 @@
-// Capability gaps documented in the playground; production components remain untouched.
+// 在组件中心记录能力差距，生产组件保持不变。
 export const capabilityNotes:Record<string,string[]>={
  Input:['前置/后置图标可用；suffixIconName不是后置按钮。','Clearable与后置操作按钮：Not Supported（真实Input没有这些Props）。','readonly为原生属性透传，不等同disabled。'],
  DatePicker:['选中日期Fixture固定2026-10-15，min/max固定十月；今天标记仍由真实组件按本机日期计算，无法通过公开Prop冻结。','禁用范围通过min/max；任意禁用日期函数：Not Supported。'],

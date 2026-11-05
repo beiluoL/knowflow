@@ -231,7 +231,7 @@ public class AdminCategoryController {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(bos, StandardCharsets.UTF_8)) {
-            // ===== meta.json =====
+            // ===== meta.json 元数据 =====
             Map<String, Object> meta = new LinkedHashMap<>();
             meta.put("exportedAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             Map<String, Object> kb = new LinkedHashMap<>();
@@ -263,7 +263,7 @@ public class AdminCategoryController {
             zos.write(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(meta));
             zos.closeEntry();
 
-            // ===== docs/*.md =====
+            // ===== docs/*.md 文档 =====
             int idx = 0;
             for (DocDocument doc : docs) {
                 String safeName = sanitizeFileName(doc.getTitle()) + "_" + doc.getId() + ".md";

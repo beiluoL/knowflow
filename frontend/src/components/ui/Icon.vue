@@ -358,7 +358,7 @@
       <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
     </template>
 
-    <!-- AI chat entry: speech bubble and a small sparkle, same 24px stroke grid. -->
+    <!-- AI 聊天入口：对话气泡与小星光，共用 24px 描边网格。 -->
     <template v-else-if="name === 'message-square-sparkles'">
       <path d="M21 11v4a3 3 0 0 1-3 3H7l-4 3V6a3 3 0 0 1 3-3h6" />
       <path d="m18 2 1.1 2.9L22 6l-2.9 1.1L18 10l-1.1-2.9L14 6l2.9-1.1Z" />

@@ -19,7 +19,7 @@
       </span>
     </div>
 
-    <!-- Loading -->
+    <!-- 加载中。 -->
     <div v-if="loading" class="mt-4 animate-pulse space-y-3">
       <div v-for="i in 3" :key="i" class="flex items-center gap-3">
         <div class="h-8 w-8 rounded-[var(--kf-radius-sm)]" style="background: var(--kf-muted);"></div>
@@ -30,7 +30,7 @@
       </div>
     </div>
 
-    <!-- Error -->
+    <!-- 错误状态。 -->
     <ErrorState
       v-else-if="error"
       title="薄弱知识点加载失败"
@@ -38,7 +38,7 @@
       @retry="$emit('retry')"
     />
 
-    <!-- Empty -->
+    <!-- 空状态。 -->
     <div v-else-if="items.length === 0" class="mt-4 text-center py-2">
       <div
         class="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center"

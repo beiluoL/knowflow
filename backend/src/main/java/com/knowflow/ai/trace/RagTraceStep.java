@@ -18,7 +18,7 @@ public class RagTraceStep {
     /** 展示名称（已脱敏，不含文档内容）。 */
     private String label;
 
-    /** success / empty / skipped / error。 */
+    /** 结果状态：success（成功）/ empty（空）/ skipped（跳过）/ error（错误）。 */
     private String status;
 
     /** 安全摘要，不包含文档正文、凭证或内部提示词。 */

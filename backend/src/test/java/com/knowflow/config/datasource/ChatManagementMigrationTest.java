@@ -9,6 +9,9 @@ import java.sql.DriverManager;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证聊天管理在数据源切换前迁移目标连接并处理失败。
+ */
 class ChatManagementMigrationTest {
  private DataSourceProperties.Item target(String suffix) {
   var item=new DataSourceProperties.Item();item.setUrl("jdbc:h2:mem:chat_migration_"+suffix+UUID.randomUUID()+";DB_CLOSE_DELAY=-1;MODE=MySQL");item.setUsername("sa");item.setPassword("");item.setMinimumIdle(0);item.setInitMode("auto");return item;

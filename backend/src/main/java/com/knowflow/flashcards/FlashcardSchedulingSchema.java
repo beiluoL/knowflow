@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-/** Additive migration only: no existing card identity, due time or historical grade is updated. */
+/** 仅增量迁移，不更新现有卡片标识、到期时间或历史评分。 */
 @Component
 @RequiredArgsConstructor
 public class FlashcardSchedulingSchema {

@@ -31,7 +31,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/** Bounded metadata only; documents are untrusted content and never tool instructions. */
+/** 仅提供有界元数据；文档是不可信内容，不能作为工具指令。 */
 @Service
 @RequiredArgsConstructor
 public class LearningContextService {
@@ -230,7 +230,7 @@ public class LearningContextService {
                                 .orderByDesc(LearningUserPath::getUpdateTime)
                                 .last("LIMIT 12"));
         for (var p : paths) {
-            // Existing path ownership and publication checks remain authoritative.
+            // 仍以现有路径归属与发布校验为准。
             com.knowflow.learning.vo.LearningPathVO path;
             try {
                 path = learning.getPathDetail(p.getPathId(), user);
@@ -238,8 +238,8 @@ public class LearningContextService {
                 if (ex.getCode() == 403 || ex.getCode() == 404) continue;
                 throw ex;
             }
-            // Filter completed rows in SQL before LIMIT: long paths must not disappear after chapter
-            // twelve.
+            // 在 SQL 的 LIMIT 前过滤已完成记录，避免长路径在第十二章后
+            // 从结果中消失。
             var pending =
                     chapters.selectList(
                             new LambdaQueryWrapper<LearningChapter>()

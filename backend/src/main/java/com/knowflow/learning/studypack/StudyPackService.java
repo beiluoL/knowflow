@@ -40,7 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Durable orchestration and resource references. Existing content stores remain authoritative. */
+/** 持久化编排和资源引用，现有内容存储仍是权威来源。 */
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(
@@ -97,7 +97,7 @@ public class StudyPackService {
         sql.update(
                 "UPDATE study_pack_job SET state='CANCELLED',update_time=CURRENT_TIMESTAMP WHERE"
                         + " state='CANCEL_REQUESTED'");
-        // A stopped process cannot claim that an interrupted paid model call never ran.
+        // 进程停止后，不能声称被中断的付费模型调用从未执行。
         sql.update(
                 "UPDATE study_pack_step SET state='FAILED',error_message='进程中断，生成结果未知；明确重试可能再次调用模型'"
                         + " WHERE state='RUNNING'");
@@ -379,7 +379,7 @@ public class StudyPackService {
         }
     }
 
-    /** Claims queued or partially ready jobs with the same owner lock. */
+    /** 使用同一所有者锁领取排队中或部分就绪的任务。 */
     private boolean claimJob(long id, long user) {
         return tx(
                 user,
@@ -395,7 +395,7 @@ public class StudyPackService {
                 });
     }
 
-    /** Finalizes job state after all ordered steps and cancellation checks. */
+    /** 所有有序步骤及取消校验结束后，确定最终任务状态。 */
     private void finishJob(long id, long user) {
         tx(
                 user,
@@ -509,7 +509,7 @@ public class StudyPackService {
         }
     }
 
-    /** Extracts and persists the uploaded source in its original transaction. */
+    /** 在原有事务中提取并持久化上传来源。 */
     private void parseSource(long id, long user, Map<String, Object> job) throws Exception {
         byte[] bytes =
                 sql.queryForObject(
@@ -627,7 +627,7 @@ public class StudyPackService {
         return camel(job);
     }
 
-    /** Cancellation is cooperative: an in-flight provider call may finish and incur cost. */
+    /** 采用协作取消，进行中的供应方调用仍可能完成并产生费用。 */
     public Map<String, Object> cancel(long id, long user) {
         tx(
                 user,

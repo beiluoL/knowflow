@@ -4,7 +4,7 @@ import com.knowflow.KnowFlowApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/** Disposable loopback QA only. Never registered in the production application. */
+/** 仅供回环地址上的临时 QA 使用，不注册到生产应用。 */
 public final class ChapterRichMarkdownLiveServer {
     public static void main(String[] args) {
         var app = new SpringApplication(KnowFlowApplication.class, FakeAiConfiguration.class,

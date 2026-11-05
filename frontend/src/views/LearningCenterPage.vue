@@ -472,7 +472,7 @@ const donePercent = computed(() => {
 
 /** 当前学习路径：唯一定义（目标关联路径优先，其次进行中路径），与首页一致（§三） */
 
-/* ============ Architecture-4.1：Evidence & Strategy Engine（§4-§30） ============
+/* ============ 架构 4.1：证据与策略引擎（§4–§30）============
  * 数据流：最近学习事件 → resolveEvidenceBatch（Event→Evidence）
  *   → aggregateEvidence（多次证据 + 时间衰减 + 样本上限）
  *   → diagnoseFromEvidence（能力诊断 + 确定性根因）
@@ -536,7 +536,7 @@ function startMainAction() {
     goTo(mainCta.value.path)
     return
   }
-  // TASK lands on this page: activate the existing task UI instead of pushing the same route.
+  // TASK 落地页即当前页面，激活现有任务界面，不重复跳转相同路由。
   const task = todaySection.value?.querySelector<HTMLElement>('.lc-task-check:not(.done)')?.closest<HTMLElement>('.lc-task')
   if (!task) return
   const details = task.querySelector<HTMLDetailsElement>('details')

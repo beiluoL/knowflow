@@ -20,6 +20,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * 验证闪卡交换的 HTTP 预览、幂等确认、冲突及事务回滚。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
@@ -112,7 +115,7 @@ class FlashcardExchangeHttpTest {
   var changed=input("front,back\na,c");postData("confirm",uid,Map.of("request",changed,"token",p.path("token").asText()),409);
   var second=postData("preview",uid,request,200);
   postData("confirm",uid,Map.of("request",request,"token",p.path("token").asText()),200);
-  // Two identical previews may share a token in the same second; both must remain safe to retry.
+  // 同一秒内两个相同预览可能共用令牌，两者都必须能安全重试。
   var result=postData("confirm",uid,Map.of("request",request,"token",second.path("token").asText()),200);
   assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM learning_flashcard WHERE user_id=?",Integer.class,uid));
  }

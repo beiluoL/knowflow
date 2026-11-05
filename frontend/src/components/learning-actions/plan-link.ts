@@ -1,7 +1,7 @@
 import type { PlanItem } from '@/api/learning-actions'
 import { stampActionContext, resolveContextualRoute, resolvePlanResourceSelector } from '@/learning/action-contract'
 import type { NextLearningAction } from '@/learning/types'
-/** Plan resource entry uses the existing stamped route whitelist; no model URL is accepted. */
+/** 计划资源入口复用现有带上下文盖章的路由白名单，不接受模型 URL。 */
 export function planResourceRoute(item: PlanItem): string {
  const context={knowledgeId:item.knowledgeId ?? undefined,learningNodeId:item.resourceType==='CHAPTER'?item.resourceId:null}
  let action:NextLearningAction

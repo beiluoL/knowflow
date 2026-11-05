@@ -20,7 +20,7 @@ public class Task extends BaseEntity {
 
     private Long userId;
 
-    /** Server-owned provenance; confirmation metadata, not a second task system. */
+    /** 服务端维护的来源信息，仅作确认元数据，不另建任务系统。 */
     private String learningPlanRef;
     private String learningMetadata;
 

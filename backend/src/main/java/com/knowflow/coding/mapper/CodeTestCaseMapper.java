@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.knowflow.coding.entity.CodeTestCase;
 import org.apache.ibatis.annotations.Mapper;
 
+/**
+ * 提供编程题测试用例的数据访问映射。
+ */
 @Mapper
 public interface CodeTestCaseMapper extends BaseMapper<CodeTestCase> {
 }

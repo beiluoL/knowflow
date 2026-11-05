@@ -6,7 +6,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/** Six explicit business bindings. Actor comes only from authenticated server orchestration. */
+/** 六种显式业务绑定，操作人仅来自已认证服务端编排。 */
 @Service
 @RequiredArgsConstructor
 public class LearningActionToolExecutor {

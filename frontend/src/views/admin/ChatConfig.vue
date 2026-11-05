@@ -159,7 +159,7 @@
 
         <!-- 表单网格：API Key + Base URL + Model -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- API Key -->
+          <!-- API 密钥。 -->
           <div class="md:col-span-1">
             <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">
               API Key
@@ -186,7 +186,7 @@
             <p class="text-xs mt-1" style="color: var(--kf-muted-foreground);">Key 仅保存在服务器</p>
           </div>
 
-          <!-- Base URL -->
+          <!-- 基础 URL。 -->
           <div>
             <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">API 地址</label>
             <input
@@ -198,7 +198,7 @@
             />
           </div>
 
-          <!-- Model -->
+          <!-- 模型。 -->
           <div>
             <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">模型名称</label>
             <input

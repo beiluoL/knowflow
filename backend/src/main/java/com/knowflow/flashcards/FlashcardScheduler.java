@@ -7,7 +7,7 @@ import io.github.openspacedrepetition.Scheduler;
 import java.time.*;
 import java.util.Arrays;
 
-/** Thin adapter to java-fsrs 1.0.0 (MIT), FSRS-6. No local memory formulas. */
+/** java-fsrs 1.0.0（MIT）的 FSRS-6 轻量适配层，不另建记忆公式。 */
 public final class FlashcardScheduler {
     private FlashcardScheduler() {}
 
@@ -72,8 +72,8 @@ public final class FlashcardScheduler {
                                         .toArray(Duration[]::new))
                         .enableFuzzing(false)
                         .build();
-        // FSRS's internal int cardId is an opaque placeholder; the original database BIGINT id
-        // remains authoritative.
+        // FSRS 内部的 int cardId 仅作不透明占位符，数据库原始 BIGINT 标识
+        // 仍是权威标识。
         var card =
                 previous == null
                         ? Card.builder().cardId(0).due(now).build()

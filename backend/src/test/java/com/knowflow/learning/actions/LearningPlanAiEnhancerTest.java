@@ -7,6 +7,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
+/**
+ * 验证 AI 计划增强的候选限制、工具权限和超时回退。
+ */
 class LearningPlanAiEnhancerTest {
  AiService ai;LearningPlanAiEnhancer enhancer;PlanModels.Request req;List<PlanModels.Item> rules;
  @BeforeEach void setup(){ai=mock(AiService.class);enhancer=new LearningPlanAiEnhancer(ai,new ObjectMapper());req=new PlanModels.Request();req.setUseAi(true);rules=new DailyPlanRule().generate(req,new PlanModels.Context(List.of(),List.of(),0,Map.of()));}

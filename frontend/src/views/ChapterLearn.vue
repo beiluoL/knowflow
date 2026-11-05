@@ -711,8 +711,8 @@ watch([renderedContent, originalReading, loading], ([, , busy]) => {
         embed.setAttribute('frameborder', '0');
         embed.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
         embed.setAttribute('allowfullscreen', '');
-        // No allow-same-origin: even a same-site video URL must not inherit
-        // the authenticated reader's storage/DOM privileges.
+        // 不启用 allow-same-origin，即使同站视频 URL 也不得继承
+        // 已认证读者的存储或 DOM 特权。
         embed.setAttribute('sandbox', 'allow-scripts allow-presentation');
         embed.title = '章节参考视频';
         embed.classList.add('chapter-video-frame');
@@ -1212,7 +1212,7 @@ onBeforeUnmount(() => { chapterRequest++; window.removeEventListener('scroll',up
   scrollbar-width: none;
 }
 
-/* Chapter V2: one quiet article surface; hierarchy lives in type and spacing. */
+/* 章节 V2：单一简洁文章表面，通过字体与间距表达层级。 */
 .chapter-learn {max-width: none;margin-inline: 0;padding-bottom:var(--kf-space-6);
   width: 100%;
   min-width: 0;

@@ -14,6 +14,9 @@ import com.knowflow.learning.mapper.LearningChapterMapper;
 import com.knowflow.learning.mapper.LearningPathMapper;
 
 import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import java.util.*;import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;import static org.mockito.ArgumentMatchers.*;
+/**
+ * 验证自适应路径 HTTP 调整的版本、锁及撤权行为。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.adaptive-learning.enabled=true","knowflow.product.interview-learning.enabled=true","knowflow.product.private-quiz.enabled=true","knowflow.product.tutor.enabled=true","knowflow.product.tutor-coaching.enabled=true","server.address=127.0.0.1"})
 class ProductAdaptivePathHttpTest extends ProductFeedbackHttpTest {
  @Autowired com.knowflow.learning.service.LearningService learning;@Autowired LearningPathMapper paths;@Autowired LearningChapterMapper chapters;@Autowired DocCategoryMapper categories;@Autowired DocDocumentMapper docs;@Autowired KgEntityMapper knowledge;

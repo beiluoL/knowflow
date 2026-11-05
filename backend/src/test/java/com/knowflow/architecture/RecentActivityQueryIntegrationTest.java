@@ -12,6 +12,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证近期活动查询的模块注册及持久化行为。
+ */
 @SpringBootTest
 @ActiveProfiles("local")
 class RecentActivityQueryIntegrationTest {

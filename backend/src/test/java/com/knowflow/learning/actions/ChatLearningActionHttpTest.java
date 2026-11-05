@@ -19,6 +19,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证聊天学习意图的计划预览、归属和用户确认边界。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.config-file=/tmp/knowflow-phase4e-chat-test-no-config.json","knowflow.datasource.type=h2","knowflow.datasource.h2.url=jdbc:h2:mem:phase4e_chat;DB_CLOSE_DELAY=-1;MODE=MySQL"})
 class ChatLearningActionHttpTest {

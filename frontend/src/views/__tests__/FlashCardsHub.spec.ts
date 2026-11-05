@@ -1112,7 +1112,7 @@ describe('Phase C focused rating shortcuts',()=>{it('keeps numbered rating short
 
 describe('Phase C answer question context',()=>{it('keeps Markdown control characters out of the compact answer heading',async()=>{apiMock.learning.flashcards.mockResolvedValueOnce([{id:101,front:'## 问题标题\n\n[文档](/docs/1)',back:'答案',category:'前端',difficulty:1}]);const w=mountPage();await flushPromises();await buttonByText(w,'开始学习')!.trigger('click');await flushPromises();expect(w.find('.back-title').text()).toBe('问题标题 文档');w.unmount()})})
 
-// Settings UI regression: real page, AppDialog and form; only the HTTP boundary is replaced.
+// 设置界面回归：使用真实页面、AppDialog 和表单，仅替换 HTTP 边界。
 describe('Flashcard Settings UI V2', () => {
   const initialSettings = () => ({ scheduling: { desiredRetention: .9, maximumInterval: 36500, learningMinutes: [1, 10], relearningMinutes: [10] }, newCardLimit: 20, reviewLimit: 200, timezone: 'Asia/Shanghai', dayStartHour: 4 })
   let savedSettings = initialSettings()

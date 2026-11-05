@@ -4,7 +4,7 @@ export interface PcmPlaybackOptions {
   createContext?: () => AudioContext;
 }
 
-/** Each interrupt begins a new generation; callers must retain the returned token. */
+/** 每次中断开始新一代操作，调用方须保留返回令牌。 */
 export class PcmPlayback {
   private context?: AudioContext;
   private gain?: GainNode;
@@ -52,7 +52,7 @@ export class PcmPlayback {
     if (start + duration - context.currentTime > this.maxQueuedSeconds || this.sources.size >= 250) {
       throw new Error('PCM playback queue is full');
     }
-    // Reserve sequence/space before await, preserving concurrent event ordering.
+    // await 前预留序列和空间，保留并发事件顺序。
     this.nextSequence += 1;
     this.scheduledUntil = start + duration;
     const buffer = context.createBuffer(1, pcm.byteLength / 2, this.sampleRate);
@@ -86,7 +86,7 @@ export class PcmPlayback {
     this.generation += 1;
     for (const source of this.sources) {
       source.onended = null;
-      try { source.stop(); } catch { /* A source awaiting resume has not started. */ }
+      try { source.stop(); } catch { /* 等待恢复的音源尚未启动。 */ }
       source.disconnect();
     }
     this.sources.clear();

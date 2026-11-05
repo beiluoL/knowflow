@@ -14,7 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Session lineage only. Questions, answer snapshots, grading and receipts stay in PrivateQuiz. */
+/** 仅维护会话来源链；题目、答案快照、评分和回执仍由 PrivateQuiz 管理。 */
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(

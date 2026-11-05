@@ -1,5 +1,8 @@
 package com.knowflow.learning.controller;
 import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.adaptive.EvidenceReportService;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
+/**
+ * 提供基于原始学习记录的证据报告查询接口。
+ */
 @RestController @RequestMapping("/api/learning/evidence-report") @RequiredArgsConstructor @ConditionalOnProperty(name={"knowflow.product.adaptive-learning.enabled","knowflow.product.interview-learning.enabled","knowflow.product.private-quiz.enabled","knowflow.product.tutor.enabled","knowflow.product.tutor-coaching.enabled"},havingValue="true")
 public class EvidenceReportController {
  private final EvidenceReportService service;

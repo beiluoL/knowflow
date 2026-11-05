@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class AgentMessageVO {
     private Long id;
     private Long sessionId;
-    /** system / user / assistant / tool */
+    /** 消息角色：system（系统）/ user（用户）/ assistant（助手）/ tool（工具）。 */
     private String role;
     private String content;
     private String filePath;

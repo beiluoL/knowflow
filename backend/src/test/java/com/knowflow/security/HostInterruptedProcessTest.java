@@ -8,6 +8,9 @@ import java.util.stream.Stream;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证宿主机执行中断后终止子进程并保留中断状态。
+ */
 class HostInterruptedProcessTest {
     @Test void terminalInterruptedWaitStopsChildAndPreservesInterrupt() throws Exception {
         Process child=mock(Process.class);

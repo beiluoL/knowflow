@@ -66,7 +66,7 @@ public class ExamAttempt extends BaseEntity {
     private Integer gradedCount;
     private Integer questionCount;
 
-    /** NONE / PENDING_AI / AI_GRADED / AI_FAILED / REVIEW_REQUIRED */
+    /** 评分状态：NONE（无）/ PENDING_AI（待模型评分）/ AI_GRADED（模型已评分）/ AI_FAILED（模型评分失败）/ REVIEW_REQUIRED（待复核）。 */
     private String gradingStatus;
     private String aiMeta;
     private String clientVersion;

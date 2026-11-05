@@ -4,7 +4,7 @@ function descendants(graph: KnowledgeGraphVO, root: string): Set<string> {
  while(pending.length){const id=pending.pop()!;for(const edge of graph.edges)if(edge.source===id&&!found.has(edge.target)){found.add(edge.target);pending.push(edge.target)}}
  return found
 }
-/** Pure presentation filter. Every returned node and edge must already exist in the server graph. */
+/** 纯展示筛选，返回的每个节点和边都必须已存在于服务端图中。 */
 export function filterKnowledgeGraph(graph:KnowledgeGraphVO,categoryId:string,keyword:string):KnowledgeGraphVO {
  const allowed=categoryId==='all'?new Set(graph.nodes.map(n=>n.id)):descendants(graph,categoryId)
  const query=keyword.trim().toLocaleLowerCase()

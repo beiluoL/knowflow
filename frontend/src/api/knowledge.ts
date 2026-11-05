@@ -52,7 +52,7 @@ export const knowledgeApi = {
     return apiPost<ExtractResultVO>(`/knowledge/extract${qs ? `?${qs}` : ''}`)
   },
 
-  // ===== Architecture-4.3：Knowledge Processing 2.0 =====
+  // ===== 架构 4.3：知识处理 2.0 =====
 
   /** 处理资料：AI 抽取 → 校验 → 返回候选（零写库）。候选需经 accept 审核后才进入 Knowledge Core。 */
   processMaterial: (data: KnowledgeProcessRequest) =>
@@ -62,7 +62,7 @@ export const knowledgeApi = {
   acceptProcess: (data: KnowledgeProcessAcceptRequest) =>
     apiPost<KnowledgeAcceptResultVO>('/knowledge/process/accept', data),
 
-  // ===== Architecture-4.4：Learning Content Generator =====
+  // ===== 架构 4.4：学习内容生成器 =====
 
   /** 生成学习内容 Draft：Knowledge → 闪卡/费曼/场景（零写库，默认 DRAFT 状态） */
   generateContent: (data: LearningContentGenerateRequest) =>

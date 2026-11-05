@@ -19,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证私有练习闭卷作答、不可变历史及归属的 HTTP 契约。
+ */
 @SpringBootTest(properties={"knowflow.product.private-quiz.enabled=true"})
 @AutoConfigureMockMvc @ActiveProfiles("local")
 class PrivateQuizHttpTest {

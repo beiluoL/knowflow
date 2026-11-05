@@ -25,7 +25,7 @@ import java.util.List;
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUser> {
 
-    /** Locks a live owner until transaction completion, including before pet creation. */
+    /** 锁定有效所有者直至事务完成，也用于宠物创建之前。 */
     @Select("SELECT id FROM sys_user WHERE id = #{userId} AND deleted = 0 FOR UPDATE")
     Long lockActiveUserId(@Param("userId") Long userId);
 

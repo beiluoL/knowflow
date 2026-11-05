@@ -6,6 +6,9 @@ import com.knowflow.knowledge.entity.DocCategory;
 import com.knowflow.knowledge.entity.KbMember;
 import com.knowflow.knowledge.mapper.DocCategoryMapper;import com.knowflow.security.DocumentAccessPolicy;import com.knowflow.knowledge.service.KbMemberService;
 import org.junit.jupiter.api.*;import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;
+/**
+ * 验证个人学习资源仅包含公开、自有或显式共享内容。
+ */
 class PersonalLearningResourceScopeTest {
  DocCategoryMapper categories;DocumentAccessPolicy access;KbMemberService members;PersonalLearningResourceScope scope;
  @BeforeEach void setup(){categories=mock(DocCategoryMapper.class);access=mock(DocumentAccessPolicy.class);members=mock(KbMemberService.class);scope=new PersonalLearningResourceScope(access,categories,members);}

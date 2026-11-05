@@ -29,7 +29,7 @@ function loadPersisted() {
       if (!isNaN(parsed)) pitch.value = Math.min(2, Math.max(0.5, parsed));
     }
   } catch {
-    // ignore
+    // 忽略此处可容忍的异常。
   }
 }
 
@@ -47,7 +47,7 @@ function refreshVoices() {
 function setVoice(name: string) {
   selectedVoiceName.value = name;
   if (typeof window !== 'undefined') {
-    try { localStorage.setItem(VOICE_KEY, name); } catch { /* ignore */ }
+    try { localStorage.setItem(VOICE_KEY, name); } catch { /* 忽略此处可容忍的异常。 */ }
   }
 }
 
@@ -55,7 +55,7 @@ function setRate(n: number) {
   const clamped = Math.min(2, Math.max(0.5, n));
   rate.value = clamped;
   if (typeof window !== 'undefined') {
-    try { localStorage.setItem(RATE_KEY, String(clamped)); } catch { /* ignore */ }
+    try { localStorage.setItem(RATE_KEY, String(clamped)); } catch { /* 忽略此处可容忍的异常。 */ }
   }
 }
 
@@ -63,7 +63,7 @@ function setPitch(n: number) {
   const clamped = Math.min(2, Math.max(0.5, n));
   pitch.value = clamped;
   if (typeof window !== 'undefined') {
-    try { localStorage.setItem(PITCH_KEY, String(clamped)); } catch { /* ignore */ }
+    try { localStorage.setItem(PITCH_KEY, String(clamped)); } catch { /* 忽略此处可容忍的异常。 */ }
   }
 }
 

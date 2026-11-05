@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/** Queries a user's exam history and projects attempt summaries for exam read views. */
+/** 查询用户考试历史，为考试只读视图投影作答摘要。 */
 @Service
 @RequiredArgsConstructor
 class ExamAttemptHistoryService {
     private final ExamAttemptMapper attemptMapper;
     private final ExamPaperMapper paperMapper;
 
-    /** Lists the authenticated actor's attempts in reverse creation order. */
+    /** 按创建时间倒序列出当前认证用户的作答记录。 */
     public List<ExamVos.AttemptListItemVO> listMyAttempts(Long userId) {
         return attemptMapper.selectList(new LambdaQueryWrapper<ExamAttempt>()
                         .eq(ExamAttempt::getUserId, userId)

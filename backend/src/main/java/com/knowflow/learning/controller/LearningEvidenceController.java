@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+/**
+ * 提供学习证据分页、快照捕获、关联及比较接口。
+ */
 @RestController @RequestMapping("/api/learning/evidence") @RequiredArgsConstructor
 public class LearningEvidenceController {
     private final LearningEvidenceService evidence;

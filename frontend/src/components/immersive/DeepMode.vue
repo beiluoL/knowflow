@@ -502,7 +502,7 @@ async function handleEndSession() {
         note: deepNote.value || undefined,
       });
     } catch {
-      /* useFocusSession already notified */
+      /* useFocusSession 已发出通知。 */
     }
   }
   checkFlow(Math.round(elapsedSec.value / 60));
@@ -517,7 +517,7 @@ onMounted(async () => {
     try {
       await startSession('DEEP');
     } catch {
-      /* already notified */
+      /* 已发出通知。 */
     }
   }
   tickTimer = window.setInterval(() => {
@@ -549,7 +549,7 @@ onUnmounted(async () => {
         note: deepNote.value || undefined,
       });
     } catch {
-      /* already notified */
+      /* 已发出通知。 */
     }
   }
 });

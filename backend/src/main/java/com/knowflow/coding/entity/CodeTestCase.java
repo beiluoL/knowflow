@@ -19,7 +19,7 @@ public class CodeTestCase extends BaseEntity {
     /** 期望输出 JSON */
     private String expectedOutput;
 
-    /** PUBLIC / HIDDEN */
+    /** 用例可见性：PUBLIC（公开）/ HIDDEN（隐藏）。 */
     private String visibility;
 
     private Integer weight;

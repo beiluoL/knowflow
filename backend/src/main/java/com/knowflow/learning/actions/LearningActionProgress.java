@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.*;
 import org.springframework.transaction.event.*;
 
-/** Completion means the planned action was submitted; never a claim of correct understanding. */
+/** 完成表示已提交计划动作，不代表正确理解。 */
 @Component
 @RequiredArgsConstructor
 @Slf4j

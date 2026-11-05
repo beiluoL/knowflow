@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LearningPlanServiceImpl implements LearningPlanService {
 
-    // ========================= Mapper / Services =========================
+    // ========================= 数据映射与服务 =========================
     private final LearningPlanMapper planMapper;
     private final LearningUserPathMapper userPathMapper;
     private final LearningChapterMapper chapterMapper;
@@ -291,7 +291,7 @@ public class LearningPlanServiceImpl implements LearningPlanService {
                 if (++taken >= 14) break;
             }
         }
-        // 2) Todo：scheduled_date <= today || null，status != 1，sort by due/scheduled/urgent/important
+        // 2）待办：scheduled_date 不晚于今天或为空，status != 1；按到期、计划、紧急、重要程度排序。
         LocalDate today = LocalDate.now();
         List<Task> tasks = taskMapper.selectList(new LambdaQueryWrapper<Task>()
                 .eq(Task::getUserId, userId)
@@ -310,7 +310,7 @@ public class LearningPlanServiceImpl implements LearningPlanService {
         pool.todos.sort(Comparator
                 .comparing((TaskCandidate t) -> t.scheduledDate() == null ? LocalDate.MAX : t.scheduledDate())
                 .thenComparing((TaskCandidate t) -> -(t.urgent() + t.important())));
-        // 3) Habit：active=1 && (frequency=daily || null)
+        // 3）习惯：active=1，且 frequency=daily 或为空。
         List<Habit> habits = habitMapper.selectList(new LambdaQueryWrapper<Habit>()
                 .eq(Habit::getUserId, userId)
                 .eq(Habit::getActive, 1)
@@ -346,7 +346,7 @@ public class LearningPlanServiceImpl implements LearningPlanService {
     }
     @lombok.Data
     public static class PlanItemDTO {
-        String type; // learningTask | todo | habit
+        String type; // 任务来源：learningTask（学习任务）| todo（待办）| habit（习惯）。
         Long chapterId;
         Long learningTaskId;
         Long taskId;

@@ -386,7 +386,7 @@ async function closeModal() { if (await canLeave()) hideEditor() }
 function onEditorKey(event: KeyboardEvent) {
   const surface = confirming.value ? document.querySelector<HTMLElement>('.dlg-card') : showModal.value ? panel.value : null
   if (!surface) return
-  // The Select owns keyboard navigation while its teleported list is open.
+  // 传送的选项列表打开时，由 Select 管理键盘导航。
   if (!confirming.value && surface.querySelector('[aria-haspopup="listbox"][aria-expanded="true"]')) return
   if (!confirming.value && event.key === 'Escape') { event.preventDefault(); void closeModal(); return }
   if (event.key !== 'Tab') return
@@ -491,7 +491,7 @@ const onDelete = async (row: ScenarioAdminVO): Promise<void> => {
 
 onMounted(loadScenarios)
 
-// Catalog links load the original full source editor, regardless of list pagination.
+// 目录链接加载原始完整来源编辑器，不受列表分页影响。
 const catalogRoute = useRoute()
 let catalogRequest = 0
 watch(() => catalogRoute.query.questionId, async (raw) => {

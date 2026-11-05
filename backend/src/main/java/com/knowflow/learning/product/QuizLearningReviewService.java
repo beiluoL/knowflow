@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Read projection over original answers/mistakes/mappings/events. No separate learning state. */
+/** 投影原始答案、错题、映射和事件，不另建学习状态。 */
 @Service
 @RequiredArgsConstructor
 public class QuizLearningReviewService {

@@ -554,7 +554,7 @@ const recommendGroups = ref<StudyGroupVO[]>([])
 const messages = ref<GroupMessageVO[]>([])
 const groupMembers = ref<StudyGroupMemberVO[]>([])
 
-// WebSocket
+// WebSocket 连接。
 let ws: WebSocket | null = null
 let typingTimeout: number | null = null
 

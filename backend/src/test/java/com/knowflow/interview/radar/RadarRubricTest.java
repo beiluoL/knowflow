@@ -2,6 +2,9 @@ package com.knowflow.interview.radar;
 import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证雷达量表维度、及格边界及无证据处理。
+ */
 class RadarRubricTest {
  @Test void exactFourDimensionScaleAndPassBoundary(){
   assertEquals(10.0,RadarRubric.grade(Map.of("TECHNICAL_CORRECTNESS",100,"KNOWLEDGE_COVERAGE",100,"ENGINEERING_PRACTICE",100,"EXPRESSION_STRUCTURE",100)).score());

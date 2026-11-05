@@ -6,7 +6,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.Locale;
 
-/** Immutable uploaded bytes exposed to the existing text extractor. */
+/** 将不可变上传字节提供给现有文本提取器。 */
 record StudyPackSourceFile(String originalFilename, byte[] bytes) implements MultipartFile {
     public String getName() {
         return "file";

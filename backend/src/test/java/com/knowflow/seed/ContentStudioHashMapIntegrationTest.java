@@ -19,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证 HashMap 内容包导入、回滚、用户隔离和编辑保护。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:phase3a-qa-test;DB_CLOSE_DELAY=-1;MODE=MySQL", "knowflow.content-studio.qa.enabled=true", "server.address=127.0.0.1", "knowflow.datasource.allow-runtime-switch=false"})
 class ContentStudioHashMapIntegrationTest {

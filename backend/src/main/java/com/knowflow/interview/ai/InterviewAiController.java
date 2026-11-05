@@ -3,6 +3,9 @@ import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+/**
+ * 提供面试 AI 任务的启动、查询和取消接口。
+ */
 @RestController @RequiredArgsConstructor
 @RequestMapping("/api/interview/sessions/{sessionId}/ai-turns")
 public class InterviewAiController {

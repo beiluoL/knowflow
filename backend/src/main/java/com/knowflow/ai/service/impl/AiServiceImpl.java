@@ -296,7 +296,7 @@ public class AiServiceImpl implements AiService {
                 String text = com.knowflow.ai.CancellableStructuredStream.invoke(httpClient, request,
                         objectMapper, delta, () -> cancelled.getAsBoolean() || !capabilityProperties.isEnabled(),
                         aiConfig.getTimeoutSeconds());
-                // Conservative upper-bound accounting; streaming providers need not return usage frames.
+                // 按保守上界计量；流式供应方不一定返回用量帧。
                 attempt.success = true;
                 return new AiRawResult(text, Math.max(1, aiConfig.getMaxTokens()),
                         AiRawResult.UsageSource.ESTIMATED);

@@ -17,7 +17,7 @@ function simplify(points: GraphPoint[]) {
   for(const p of points){const b=result.at(-1),a=result.at(-2);if(b&&p.x===b.x&&p.y===b.y)continue;if(a&&b&&((a.x===b.x&&b.x===p.x)||(a.y===b.y&&b.y===p.y)))result.pop();result.push(p)}
   return result
 }
-/** Obstacle visibility grid in CSS-pixel graph coordinates; no new relations or random routing. */
+/** 基于 CSS 像素图坐标的障碍可见性网格，不新增关系或随机路由。 */
 function orthogonal(start: GraphPoint, end: GraphPoint, obstacles: Rect[]): GraphPoint[] | null {
   const clear=(a:GraphPoint,b:GraphPoint)=>!obstacles.some(r=>crosses(a,b,r))
   const direct=[[start,{x:end.x,y:start.y},end],[start,{x:start.x,y:end.y},end]]
@@ -63,7 +63,7 @@ export function routeGraphEdges(nodes:PositionedGraphNode[],edges:CanvasGraphEdg
       const [start,out]=port(a,source,gap),[end,into]=port(b,target,gap),middle=orthogonal(out,into,nodes.map(n=>rectangle(n,gap)))
       if(middle){const points=simplify([start,...middle,end]);return[{...edge,points,path:points.map((p,i)=>`${i?'L':'M'} ${p.x} ${p.y}`).join(' ')}]}
     }
-    // Invalid/overlapping external coordinates remain visible and explicitly warned, never silently drop an edge.
+    // 外部坐标非法或重叠时保留可见并明确警告，不静默丢弃边。
     const [start]=port(a,source,0),[end]=port(b,target,0),points=[start,end]
     return[{...edge,points,path:`M ${start.x} ${start.y} L ${end.x} ${end.y}`,obstructed:true}]
   })
@@ -73,7 +73,7 @@ export function routedGraphBounds(nodes:PositionedGraphNode[],edges:RoutedGraphE
   const points=[...edges.flatMap(e=>e.points),...labels.flatMap(label=>[{x:label.x-label.width/2,y:label.y-label.height/2},{x:label.x+label.width/2,y:label.y+label.height/2}])],left=Math.min(bounds.x,...points.map(p=>p.x)),top=Math.min(bounds.y,...points.map(p=>p.y))
   return{x:left,y:top,width:Math.max(bounds.x+bounds.width,...points.map(p=>p.x))-left,height:Math.max(bounds.y+bounds.height,...points.map(p=>p.y))-top}
 }
-/** Only selected relation labels with safe free space are painted. Full labels remain in the relation list/title. */
+/** 仅绘制空白空间足够的选中关系标签，完整标签仍保留在关系列表和标题中。 */
 export function placeGraphEdgeLabels(edges:RoutedGraphEdge[],nodes:PositionedGraphNode[],selectedId?:string|null):GraphEdgeLabel[]{
   if(!selectedId)return[]
   const used:Rect[]=nodes.map(n=>rectangle(n,8)),result:GraphEdgeLabel[]=[]

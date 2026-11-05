@@ -26,6 +26,9 @@ import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annot
 import org.springframework.boot.test.context.SpringBootTest;import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;import org.springframework.jdbc.core.JdbcTemplate;import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证 HashMap 学习的题目快照、错题、复习和复测闭环。
+ */
 @SpringBootTest(properties="knowflow.datasource.h2.url=jdbc:h2:mem:hashmap_loop;MODE=MySQL;DB_CLOSE_DELAY=-1") @AutoConfigureMockMvc @Import(FakeAiConfiguration.class)
 class HashMapLearningLoopTest {
  @Autowired MockMvc http;@Autowired ObjectMapper json;@Autowired JdbcTemplate db;@Autowired SysUserMapper users;@Autowired QuizQuestionMapper questions;@Autowired JwtUtils jwt;

@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
+/**
+ * 提供受控 QA 通道内内容包的作者预览、导入、应用与回滚接口。
+ */
 @RestController @RequiredArgsConstructor
 @ConditionalOnProperty(name="knowflow.content-studio.qa.enabled",havingValue="true")
 @RequestMapping("/api/learning/content-studio/qa/hashmap")

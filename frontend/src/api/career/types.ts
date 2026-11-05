@@ -242,7 +242,7 @@ export interface PolishResult {
   modified: boolean
 }
 
-/* ============================ Career Apps V2.0 ============================ */
+/* ============================ 职业应用 V2.0 ============================ */
 
 /** 求职总览（数据分析中心）：所有数字来自本人真实记录，样本不足返回 null。 */
 export interface CareerOverview {
@@ -418,7 +418,7 @@ export interface ResumeTemplateMeta {
   version: string
 }
 
-/* ============================ Career V3.0 ============================ */
+/* ============================ 职业功能 V3.0 ============================ */
 
 export interface JobSourceMeta {
   sourceId: string

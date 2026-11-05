@@ -8,6 +8,9 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证学习证据增量迁移不改变历史笔记、卡片或答案。
+ */
 class LearningEvidenceMigrationTest {
  @Test void additiveMigrationCanRepeatWithoutChangingLegacyNotesCardsOrAnswers() {
   var ds=new DriverManagerDataSource("jdbc:h2:mem:v7_migration;MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");

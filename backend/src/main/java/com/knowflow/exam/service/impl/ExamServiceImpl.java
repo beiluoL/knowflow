@@ -434,8 +434,8 @@ public class ExamServiceImpl implements ExamService {
         paper.setAllowChange(req.getAllowChange() == null ? 1 : req.getAllowChange());
         paper.setBankVersion(result.bankVersion);
         paper.setReviewStatus("APPROVED");
-        // A template's public specification cannot make private source snapshots public.
-        // Keep legacy public papers public when every selected source is anonymously readable.
+        // 模板的公开定义不能使私有来源快照公开。
+        // 所选来源均可匿名读取时，保留历史公开试卷的公开状态。
         if (ownerUserId == null && result.selected.stream().anyMatch(selected ->
                 !documentAccess.canReadCategory(selected.question.getCategoryId(), null)
                         || (selected.question.getDocId() != null
@@ -1015,8 +1015,8 @@ public class ExamServiceImpl implements ExamService {
             if (rows == 0) {
                 continue;
             }
-            // Same short transaction as the conditional grade write; a failed receipt rolls
-            // this assessment back and the existing claim-release path leaves it retryable.
+            // 与条件评分写入使用同一短事务；回执保存失败时
+            // 回滚本次评价，现有释放占用流程使其可重试。
             evidenceReceipts.captureRequired(attempt.getUserId(), "EXAM_ANSWER", a.getId());
             success++;
 
@@ -1212,7 +1212,7 @@ public class ExamServiceImpl implements ExamService {
                 .in(ExamAnswer::getAttemptId, attemptIds)
                 .eq(ExamAnswer::getGraded, 1)
                 .isNotNull(ExamAnswer::getTopic));
-        Map<String, int[]> agg = new LinkedHashMap<>(); // topic -> [score, max, count]
+        Map<String, int[]> agg = new LinkedHashMap<>(); // 主题映射到 [得分, 满分, 数量]。
         Map<String, Integer> correct = new HashMap<>();
         for (ExamAnswer a : answers) {
             int[] arr = agg.computeIfAbsent(a.getTopic(), k -> new int[3]);

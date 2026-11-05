@@ -9,6 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 运行编写好的 Java 实验并验证真实 Spring 事务边界。
+ */
 class ContentRebuildExperimentTest {
     @TempDir Path directory;
     @Test void authoredExperimentsRunAgainstJava17AndRealSpringTransactionBoundary()throws Exception{

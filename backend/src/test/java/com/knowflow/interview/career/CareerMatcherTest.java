@@ -2,6 +2,9 @@ package com.knowflow.interview.career;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证职业技能匹配不接受子串误匹配或伪造证据。
+ */
 class CareerMatcherTest {
  @Test void aliasesMatchButSubstringAndFabricatedEvidenceDoNot(){
   var claims=List.of(new CareerMatcher.Claim("Java 多线程","开发过 Java 多线程练习"));

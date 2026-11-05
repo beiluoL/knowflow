@@ -21,7 +21,7 @@ public class TechVocabPronunciation extends BaseEntity {
     /** 所属词条 ID */
     private Long termId;
 
-    /** WORD_US / WORD_UK / ABBR / FULL_FORM */
+    /** 发音类型：WORD_US（美音）/ WORD_UK（英音）/ ABBR（缩写）/ FULL_FORM（全称）。 */
     private String variant;
 
     /** 经审核朗读文本 */
@@ -30,7 +30,7 @@ public class TechVocabPronunciation extends BaseEntity {
     /** en-US / en-GB 等 */
     private String locale;
 
-    /** LETTER_BY_LETTER / SPOKEN_WORD / MIXED */
+    /** 读法：LETTER_BY_LETTER（逐字母）/ SPOKEN_WORD（按词）/ MIXED（混合）。 */
     private String readingMode;
 
     /** 已授权音频地址，可为空 */
@@ -42,6 +42,6 @@ public class TechVocabPronunciation extends BaseEntity {
     /** 音频许可说明 */
     private String licenseNote;
 
-    /** VERIFIED / PENDING / UNAVAILABLE */
+    /** 验证状态：VERIFIED（已验证）/ PENDING（待验证）/ UNAVAILABLE（不可用）。 */
     private String verificationStatus;
 }

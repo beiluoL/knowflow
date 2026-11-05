@@ -66,11 +66,11 @@ export function isSameDay(a: Date, b: Date): boolean {
   )
 }
 
-/** yyyy-MM-dd */
+/** 日期格式：yyyy-MM-dd。 */
 export function formatDate(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
-/** yyyy-MM-dd HH:mm */
+/** 日期时间格式：yyyy-MM-dd HH:mm。 */
 export function formatDateTime(d: Date): string {
   return `${formatDate(d)} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }

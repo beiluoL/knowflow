@@ -25,6 +25,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * 验证各认证入口的身份解析与拒绝行为一致。
+ */
 @SpringBootTest
 @ActiveProfiles("local")
 @Import(FakeAiConfiguration.class)

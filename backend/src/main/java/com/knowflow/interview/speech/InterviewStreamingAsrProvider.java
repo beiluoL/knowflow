@@ -1,6 +1,6 @@
 package com.knowflow.interview.speech;
 
-/** Independent realtime contract; batch transcription does not implement this interface. */
+/** 独立实时协议；批量转写不实现此接口。 */
 public interface InterviewStreamingAsrProvider {
     SpeechStreamCapabilities capabilities();
     Stream open(String requestId, Listener listener);
@@ -15,7 +15,7 @@ public interface InterviewStreamingAsrProvider {
         void finalText(String text);
         void speechStarted();
         void speechEnded();
-        /** All utterance finals have arrived after session.finish. */
+        /** session.finish 后所有语句的最终结果均已到达。 */
         default void completed() { }
         void error(String code);
     }

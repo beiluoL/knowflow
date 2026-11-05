@@ -32,13 +32,13 @@ public interface AiService {
         return complete(systemPrompt,userPrompt,model,userId);
     }
 
-    /** True structured SSE tokens, using the authenticated user's effective configuration. */
+    /** 使用认证用户的有效配置输出真实结构化 SSE 增量。 */
     default String streamStructured(String systemPrompt, String userPrompt, Long userId,
             java.util.function.Consumer<String> delta, java.util.function.BooleanSupplier cancelled) {
         throw new UnsupportedOperationException("Structured streaming unavailable");
     }
 
-    /** Configuration-only check; does not call a paid provider. */
+    /** 仅检查配置，不调用付费供应方。 */
     default boolean structuredStreamingAvailable(Long userId) { return false; }
 
     /** 返回当前可切换的模型列表。 */

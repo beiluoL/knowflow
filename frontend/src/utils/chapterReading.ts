@@ -1,12 +1,12 @@
 import md, { renderMarkdown } from './markdown'
 import { normalizeNewlines } from './string'
 export interface ChapterHeading { id: string; text: string; sub: boolean; displayText?: string; prefix?: string }
-/** One parser for headings and body: fences and escaped syntax never become phantom anchors. */
+/** 标题与正文共用解析器，围栏和转义语法不生成虚假锚点。 */
 export function chapterReading(content: string, options: {numberHeadings?: boolean;inlineSourceImages?:Record<string,string>} = {}) {
-  // The route supplies the single page title; an imported document title is redundant here.
+  // 路由提供唯一页面标题，此处无需重复导入文档标题。
   let source = normalizeNewlines(content).replace(/^\s*# [^\n]*\n+/, '')
-  // Only the authored Seed header protocol is extracted. Ordinary articles
-  // keep their learning-goal sections and introductions intact.
+  // 仅提取编写好的 Seed 标题协议；普通文章
+  // 完整保留学习目标章节和导言。
   const header = /^## 学习目标\n((?:- [^\n]+\n)+)\s*难度：[1-3]；预计 \d+ 分钟；面试重要度：([SABC])\s*\n\n([^\n]+)\n*/.exec(source)
   const objectives = header ? header[1].trim().split('\n').map(line=>line.slice(2)) : []
   const importance = header?.[2] ?? null
@@ -33,7 +33,7 @@ export function chapterReading(content: string, options: {numberHeadings?: boole
   return { outline, html: resolveSourceImages(renderMarkdown(source, outline),options.inlineSourceImages), objectives, importance, summary }
 }
 
-/** Image presentation only: original Markdown, fenced code and reading fingerprints stay unchanged. */
+/** 仅处理图片展示，原始 Markdown、围栏代码及阅读指纹保持不变。 */
 function resolveSourceImages(html:string,aliases:Record<string,string> = {}) {
   return html.replace(/<img\b[^>]*>/g,tag=>tag.replace(/\bsrc="([^"]*)"/, (attribute,url:string)=>{
     const decodedUrl=url.replaceAll('&amp;','&')

@@ -7,6 +7,9 @@ import com.knowflow.exception.BusinessException;
 import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
+/**
+ * 验证闪卡导出数量限制与重新导入能力一致。
+ */
 class FlashcardExchangeExportLimitTest {
  @Test void exportRejectsExpandedCardCountThatCannotBeReimported(){
   var jdbc=mock(JdbcTemplate.class);var rows=new ArrayList<Map<String,Object>>();StringBuilder front=new StringBuilder();

@@ -19,6 +19,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证 AI 建议缓存写入的事务原子性。
+ */
 @SpringBootTest
 @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:suggestion_batch1;DB_CLOSE_DELAY=-1;MODE=MySQL")

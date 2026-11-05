@@ -1352,7 +1352,7 @@ onMounted(() => { void loadPaths(); });
   /* 主行动按钮不再强制占满左侧，允许与其余按钮自然换行 */
   .adopt-btn { margin-right: 0; }
 }
-/* Quiet, compact course headers leave more room for the actual learning goal. */
+/* 简洁紧凑的课程标题为真实学习目标留出空间。 */
 .path-cover { height: auto; min-height: var(--kf-space-12); padding: var(--kf-space-4); justify-content: flex-start; background: var(--kf-muted) !important; }
 .path-cover .cover-icon { width: var(--kf-space-8); height: var(--kf-space-8); color: var(--kf-primary) !important; }
 .path-body { padding: var(--kf-space-5); }

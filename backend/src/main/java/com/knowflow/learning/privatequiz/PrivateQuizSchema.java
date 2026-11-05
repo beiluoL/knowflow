@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Opt-in additive schema. No changes to public questions or historical grades. */
+/** 显式启用的增量结构，不改变公共题目或历史评分。 */
 @Configuration
 @ConditionalOnProperty(name = "knowflow.product.private-quiz.enabled", havingValue = "true")
 public class PrivateQuizSchema {

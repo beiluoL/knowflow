@@ -18,7 +18,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-/** Bounded OpenAI-compatible SSE with active cancellation even while the provider sends no bytes. */
+/** 有界的 OpenAI 兼容 SSE 流，即使供应方未发送字节也支持主动取消。 */
 public final class CancellableStructuredStream {
     private CancellableStructuredStream() { }
 
@@ -39,11 +39,11 @@ public final class CancellableStructuredStream {
                     throw new AiCapabilityException(AiFailureKind.CANCELLED, null);
                 }
                 if (System.nanoTime() >= deadline) {
-                    // A partially emitted structured stream is never retried and replayed.
+                    // 结构化流已经部分输出后，不再重试或重放。
                     throw new AiCapabilityException(AiFailureKind.INVALID_RESPONSE, "Structured stream deadline");
                 }
                 try { return pending.get(100, TimeUnit.MILLISECONDS).body(); }
-                catch (TimeoutException waiting) { /* Poll only for stop/deadline; no provider retry. */ }
+                catch (TimeoutException waiting) { /* 仅轮询停止信号和截止时间，不重试供应方请求。 */ }
             }
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();

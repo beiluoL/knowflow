@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
-/** Project snapshots consume the knowledge owner's projection, never its entity or mapper. */
+/** 项目快照消费知识模块所有者提供的投影，不直接使用实体或 Mapper。 */
 class InterviewProjectContextBoundaryTest {
     @Test
     void projectContextUsesOnlyTheKnowledgeReadContract() throws Exception {

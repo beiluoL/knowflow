@@ -5,7 +5,7 @@ import com.knowflow.learning.entity.QuizQuestion;
 import java.security.MessageDigest;
 import java.util.*;
 
-/** Immutable server-side practice conditions, not a second question bank or mastery signal. */
+/** 不可变的服务端练习条件，不构成第二套题库或掌握度信号。 */
 public final class QuizAnswerSnapshot {
     public static final String RULE = "QUIZ_OBJECTIVE_V1";
 

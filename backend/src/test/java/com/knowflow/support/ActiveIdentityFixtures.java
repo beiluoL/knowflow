@@ -2,14 +2,11 @@ package com.knowflow.support;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/** Real database actors for HTTP tests that exercise the active-account authentication filter. */
+/** 为经过有效账号认证过滤器的 HTTP 测试提供真实数据库用户。 */
 public final class ActiveIdentityFixtures {
     private ActiveIdentityFixtures() {}
 
-    /**
-     * Inserts a missing test actor without updating or reviving an existing identity.
-     * A conflicting, deleted, or differently privileged actor fails setup instead of masking it.
-     */
+    /** 仅在测试用户不存在时插入，不更新或恢复已有身份；冲突、已删除或权限不同的用户使初始化失败，避免掩盖问题。 */
     public static synchronized void ensureActive(
             JdbcTemplate sql, long userId, String username, String role) {
         sql.update("INSERT INTO sys_user (id, username, nickname, role, deleted) "

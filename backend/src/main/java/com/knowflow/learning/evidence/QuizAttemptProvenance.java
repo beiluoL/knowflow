@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-/** Provenance in the existing immutable snapshot, never a replacement grade/history table. */
+/** 来源信息保存在既有不可变快照中，不另建评分或历史表。 */
 @Component
 @RequiredArgsConstructor
 public class QuizAttemptProvenance {
@@ -67,7 +67,7 @@ public class QuizAttemptProvenance {
         }
     }
 
-    /** Refine only an explicit read projection; necessary submission never scans a time bucket. */
+    /** 仅细化显式读取投影，必要提交不扫描时间桶。 */
     public long firstKnownId(long actor, long question, long coarse, Map<String, Object> data) {
         String where =
                 " FROM quiz_answer_record WHERE user_id=? AND question_id=? AND create_time=(SELECT"
@@ -129,14 +129,14 @@ public class QuizAttemptProvenance {
             Predicate<JsonNode> accessible,
             boolean includeStatistics) {
         describeTracking(actor, question, current, snapshot, data);
-        // A new tracking point never proves that older, physically missing history did not exist.
-        // Original firstAttemptRef remains null unless a separately verified migration can prove it.
+        // 新增跟踪点不能证明更早的、已物理缺失的历史不存在。
+        // 除非单独验证的迁移能证明，否则原始 firstAttemptRef 保持 null。
         data.put("latestQualifiedAttemptRef", null);
         data.put("bestScore", null);
         data.put("qualificationScope", "READ_PROJECTION_NOT_COMPUTED");
         data.put("qualificationComplete", false);
         if (!includeStatistics) return;
-        // Bounded server-side projection. It never labels a truncated scan as an all-history best.
+        // 服务端有界投影，不把截断扫描结果称为全历史最佳。
         Map<String, Object> latest = null;
         Integer best = null;
         int scanned = 0;

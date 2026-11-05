@@ -47,7 +47,7 @@ function select(item: ContextMenuItem) {
   try {
     const result = item.onSelect?.()
     if (result && typeof (result as Promise<unknown>).catch === 'function') void (result as Promise<unknown>).catch(() => undefined)
-  } catch { /* A consumer callback must not trap the menu open. */ }
+  } catch { /* 消费方回调失败不能导致菜单无法关闭。 */ }
   finally { emit('select', item.key); close(true) }
 }
 function onKey(event: KeyboardEvent) {
@@ -64,7 +64,7 @@ function onKey(event: KeyboardEvent) {
 }
 function outside(event: Event) {
   if (!menu.value?.contains(event.target as Node)) {
-    // Preserve a pointer-selected focusable target; only restore when clicking inert space.
+    // 保留指针选中的可聚焦目标，仅点击非交互空白时恢复焦点。
     const target = event.target instanceof Element ? event.target.closest('button,a,input,textarea,select,[tabindex]') : null
     close(!target)
   }

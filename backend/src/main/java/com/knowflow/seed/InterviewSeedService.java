@@ -48,7 +48,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import static com.knowflow.seed.InterviewSeedCatalog.text;
 
-/** Writes learning content through existing models; deliberately never calls event-producing services. */
+/** 通过现有模型写入学习内容，不调用会产生事件的服务。 */
 @Service @RequiredArgsConstructor
 public class InterviewSeedService {
     private final InterviewSeedCatalog catalog;
@@ -90,7 +90,7 @@ public class InterviewSeedService {
     public Map<String,Object> activate(Long actor) {
         requireUser(actor);
         jdbc.queryForList("SELECT id FROM sys_user WHERE id=? AND deleted=0 FOR UPDATE",actor);
-        requireUser(actor); // Re-check after waiting for a concurrent delete/role change.
+        requireUser(actor); // 等待并发删除或角色变更后重新校验。
         int initialized=jdbc.queryForObject("SELECT initialized FROM interview_seed_pack WHERE seed_key=? FOR UPDATE",Integer.class,InterviewSeedCatalog.KEY);
         var content=catalog.paths();
         if(initialized==0) {
@@ -159,7 +159,7 @@ public class InterviewSeedService {
         });
         for(JsonNode p:content) {
             String pk=text(p,"key"),sp="shared/"+pk+"/";Long pathId=id(sp+"path"),categoryId=id(sp+"category");
-            // Preserve a pre-existing enrollment rather than conflicting with its unique(user,path) key.
+            // 保留已有报名关系，避免与其 unique(user,path) 唯一键冲突。
             var existing=jdbc.queryForList("SELECT id,deleted FROM learning_user_path WHERE user_id=? AND path_id=?",userId,pathId);
             if(!existing.isEmpty()) {if(((Number)existing.get(0).get("deleted")).intValue()!=0)throw new BusinessException(409,"学习包路径报名曾被删除，请先处理现有报名状态");jdbc.update("INSERT INTO interview_seed_resource(seed_key,resource_key,resource_type,resource_id) VALUES(?,?,?,?)",InterviewSeedCatalog.KEY,up+pk+"/enrollment","ENROLLMENT",existing.get(0).get("id"));}
             else insert(up+pk+"/enrollment","ENROLLMENT",enrollments,()->{LearningUserPath row=new LearningUserPath();row.setUserId(userId);row.setPathId(pathId);row.setProgress(BigDecimal.ZERO);row.setCompletedChapters(0);row.setEnrollTime(LocalDateTime.now());return row;});
@@ -179,7 +179,7 @@ public class InterviewSeedService {
         }
         String[] titles={"Java Core：HashMap与ConcurrentHashMap","并发：AQS与ThreadPoolExecutor","JVM排障与Spring生命周期","MySQL、Redis与MQ","LLM、Embedding与RAG","Tool Calling、Agent与MCP","项目表达与综合模拟"};
         String[] directions={"java-core","concurrency","jvm","spring-data","rag","agent","project"};
-        // Existing task consumer is newest-first. Insert backwards so Day1 is its first pending item.
+        // 现有任务按最新优先消费，因此倒序插入，使第 1 天成为首个待办。
         for(int day=6;day>=0;day--) {final int d=day;insert(up+"task/"+d,"TASK",tasks,()->{LearningTask t=new LearningTask();t.setUserId(userId);t.setTitle("Day "+(d+1)+" · "+titles[d]);t.setDescription("Java + AI 7-Day Interview Sprint：先读材料，闭卷回忆4张卡，用60–120秒讲解一道面试题，完成对应Java工程练习，最后写出仍讲不清的卡点。未学习前不预设成绩；当天不足可顺延。");t.setType("study");t.setTargetId(firstChapterId(content,directions[d]));t.setExpReward(0);t.setEnergyCost(0);t.setStatus(0);t.setDeadline(LocalDate.now().plusDays(d).atTime(23,59));return t;});}
         jdbc.update("INSERT INTO interview_seed_activation(seed_key,user_id,goal_id,activated_at) VALUES (?,?,?,?)",InterviewSeedCatalog.KEY,userId,goal,LocalDateTime.now());
     }
@@ -239,7 +239,7 @@ public class InterviewSeedService {
             for(JsonNode ch:p.required("chapters")) {
                 String ck=text(ch,"key"),cp=sp+"chapter/"+ck+"/";Long docId=id(sp+"document/"+(ci++/2));
                 for(JsonNode k:ch.required("knowledge"))requireMapping("DOC",docId,id(cp+"knowledge/"+text(k,"key")));
-                // Each authored question has its own ordered resource key.
+                // 每道编写好的题目都有独立的有序资源键。
                 for(int qi=0;qi<3;qi++)for(JsonNode ref:ch.required("questions").get(qi).required("knowledgeKeys"))requireMapping("QUIZ",id(cp+"question/"+qi),id(cp+"knowledge/"+ref.asText()));
                 for(JsonNode ref:ch.required("exercise").required("knowledgeKeys"))requireMapping("CODE_QUESTION",id(cp+"exercise"),id(cp+"knowledge/"+ref.asText()));
                 for(int fi=0;fi<4;fi++)for(JsonNode ref:ch.required("flashcards").get(fi).required("knowledgeKeys"))requireMapping("FLASHCARD",id("user/"+actor+"/"+ck+"/card/"+fi),id(cp+"knowledge/"+ref.asText()));
@@ -250,7 +250,7 @@ public class InterviewSeedService {
         if(jdbc.queryForObject("SELECT COUNT(*) FROM resource_knowledge_mapping WHERE resource_type=? AND resource_id=? AND knowledge_id=? AND status='ACCEPTED' AND deleted=0",Integer.class,type,resourceId,knowledgeId)!=1)throw new BusinessException(409,"学习包知识关联已删除或发生冲突，未自动重建");
     }
 
-    /** Existing chapter page's resource strip; returns null for chapters outside this pack. */
+    /** 为现有章节页提供资源条；章节不属于此内容包时返回 null。 */
     public Map<String,Object> chapterResources(Long actor,Long chapterId) {
         requireUser(actor);
         var rows=jdbc.queryForList("SELECT resource_key FROM interview_seed_resource WHERE seed_key=? AND resource_type='CHAPTER' AND resource_id=?",InterviewSeedCatalog.KEY,chapterId);

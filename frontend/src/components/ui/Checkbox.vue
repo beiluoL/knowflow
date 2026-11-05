@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts" generic="T = boolean">
-// Vue's native checkbox directive owns array/Set/true-value semantics; this component only renders the visual proxy.
+// Vue 原生复选框指令管理数组、Set 和 true-value 语义，本组件仅渲染视觉代理。
 import {computed, useAttrs, useId} from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 defineOptions({inheritAttrs:false})

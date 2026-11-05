@@ -19,6 +19,9 @@ import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 通过真实 H2 Servlet 验证本地工具 Basic 认证及资源重定向。
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "knowflow.datasource.h2.url=jdbc:h2:mem:local_tools_servlet;DB_CLOSE_DELAY=-1;MODE=MySQL",
         "knowflow.datasource.config-file=./target/local-tools-servlet-no-overrides.json",

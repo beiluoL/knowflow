@@ -33,6 +33,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 通过真实浏览器验证登录、阅读恢复及已批准练习。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"server.address=127.0.0.1","knowflow.datasource.h2.url=jdbc:h2:mem:learning_product_browser;MODE=MySQL;DB_CLOSE_DELAY=-1"})
 @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @EnabledIfSystemProperty(named="learning.product.browser",matches="true")

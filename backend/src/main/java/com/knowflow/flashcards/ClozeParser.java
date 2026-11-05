@@ -2,9 +2,7 @@ package com.knowflow.flashcards;
 
 import java.util.*;
 
-/**
- * Plain source scanner: never executes HTML, Markdown or code. Rendering must sanitize separately.
- */
+/** 仅扫描原始文本，不执行 HTML、Markdown 或代码；渲染时须单独净化。 */
 public final class ClozeParser {
     private ClozeParser() {}
 

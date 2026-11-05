@@ -27,6 +27,9 @@ import java.util.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证考试诊断区分未答、错答和待评分，并保留真实历史。
+ */
 @SpringBootTest(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:phase3i-diagnosis;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.datasource.config-file=/tmp/phase3i-diagnosis-test.json","knowflow.datasource.allow-runtime-switch=false","knowflow.ai.capability.enabled=false","knowflow.exam.timeout-scheduler.enabled=false","knowflow.coding.seed.algorithm.enabled=false"})
 @ActiveProfiles("local") @AutoConfigureMockMvc
 class ExamDiagnosisIntegrationTest {

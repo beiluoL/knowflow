@@ -69,7 +69,7 @@ public interface LearningPlanService {
     /** 辅助：计算「默认起始日」——下周一。 */
     static LocalDate defaultStartDate() {
         LocalDate today = LocalDate.now();
-        int dayOfWeek = today.getDayOfWeek().getValue(); // 1 Mon ... 7 Sun
+        int dayOfWeek = today.getDayOfWeek().getValue(); // 1 表示周一，依次至 7 表示周日。
         int diff;
         if (dayOfWeek == 7) {
             diff = 1; // 周日 → 明天（周一）

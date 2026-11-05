@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/** Host trust boundary. No role/profile/IP auto opt-in. Not an OS sandbox. */
+/** 宿主机信任边界，不因角色、配置或 IP 自动启用，也不构成操作系统沙箱。 */
 @Component @RequiredArgsConstructor
 public class HostCapabilityGuard {
     public static final long MAX_TIMEOUT_MS = 10_000;
@@ -35,7 +35,7 @@ public class HostCapabilityGuard {
         public void close() { if (!closed) { closed=true; processes.release(); } }
     }
 
-    /** Interrupts must not leave an uncounted child after the execution lease is released. */
+    /** 执行租约释放后，中断不得遗留未计数的子进程。 */
     public boolean awaitProcess(Process process,long timeoutMs) throws InterruptedException {
         try { return process.waitFor(timeoutMs,java.util.concurrent.TimeUnit.MILLISECONDS); }
         catch (InterruptedException ex) {
@@ -62,7 +62,7 @@ public class HostCapabilityGuard {
         if (!Objects.equals(requireAccess(), suppliedActor)) throw new BusinessException(403,"无权使用该宿主机能力");
     }
 
-    /** Capture only real request authentication, never a caller-provided ToolContext user ID. */
+    /** 仅捕获真实请求认证，不采信调用方传入的 ToolContext 用户标识。 */
     public Runnable wrapAuthenticated(Runnable work) {
         Long actor = SecurityUtils.getCurrentUserIdNullable();
         if (actor == null) actor = capturedActor.get();
@@ -124,14 +124,14 @@ public class HostCapabilityGuard {
         } catch (InvalidPathException ex) { throw new BusinessException(400,"路径格式无效"); }
     }
 
-    /** Check lexical boundary before any target existence probe, then check the real target. */
+    /** 探测目标是否存在前先校验路径边界，再校验真实目标。 */
     public Path requireAllowed(Path target) {
         Path normalized = target.toAbsolutePath().normalize();
         for (Path root : roots()) {
             try {
                 Path realRoot = root.toRealPath();
                 if (!normalized.startsWith(root) && !normalized.startsWith(realRoot)) continue;
-                // Detect an escaping intermediate symlink even for a missing final component.
+                // 即使末级路径不存在，也检测中间符号链接是否越界。
                 Path existing = normalized;
                 while (!Files.exists(existing,java.nio.file.LinkOption.NOFOLLOW_LINKS) && existing.getParent()!=null)
                     existing=existing.getParent();
@@ -147,7 +147,7 @@ public class HostCapabilityGuard {
         throw denied();
     }
 
-    /** Enforce a server-owned workspace boundary, including symlinks and new-file parents. */
+    /** 强制执行服务端工作区边界，覆盖符号链接及新文件的父目录。 */
     public Path requireWorkspace(Path root, Path target) {
         requireAccess();
         Path normalized=root.toAbsolutePath().normalize();

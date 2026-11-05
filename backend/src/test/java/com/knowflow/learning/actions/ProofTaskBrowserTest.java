@@ -42,6 +42,9 @@ import java.nio.file.*;
 import java.time.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 通过真实浏览器与数据库状态验证学习证明任务。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"server.address=127.0.0.1"})
 @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.config-file=/tmp/knowflow-phaseg-browser-no-config.json","knowflow.datasource.h2.url=jdbc:h2:mem:phaseg_browser;DB_CLOSE_DELAY=-1;MODE=MySQL"})

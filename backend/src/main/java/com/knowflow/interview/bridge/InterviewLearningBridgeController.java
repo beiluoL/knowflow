@@ -4,6 +4,9 @@ import com.knowflow.common.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+/**
+ * 提供面试薄弱项转学习动作的预览与确认接口。
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/interview/v2/sessions/{id}/remediation")

@@ -9,6 +9,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证追问引擎的量表、证据、校验、取消和调用预算。
+ */
 class InterviewFollowupEngineTest {
  private final ObjectMapper json=new ObjectMapper();
  private final AiService ai=mock(AiService.class);

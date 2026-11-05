@@ -5,6 +5,9 @@ import com.knowflow.ai.service.ChatShareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+/**
+ * 提供聊天公开快照的创建、列出、撤销和读取接口。
+ */
 @RestController @RequiredArgsConstructor
 public class ChatShareController {
  private final ChatShareService shares;

@@ -16,7 +16,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Real Spring/MyBatis registration checks across every relocated production type. */
+/** 使用真实 Spring、MyBatis 检查所有迁移后的生产类型注册。 */
 @SpringBootTest(classes = KnowFlowApplication.class)
 @ActiveProfiles("local")
 @TestPropertySource(properties = {

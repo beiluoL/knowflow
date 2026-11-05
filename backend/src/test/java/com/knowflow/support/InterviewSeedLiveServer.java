@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.*;
 import java.util.*;
 
-/** Explicit loopback fixture runner. Persistent H2 path is supplied by the verification command. */
+/** 显式回环地址夹具启动器，持久化 H2 路径由验证命令提供。 */
 public final class InterviewSeedLiveServer {
     @TestConfiguration public static class OfflineConfiguration {
         @Bean @Primary EmbeddingService offlineEmbedding(){return org.mockito.Mockito.mock(EmbeddingService.class);}

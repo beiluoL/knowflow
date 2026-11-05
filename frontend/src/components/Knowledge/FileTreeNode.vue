@@ -167,7 +167,7 @@ const EXT_CATEGORY_MAP: Record<string, FileCategory> = {
   svg: 'image',
   bmp: 'image',
   ico: 'image',
-  // PDF
+  // PDF 导出。
   pdf: 'pdf',
   // 表格
   xls: 'table',

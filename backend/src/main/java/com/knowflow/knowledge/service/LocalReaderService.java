@@ -293,7 +293,7 @@ public class LocalReaderService {
                 Path resolved = root.resolve(candidate).normalize();
                 if (!resolved.startsWith(root)) throw new BusinessException(403,"该目录不在允许访问范围");
                 if (!Files.exists(resolved)) {
-                    // Also validate ancestors of missing candidates before trying fallbacks.
+                    // 尝试回退前，也要校验不存在候选路径的祖先目录。
                     try { hostGuard.requireAllowed(resolved); } catch (BusinessException e) { if (e.getCode()!=404) throw e; }
                     continue;
                 }

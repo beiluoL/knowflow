@@ -7,7 +7,7 @@ import com.knowflow.exam.mapper.ExamAttemptMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/** Keeps the existing bounded activity query within its data-owning module. */
+/** 在数据所属模块内保留现有的有界活动查询。 */
 @Service
 @RequiredArgsConstructor
 public class RecentExamActivityQueryService implements RecentExamActivityQuery {

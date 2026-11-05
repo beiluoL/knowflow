@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 @TableName("code_problem")
 public class CodeProblem extends BaseEntity {
 
-    /** quiz_question.id */
+    /** 关联题目标识，对应 quiz_question.id。 */
     private Long questionId;
 
     /** 支持语言逗号分隔，当前仅 java */
@@ -34,7 +34,7 @@ public class CodeProblem extends BaseEntity {
     /** FUNCTION 固定函数 Harness / STDOUT 标准输入输出 */
     private String judgeMode;
 
-    /** EXACT / NUMERIC / UNORDERED / BOOLEAN */
+    /** 比较方式：EXACT（精确）/ NUMERIC（数值）/ UNORDERED（无序）/ BOOLEAN（布尔）。 */
     private String checker;
 
     /** NUMERIC 允许误差 */

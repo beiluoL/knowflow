@@ -14,6 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证任务标签空结果的 HTTP 行为。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.config-file=/tmp/knowflow-phase4e-tag-test-no-config.json","knowflow.datasource.type=h2","knowflow.datasource.h2.url=jdbc:h2:mem:phase4e_tags;DB_CLOSE_DELAY=-1;MODE=MySQL"})
 class TaskTagEmptyHttpTest {

@@ -45,7 +45,7 @@ const stateLabel=(s:string)=>({QUEUED:'已排队',RUNNING:'正在生成',DRAFT_R
 const stepState=(s:string)=>({CANCELLED:'已取消',PENDING:'等待开始',RUNNING:'执行中',SUCCEEDED:'已完成',FAILED:'失败',BLOCKED:'等待前置步骤'}[s]||s)
 let epoch=0,disposed=false,timer:ReturnType<typeof setTimeout>|undefined
 watch(()=>route.params.id,()=>{epoch++;if(timer)clearTimeout(timer);pack.value=null;cards.value=[];cardsDirty.value=false;practiceCard.value=null;void reload()},{immediate:false})
-// Start after all refs have initialized; route changes above preserve request identity.
+// 所有引用初始化后再启动，上方路由变更保留请求标识。
 void reload()
 onBeforeUnmount(()=>{disposed=true;epoch++;if(timer)clearTimeout(timer)})
 function selectFile(event:Event){file.value=(event.target as HTMLInputElement).files?.[0]||null}

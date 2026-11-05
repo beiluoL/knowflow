@@ -28,7 +28,7 @@ export function useCodeFormatting(options: Options) {
     const beforeStart = el.selectionStart, beforeEnd = el.selectionEnd
     const scrollTop = el.scrollTop, scrollLeft = el.scrollLeft
     const focused = document.activeElement === el
-    // Native editing transaction only; source is never executed.
+    // 仅执行原生编辑事务，不执行源代码。
     let native = false
     if (focused && typeof document.execCommand === 'function') {
       el.setSelectionRange(0, original.length)

@@ -12,7 +12,7 @@ export interface PcmCaptureOptions {
   onLimit?: () => void;
 }
 
-/** Realtime PCM only; the existing batch recorder remains independent. */
+/** 仅处理实时 PCM，现有批量录音器保持独立。 */
 export function useInterviewPcmCapture() {
   const state = ref<'idle' | 'starting' | 'recording' | 'paused'>('idle');
   const error = ref('');
@@ -90,7 +90,7 @@ export function useInterviewPcmCapture() {
         });
       } catch (cause: unknown) {
         if (current !== generation) { return false; }
-        // Retry optional processing constraints only, retaining explicit device selection.
+        // 仅重试可选处理约束，保留显式设备选择。
         if (!(cause instanceof Error) || cause.name !== 'OverconstrainedError') { throw cause; }
         acquired = await requestMicrophone({ audio: options.deviceId ? device : true });
       }
@@ -107,7 +107,7 @@ export function useInterviewPcmCapture() {
       processor = node;
       source = audioContext.createMediaStreamSource(acquired);
       source.connect(node);
-      // Processor outputs silence; connecting keeps capture processing active without mic feedback.
+      // 处理器输出静音，连接用于维持采集处理，避免麦克风回授。
       node.connect(audioContext.destination);
       let bytes = 0;
       let expectedSequence = 0;

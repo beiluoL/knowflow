@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 提供专注会话开始、结束、当日查询及统计接口。
+ */
 @Tag(name = "专注会话接口")
 @RestController
 @RequestMapping("/api/focus/sessions")

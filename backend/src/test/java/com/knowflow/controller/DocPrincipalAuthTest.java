@@ -122,7 +122,7 @@ class DocPrincipalAuthTest {
     private String auth(Long userId) {
         return "Bearer " + jwtUtils.generateToken(userId, "p1a-doc-" + userId, "USER");
     }
-    /** Auth regression positives now use a genuinely writable knowledge base, not an unowned document. */
+    /** 认证回归的正例使用真实可写知识库，而非无归属文档。 */
     private long writableCategory() {
         com.knowflow.knowledge.entity.DocCategory c=new com.knowflow.knowledge.entity.DocCategory();c.setName("auth-writable");c.setOwnerId(USER_A);c.setParentId(0L);c.setStatus(1);categoryMapper.insert(c);return c.getId();
     }

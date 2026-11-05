@@ -10,7 +10,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import java.sql.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Explicit disposable database only; never falls back to H2 or a business datasource. */
+/** 仅使用显式指定的临时数据库，不回退到 H2 或业务数据源。 */
 @EnabledIfEnvironmentVariable(named="V1_MYSQL_URL", matches=".+")
 class ProductMySqlReleaseTest {
  @Test void repeatedProductUpgradePreservesFrozenHistory() throws Exception {

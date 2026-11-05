@@ -228,7 +228,7 @@ public class TutorMicroService {
         }
     }
 
-    /** Claims the existing request under the original transaction and retry checks. */
+    /** 按原事务和重试校验规则领取已有请求。 */
     private long claimChallenge(
             long user,
             Start input,

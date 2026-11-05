@@ -2,6 +2,9 @@ package com.knowflow.learning.actions;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 import org.junit.jupiter.api.Test;
+/**
+ * 验证错题与练习候选不会重复选择同一题目。
+ */
 class AdaptiveResourceRuleTest {
  @Test void sameQuestionIsNotDuplicatedByMistakeAndPracticeKeys(){
   var r=new PlanModels.Request();r.setAvailableMinutes(60);r.setIncludeInterview(false);

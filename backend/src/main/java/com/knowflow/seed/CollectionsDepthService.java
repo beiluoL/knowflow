@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.math.BigDecimal;
 import java.util.*;
 
-/** Append-only revision. No chapter, original document, private history or learning event is updated. */
+/** 仅追加修订，不更新章节、原始文档、私有历史或学习事件。 */
 @Service @RequiredArgsConstructor
 public class CollectionsDepthService {
     public static final String KEY="java-collections-depth-v1";
@@ -81,7 +81,7 @@ public class CollectionsDepthService {
     public Map<String,Object> activate(Long actor) {
         user(actor);jdbc.queryForList("SELECT id FROM sys_user WHERE id=? AND deleted=0 FOR UPDATE",actor);user(actor);
         if(!Boolean.TRUE.equals(original.status(actor).get("activated")))throw new BusinessException(409,"请先启用v1学习包");
-        // Immutable lock row is provisioned at startup, never content.
+        // 启动时仅初始化不可变锁记录，不初始化内容。
         int initialized=jdbc.queryForObject("SELECT initialized FROM interview_seed_pack WHERE seed_key=? FOR UPDATE",Integer.class,KEY);
         long chapterId=oldId(CH+"chapter");LearningChapter ch=chapters.selectById(chapterId);if(ch==null)throw new BusinessException(409,"原章节已删除");
         long category=oldId("shared/java-core/category");

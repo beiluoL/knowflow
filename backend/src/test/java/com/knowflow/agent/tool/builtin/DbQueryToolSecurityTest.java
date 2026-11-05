@@ -7,6 +7,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证数据库查询工具限制敏感表、语法、列和执行预算。
+ */
 class DbQueryToolSecurityTest {
     @Test
     void rejectsSensitiveTablesBeforeDatabaseExecution() throws Exception {

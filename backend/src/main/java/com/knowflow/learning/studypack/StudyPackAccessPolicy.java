@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.Component;
 
-/** Personal uploaded materials stay private through original document APIs, including Admin. */
+/** 个人上传资料通过原有文档 API 保持私有，管理员也不例外。 */
 @Component
 @RequiredArgsConstructor
 public class StudyPackAccessPolicy {

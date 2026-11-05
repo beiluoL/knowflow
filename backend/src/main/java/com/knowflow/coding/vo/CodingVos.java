@@ -131,7 +131,7 @@ public final class CodingVos {
 
         @Data
         public static class DiffLine {
-            /** EQUAL / ADDED / REMOVED。 */
+            /** 差异类型：EQUAL（相同）/ ADDED（新增）/ REMOVED（删除）。 */
             private String type;
             /** from 侧行号（1 起）；ADDED 行为 null。 */
             private Integer oldLine;
@@ -238,7 +238,7 @@ public final class CodingVos {
 
     @Data
     public static class ReviewRequest {
-        /** APPROVED / REJECTED */
+        /** 审核结果：APPROVED（批准）/ REJECTED（拒绝）。 */
         private String decision;
         private String comment;
     }

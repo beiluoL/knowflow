@@ -31,7 +31,7 @@ class PcmWavTest {
     void rejectsMp3AndStereo() {
         assertThrows(IllegalArgumentException.class, () -> PcmWav.parse("ID3fake-audio".getBytes(StandardCharsets.US_ASCII), 60));
         byte[] stereo = PcmWav.wrap(pcm(100));
-        stereo[22] = 2; // channels = 2
+        stereo[22] = 2; // 声道数为 2。
         assertThrows(IllegalArgumentException.class, () -> PcmWav.parse(stereo, 60));
     }
 

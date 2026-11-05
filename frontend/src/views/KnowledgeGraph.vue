@@ -647,7 +647,7 @@ onMounted(() => {
 .detail-panel { position: sticky; top: 5rem; }
 .tech-svg { display: block; }
 @media (max-width: 1024px) { .detail-panel { position: static !important; } }
-/* Phase B: keep the existing SVG engine; contain canvas transforms locally. */
+/* 阶段 B：保留现有 SVG 引擎，仅在局部约束画布变换。 */
 .knowledge-graph-page { min-width:0; }
 .graph-selected-details { min-width:0; overflow-wrap:anywhere; }
 .segmented { flex-wrap:wrap; }

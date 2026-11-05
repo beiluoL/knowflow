@@ -3,7 +3,7 @@ package com.knowflow.learning.actions;
 import com.knowflow.exception.BusinessException;
 import java.util.*;
 
-/** A budgeted user-requested plan, not a second NextAction/Evidence engine. */
+/** 用户主动请求的有预算计划，不另建 NextAction 或 Evidence 引擎。 */
 public class DailyPlanRule {
     private String title(String value) {
         if (value.length() <= 200) return value;

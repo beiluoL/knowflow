@@ -14,7 +14,7 @@ import java.security.MessageDigest;
 import java.sql.*;
 import java.util.*;
 
-/** Explicitly enabled isolated pilot. Cannot write MySQL, normal H2 files, or a production profile. */
+/** 显式启用的隔离试点，不允许写入 MySQL、普通 H2 文件或生产环境。 */
 @Service @ConditionalOnProperty(name="knowflow.content-studio.qa.enabled",havingValue="true")
 public class ContentStudioHashMapService {
  @org.springframework.beans.factory.annotation.Autowired private HashMapAuthorPreview authorPreview;
@@ -89,7 +89,7 @@ public class ContentStudioHashMapService {
   if(!active(actor))jdbc.update("INSERT INTO interview_seed_activation(seed_key,user_id,goal_id,activated_at) SELECT ?,user_id,goal_id,CURRENT_TIMESTAMP FROM interview_seed_activation WHERE seed_key=? AND user_id=?",key,InterviewSeedCatalog.KEY,actor);
   var after=dryRun(actor);if(!((List<?>)after.get("conflicts")).isEmpty())throw new BusinessException(409,"Post import integrity failure");return fields("dryRun",false,"mapping",after,"revision",revision(actor,chapter()));
  }
- /** Rollback only selection; appended versions, cards, review schedules and every history row survive. */
+ /** 回滚仅切换选用版本，保留追加版本、卡片、复习计划及全部历史记录。 */
  @Transactional(rollbackFor=Exception.class) public Map<String,Object> rollback(long actor){actor(actor);jdbc.queryForList("SELECT id FROM sys_user WHERE id=? AND deleted=0 FOR UPDATE",actor);int changed=jdbc.update("DELETE FROM interview_seed_activation WHERE seed_key=? AND user_id=?",key,actor);return fields("version",key,"selectionRolledBack",changed>0,"contentDeleted",false,"learningHistoryTouched",false);}
  @Transactional(readOnly=true) public Map<String,Object> revision(long actor,long chapter){actor(actor);if(chapter()!=chapter||!active(actor))return null;context(actor);var errors=conflicts(actor);if(!errors.isEmpty())throw new BusinessException(409,"QA revision integrity conflict: "+errors.get(0));var d=row("doc_document",Objects.requireNonNull(find("shared/document")));var qs=new ArrayList<Map<String,Object>>();for(var q:source.required("questions")){var r=row("quiz_question",Objects.requireNonNull(find("shared/question/"+q.required("key").asText())));qs.add(fields("id",r.get("id"),"canonicalKey",q.required("canonicalKey").asText(),"parentKey",q.path("parentKey").isNull()?null:q.get("parentKey").asText(),"title",r.get("title"),"answer",str(r.get("answer")),"explanation",str(r.get("explanation")),"questionType",r.get("question_type"),"options",str(r.get("options")),"importance","S"));}
   var es=new ArrayList<Map<String,Object>>();for(var e:source.required("experiments")){var r=row("code_question",Objects.requireNonNull(find("shared/code/"+e.required("key").asText())));es.add(fields("id",r.get("id"),"title",r.get("title"),"description",str(r.get("description")),"codeTemplate",str(r.get("code_template")),"solutionHint",str(r.get("solution_hint"))));}var ks=new ArrayList<Map<String,Object>>();for(int i=1;i<=3;i++){var k=row("kg_entity",kid(i));ks.add(fields("id",k.get("id"),"name",k.get("name"),"type",k.get("type"),"description",str(k.get("description")),"docId",k.get("doc_id"),"categoryId",k.get("category_id")));}return fields("version",key,"content",str(d.get("content")),"docId",d.get("id"),"docTitle",d.get("title"),"questions",qs,"exercises",es,"knowledge",ks,"notes",List.of(),"flashcardCount",cardCount);

@@ -23,7 +23,7 @@ public class AiConfig {
     @org.springframework.beans.factory.annotation.Value("${DEEPSEEK_API_KEY:}")
     private String conventionalDeepSeekEnvironmentKey;
 
-    /** Environment aliases also work when a private local profile contains an older key. */
+    /** 即使私有本地配置仍使用旧键，环境变量别名也应生效。 */
     public String getApiKey() {
         if (genericEnvironmentKey != null && !genericEnvironmentKey.isBlank()) return genericEnvironmentKey;
         String providerKey = deepSeekEnvironmentKey != null && !deepSeekEnvironmentKey.isBlank()
@@ -32,7 +32,7 @@ public class AiConfig {
             try {
                 String host = java.net.URI.create(baseUrl).getHost();
                 if ("api.deepseek.com".equalsIgnoreCase(host)) return providerKey;
-            } catch (IllegalArgumentException ignored) { /* Existing configuration validation handles invalid URLs. */ }
+            } catch (IllegalArgumentException ignored) { /* 无效 URL 由现有配置校验处理。 */ }
         }
         return apiKey;
     }

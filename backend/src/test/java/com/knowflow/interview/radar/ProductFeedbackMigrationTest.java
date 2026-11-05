@@ -3,6 +3,9 @@ import com.knowflow.learning.feedback.FeedbackSchema;
 import org.junit.jupiter.api.Test;
 import java.sql.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证产品反馈增量迁移可重复且保留历史。
+ */
 class ProductFeedbackMigrationTest {
  @Test void additiveMigrationIsRepeatableAndPreservesHistory()throws Exception {
   try(var c=DriverManager.getConnection("jdbc:h2:mem:feedback_migration;MODE=MySQL","sa","");var st=c.createStatement()){

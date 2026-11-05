@@ -4,9 +4,9 @@
  * 作用：把真实上下文压缩为「信号」——廉价的派生计数 / 标记（§134-137，O(n) 纯内存计算）。
  *   LearningEvent / KnowledgeMastery / Review / Quiz / Mistake
  *     → LearningSignals（本文件）
- *     → Diagnosis（diagnosis.ts）
- *     → Strategy（strategy.ts）
- *     → NextAction（action-priority.ts）
+ * → 诊断（diagnosis.ts）。
+ * → 策略（strategy.ts）。
+ * → 下一步动作（action-priority.ts）。
  *
  * 不调用任何 API、不查询 DB（§218-223），所有输入来自页面已加载的真实数据。
  */

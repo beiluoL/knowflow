@@ -10,10 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-/**
-  * Applies a confirmed per-user ordering projection; never edits canonical chapter rows or
-  * prerequisites.
-  */
+/** 应用已确认的用户级排序投影，不编辑标准章节行或先修条件。 */
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "knowflow.product.adaptive-learning.enabled", havingValue = "true")

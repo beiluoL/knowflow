@@ -1,5 +1,8 @@
 package com.knowflow.learning.controller;
 import com.knowflow.common.*;import com.knowflow.learning.tutor.TutorMicroService;import jakarta.validation.Valid;import jakarta.validation.constraints.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.web.bind.annotation.*;import java.util.*;
+/**
+ * 提供导师微挑战的查询、启动、草稿和提交接口。
+ */
 @RestController @RequestMapping("/api/learning/micro-challenges") @RequiredArgsConstructor
 @ConditionalOnProperty(name={"knowflow.product.tutor.enabled","knowflow.product.tutor-coaching.enabled","knowflow.product.private-quiz.enabled"},havingValue="true")
 public class TutorMicroController {

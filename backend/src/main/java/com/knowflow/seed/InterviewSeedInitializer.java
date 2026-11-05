@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
 
-/** Only provisions version indices. Never creates content or user state at startup. */
+/** 仅初始化版本索引；启动时不创建内容或用户状态。 */
 @Component @org.springframework.core.annotation.Order(0) @RequiredArgsConstructor
 public class InterviewSeedInitializer implements ApplicationRunner {
     private final JdbcTemplate jdbc;
@@ -20,7 +20,7 @@ public class InterviewSeedInitializer implements ApplicationRunner {
             jdbc.update("INSERT INTO interview_seed_pack(seed_key,initialized) SELECT ?,0 WHERE NOT EXISTS (SELECT 1 FROM interview_seed_pack WHERE seed_key=?)",
                     InterviewSeedCatalog.KEY,InterviewSeedCatalog.KEY);
         } catch (DuplicateKeyException race) {
-            // Another application instance created the same immutable lock row.
+            // 其他应用实例已创建同一条不可变锁记录。
             if(jdbc.queryForObject("SELECT COUNT(*) FROM interview_seed_pack WHERE seed_key=?",Integer.class,InterviewSeedCatalog.KEY)!=1) throw race;
         }
         jdbc.update("INSERT INTO interview_seed_pack(seed_key,initialized) SELECT ?,0 WHERE NOT EXISTS (SELECT 1 FROM interview_seed_pack WHERE seed_key=?)",CollectionsDepthService.KEY,CollectionsDepthService.KEY);

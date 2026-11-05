@@ -3,17 +3,17 @@ package com.knowflow.identity.contract;
 import java.util.List;
 import lombok.Data;
 
-/** Identity-owned profile and legacy statistics operations used by Reward. */
+/** 奖励模块使用的身份模块资料及历史统计操作。 */
 public interface RewardMemberAccess {
-    /** Read a non-deleted member; never exposes credentials or roles. */
+    /** 读取未删除成员，不暴露凭据或角色。 */
     Member find(Long userId);
-    /** Same experience ordering as the legacy ranking, limited to 1–100 members. */
+    /** 沿用历史排行的经验值排序，限制返回 1–100 位成员。 */
     List<Member> ranking(int limit);
-    /** Acquire the existing active-user row lock within the caller transaction. */
+    /** 在调用方事务内锁定已有的有效用户行。 */
     Long lockActiveUserId(Long userId);
-    /** Preserve the legacy absolute XP assignment within the caller transaction. */
+    /** 在调用方事务内保留历史的经验值绝对赋值行为。 */
     void setLegacyExperience(Long userId, int experience);
-    /** Synchronize the check-in streak if the member still exists. */
+    /** 成员仍存在时同步连续签到天数。 */
     void syncStreak(Long userId, int days);
 
     @Data

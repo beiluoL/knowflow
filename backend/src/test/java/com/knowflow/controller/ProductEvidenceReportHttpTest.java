@@ -1,5 +1,8 @@
 package com.knowflow.controller;
 import org.junit.jupiter.api.Test;import org.springframework.boot.test.context.SpringBootTest;import java.util.*;import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;import static org.mockito.ArgumentMatchers.*;
+/**
+ * 验证学习证据报告的 HTTP 契约。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.adaptive-learning.enabled=true","knowflow.product.interview-learning.enabled=true","knowflow.product.private-quiz.enabled=true","knowflow.product.tutor.enabled=true","knowflow.product.tutor-coaching.enabled=true","server.address=127.0.0.1"})
 class ProductEvidenceReportHttpTest extends ProductFeedbackHttpTest {
  @Test void reportUsesOriginalAnswersCorrectionsReadOnlySevenDaysAndCurrentScope()throws Exception{

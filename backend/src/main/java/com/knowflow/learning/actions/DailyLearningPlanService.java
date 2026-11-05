@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Rules create drafts; only this authenticated confirmation transaction performs writes. */
+/** 规则仅生成草稿，只有此认证确认事务执行写入。 */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -690,7 +690,7 @@ public class DailyLearningPlanService {
     private void lockAndValidateSelected(Long user, Stored s, List<Item> selected) {
         // STATUS LEARNING也先锁owner，随后才取任务锁，与LearningService保持顺序。
         guard.lock(user);
-        // Acquire existing task locks in stable order; prevent lost updates after a stale preview.
+        // 按稳定顺序获取已有任务锁，防止过期预览导致更新丢失。
         selected.stream()
                 .filter(i -> i.existingTaskId() != null && "TASK".equals(i.existingSource()))
                 .sorted(Comparator.comparing(Item::existingTaskId))
@@ -767,7 +767,7 @@ public class DailyLearningPlanService {
                 dto.setSortOrder(slot);
                 order = slot + 1;
             } else dto.setSortOrder(order++);
-            // Durations remain metadata: no fake start/finish times or completed progress.
+            // 时长仅作元数据，不伪造开始、结束时间或完成进度。
             if ("UPDATE".equals(s.action())) {
                 verifyExisting(user, item);
                 taskId = item.existingTaskId();

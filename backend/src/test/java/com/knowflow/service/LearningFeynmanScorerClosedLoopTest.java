@@ -156,7 +156,7 @@ class LearningFeynmanScorerClosedLoopTest {
         assertEquals(2, acc.getChecked(), "重复 accuracy-1 只计 1 次，accuracy-1/2 各一次");
         assertEquals(50, acc.getScore());
         assertEquals(0, r.getDimensions().get(1).getChecked(), "未知 id 不落任何维度");
-        // overall = round(2/16*100) = 13
+        // 总分计算：overall = round(2/16*100) = 13。
         assertEquals(13, r.getOverall());
     }
 

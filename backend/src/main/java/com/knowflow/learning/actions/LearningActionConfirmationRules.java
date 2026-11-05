@@ -5,11 +5,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.function.Supplier;
 
-/** Validates confirmation credentials in version, token, then idempotency-key order. */
+/** 按版本、令牌、幂等键的顺序校验确认凭据。 */
 final class LearningActionConfirmationRules {
     private LearningActionConfirmationRules() {}
 
-    /** Token generation stays lazy so stale versions fail before token validation. */
+    /** 延迟生成令牌，使过期版本在令牌校验前失败。 */
     static void validate(PlanModels.ConfirmRequest request, Integer version, Supplier<String> token) {
         if (request == null
                 || request.getVersion() == null

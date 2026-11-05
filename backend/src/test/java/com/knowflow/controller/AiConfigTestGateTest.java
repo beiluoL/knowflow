@@ -21,6 +21,9 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证 AI 配置测试入口的门禁行为。
+ */
 @ExtendWith(MockitoExtension.class)
 class AiConfigTestGateTest {
     @Mock UserAiConfigMapper mapper;

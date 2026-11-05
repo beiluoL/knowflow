@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-// Local vector assets reproduce the reference silhouettes without changing global icons.
+// 局部矢量资源复现参考轮廓，不改变全局图标。
 defineProps<{ name: 'again' | 'hard' | 'good' | 'easy' | 'hand' | 'book' | 'tag' }>()
 </script>
 

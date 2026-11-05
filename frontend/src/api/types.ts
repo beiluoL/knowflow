@@ -436,7 +436,7 @@ export interface ChatModelCapability {
   model: string
   provider?: string | null
   reasoningSupported: boolean
-  /** provider_text / summary / none */
+  /** 推理类型：provider_text（供应方文本）/ summary（摘要）/ none（无）。 */
   reasoningKind: 'provider_text' | 'summary' | 'none' | string
   reasoningLabel?: string | null
   supportsTools: boolean
@@ -1107,9 +1107,9 @@ export interface UserAiConfigVO {
   baseUrl?: string
   model?: string
   isActive?: number
-  /** CLOUD / LOCAL */
+  /** 部署方式：CLOUD（云端）/ LOCAL（本地）。 */
   providerType?: string
-  /** LIGHT / STANDARD / POWERFUL */
+  /** 能力等级：LIGHT（轻量）/ STANDARD（标准）/ POWERFUL（高能力）。 */
   capability?: string
   displayName?: string
   /** 提供商中文标签（由 Registry 回填） */
@@ -1124,9 +1124,9 @@ export interface UserAiConfigPayload {
   baseUrl?: string
   model?: string
   isActive?: number
-  /** CLOUD / LOCAL */
+  /** 部署方式：CLOUD（云端）/ LOCAL（本地）。 */
   providerType?: string
-  /** LIGHT / STANDARD / POWERFUL */
+  /** 能力等级：LIGHT（轻量）/ STANDARD（标准）/ POWERFUL（高能力）。 */
   capability?: string
   displayName?: string
   /** 编辑现有配置时传入 */
@@ -1287,7 +1287,7 @@ export interface AgentToolCallVO {
   permission: ToolPermission
   argsJson?: string
   resultJson?: string
-  /** success / failed / cancelled */
+  /** 状态：success（成功）/ failed（失败）/ cancelled（取消）。 */
   status: string
   latencyMs?: number
   createTime?: string

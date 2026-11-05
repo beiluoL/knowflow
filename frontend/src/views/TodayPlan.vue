@@ -214,7 +214,7 @@ import { habitApi } from '@/api/habit'
 import { notify, getApiError, confirmDialog } from '@/utils/toast'
 import type { LearningPlanVO, PlanBlockVO, PlanItemVO } from '@/api/types'
 
-// -------- State --------
+// -------- 状态 --------
 const plan = ref<LearningPlanVO | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -258,7 +258,7 @@ const totalMinutes = computed(() => allItems.value.reduce((sum, it) => sum + (it
 const remaining = computed(() => Math.max((plan.value?.totalItems ?? 0) - (plan.value?.completedItems ?? 0), 0))
 const nextItem = computed(() => allItems.value.find((it) => !it.completed) ?? null)
 
-// -------- Helpers --------
+// -------- 辅助方法 --------
 const EMOJI_PATTERN = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu
 
 /** 时间段名称：优先用服务端 label，去掉历史遗留的重复 Emoji。 */
@@ -315,7 +315,7 @@ function itemId(item: PlanItemVO): string {
   return String(item.learningTaskId ?? item.taskId ?? item.habitId ?? item.title)
 }
 
-// -------- Actions --------
+// -------- 操作 --------
 async function loadPlan(forceToday = false) {
   const request = ++planRequest
   void forceToday
@@ -394,7 +394,7 @@ async function toggleItem(item: PlanItemVO & { _loading?: boolean }, nextValue: 
   }
 }
 
-// -------- Lifecycle --------
+// -------- 生命周期 --------
 onMounted(loadPlan)
 
 </script>

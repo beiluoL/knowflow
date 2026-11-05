@@ -9,6 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
+/**
+ * 验证面试项目上下文快照的去重、长度及来源权限。
+ */
 class InterviewProjectContextServiceTest {
     @Test
     void deduplicatesInRequestOrderAndKeepsTheExistingSnapshotBoundsAndLabels() {

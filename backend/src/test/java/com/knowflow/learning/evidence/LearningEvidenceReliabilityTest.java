@@ -12,6 +12,9 @@ import org.springframework.test.context.TestPropertySource;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证学习证据时间顺序、来源完整性和可比较性。
+ */
 @SpringBootTest @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:v70_t02;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.datasource.config-file=/tmp/v70-t02-no-config.json"})
 class LearningEvidenceReliabilityTest {

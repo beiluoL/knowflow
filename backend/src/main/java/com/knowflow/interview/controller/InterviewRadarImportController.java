@@ -5,6 +5,9 @@ import com.knowflow.common.SecurityUtils;
 import com.knowflow.seed.InterviewRadarImportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+/**
+ * 提供面试雷达来源导入预览和确认接口。
+ */
 @RestController @RequiredArgsConstructor
 @RequestMapping("/api/learning/interview-radar/import")
 public class InterviewRadarImportController {

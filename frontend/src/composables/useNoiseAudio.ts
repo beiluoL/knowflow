@@ -80,13 +80,13 @@ function getPinkBuffer(ctx: AudioContext): AudioBuffer {
 /** 停止当前噪音源与 LFO（保留 AudioContext 与 masterGain 以便复用音量） */
 function stopSource(): void {
   if (waveLFO) {
-    try { waveLFO.stop(); } catch { /* oscillator may already be stopped */ }
-    try { waveLFO.disconnect(); } catch { /* noop */ }
+    try { waveLFO.stop(); } catch { /* 振荡器可能已经停止。 */ }
+    try { waveLFO.disconnect(); } catch { /* 无需额外处理。 */ }
     waveLFO = null;
   }
   if (currentSource) {
-    try { currentSource.stop(); } catch { /* source may already be stopped */ }
-    try { currentSource.disconnect(); } catch { /* noop */ }
+    try { currentSource.stop(); } catch { /* 音源可能已经停止。 */ }
+    try { currentSource.disconnect(); } catch { /* 无需额外处理。 */ }
     currentSource = null;
   }
 }

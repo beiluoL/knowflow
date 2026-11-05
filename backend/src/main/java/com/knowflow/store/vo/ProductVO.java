@@ -16,7 +16,7 @@ public class ProductVO {
     private String appKey;
     /** 价格（Coin，服务端唯一可信） */
     private Integer priceCoin;
-    /** ACTIVE / DISABLED */
+    /** 商品状态：ACTIVE（启用）/ DISABLED（停用）。 */
     private String status;
     private String version;
     /** 当前用户是否已拥有（来自 Entitlement，§58/§284） */

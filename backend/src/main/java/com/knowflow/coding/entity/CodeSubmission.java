@@ -47,7 +47,7 @@ public class CodeSubmission extends BaseEntity {
     /** 判题审计 JSON */
     private String judgeDetail;
 
-    /** PRACTICE / EXAM */
+    /** 模式：PRACTICE（练习）/ EXAM（考试）。 */
     private String contextType;
 
     /** EXAM 时为 exam_answer.id */

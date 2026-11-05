@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.time.*;
 import lombok.Data;
 
-/** Confirmation metadata only. Real tasks always live in existing task tables. */
+/** 仅维护确认元数据，真实任务始终保存在现有任务表中。 */
 @Data
 @TableName("learning_action_draft")
 public class LearningActionDraft {

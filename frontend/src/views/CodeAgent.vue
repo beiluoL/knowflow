@@ -171,7 +171,7 @@ function persistModelParams() {
   try {
     localStorage.setItem(paramsStorageKey, JSON.stringify(modelParams.value))
   } catch {
-    // ignore
+    // 忽略此处可容忍的异常。
   }
 }
 
@@ -3594,7 +3594,7 @@ watch(activeTab, (tab) => {
               </div>
             </div>
 
-            <!-- Top-P -->
+            <!-- Top-P 采样参数。 -->
             <div class="param-row">
               <div class="param-label">
                 <label>核采样（Top-P）</label>

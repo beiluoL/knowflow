@@ -18,7 +18,7 @@ public class TaskList extends BaseEntity {
 
     private String name;
 
-    /** area / project / list。 */
+    /** 类型：area（领域）/ project（项目）/ list（清单）。 */
     private String kind;
 
     /** 父级 ID（area 的 parent 为 0；project/list 的 parent 指向 area 或 0）。 */

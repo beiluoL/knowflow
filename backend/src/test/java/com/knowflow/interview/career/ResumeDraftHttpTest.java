@@ -13,6 +13,9 @@ import java.util.Map;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证简历草稿的版本冲突、自动保存与用户隔离。
+ */
 @SpringBootTest(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:resume_draft_v4;DB_CLOSE_DELAY=-1;MODE=MySQL", "knowflow.datasource.config-file=/tmp/resume-draft-v4-none.json", "knowflow.seed.development-account.enabled=false"})
 @AutoConfigureMockMvc @ActiveProfiles("local")
 class ResumeDraftHttpTest {

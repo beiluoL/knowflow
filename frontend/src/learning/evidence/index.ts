@@ -2,8 +2,8 @@
  * Architecture-4.1：Evidence & Learning Strategy Engine 模块出口。
  *
  * 数据流（§30）：
- *   User Action → App → LearningEvent → Evidence Resolver → Evidence
- *     → Evidence Aggregation → Diagnosis(+RootCause) → Strategy
+ * 用户动作 → 应用 → 学习事件 → 证据解析器 → 证据。
+ * → 证据聚合 → 诊断（含根因）→ 策略。
  *     → Action Candidate(+App Availability) → 既有 NextAction Resolver → Real App
  *
  * 本模块全部为纯函数：不调 API、不持有状态、不写库（§32-35），

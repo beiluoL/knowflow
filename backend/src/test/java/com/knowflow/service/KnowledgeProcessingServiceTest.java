@@ -65,18 +65,18 @@ class KnowledgeProcessingServiceTest {
     @BeforeEach
     void setUp() {
         FakeAiConfiguration.reset();
-        // Both explicit actors exercise administrative mutation; their DB roles must agree
-        // with that intent instead of UID_B inheriting UID_A's request authority.
+        // 两个显式用户都执行管理员修改操作，其数据库角色必须匹配该意图，
+        // 不能让 UID_B 继承 UID_A 的请求权限。
         for (Long id : List.of(UID_A, UID_B)) {
             jdbc.update("MERGE INTO sys_user(id,username,role,deleted) KEY(id) VALUES(?,?,'ADMIN',0)",
                     id, "kp-admin-" + id);
         }
-        // Global entity/learning-node mutation positives require a real administrative context.
+        // 全局实体或学习节点修改的正例需要真实管理员上下文。
         org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(UID_A,"unused",List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN"))));
     }
     @org.junit.jupiter.api.AfterEach void clearAuthentication(){org.springframework.security.core.context.SecurityContextHolder.clearContext();}
 
-    // ===== helpers =====
+    // ===== 辅助方法 =====
 
     private DocDocument doc(Long id, String title, String content) {
         DocDocument d = new DocDocument();
@@ -157,7 +157,7 @@ class KnowledgeProcessingServiceTest {
              ]}
             """;
 
-    // ===== tests =====
+    // ===== 测试用例 =====
 
     @Test
     @DisplayName("A4.3-1: Material→Processing→候选(零写库)：结构合法、无 AI 直接入库")

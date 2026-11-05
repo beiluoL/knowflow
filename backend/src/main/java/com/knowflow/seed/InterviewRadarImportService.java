@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 
-/** Private source import; never emits learning events or imports historical scores. */
+/** 导入私有来源，不产生学习事件，也不导入历史分数。 */
 @Service @RequiredArgsConstructor
 public class InterviewRadarImportService {
  public static final String KEY="interview-radar-private-v1/";

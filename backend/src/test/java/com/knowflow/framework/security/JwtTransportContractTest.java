@@ -19,6 +19,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 
+/**
+ * 验证两种 JWT 传输均读取当前身份并拒绝撤销令牌。
+ */
 class JwtTransportContractTest {
   @Test
   void bothTransportsUseCurrentSubjectAndRejectRevokedTokens() throws Exception {

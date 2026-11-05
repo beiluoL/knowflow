@@ -1,4 +1,4 @@
-/** Streaming box-filter resampler. Carries fractional integration across render quanta. */
+/** 流式方框滤波重采样器，跨渲染块保留小数积分。 */
 export class Pcm16Framer {
   constructor(inputRate, emit) {
     if (!Number.isFinite(inputRate) || inputRate < 16000) {
@@ -45,7 +45,7 @@ export class Pcm16Framer {
   }
 }
 
-// The guard lets the exact processing implementation run in Node unit tests.
+// 此防护允许在 Node 单元测试中运行同一处理实现。
 if (typeof AudioWorkletProcessor !== 'undefined') {
   class InterviewPcmProcessor extends AudioWorkletProcessor {
     constructor() {
@@ -54,7 +54,7 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
       this.pending = 0;
       this.failed = false;
       this.framer = new Pcm16Framer(sampleRate, (buffer, sequence) => {
-        // Bound the MessagePort backlog when the main thread cannot consume audio.
+        // 主线程无法消费音频时限制 MessagePort 积压。
         if (this.pending >= 50) {
           this.failed = true;
           this.port.postMessage({ error: '音频处理积压，请重试' });

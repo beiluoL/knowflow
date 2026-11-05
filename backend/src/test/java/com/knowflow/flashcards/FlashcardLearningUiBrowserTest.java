@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Opt-in real Chrome; IsolatedTestContextFactory supplies a new private H2 database. */
+/** 显式启用真实 Chrome；IsolatedTestContextFactory 提供新的私有 H2 数据库。 */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, properties={"server.address=127.0.0.1","knowflow.datasource.h2.url=jdbc:h2:mem:flash_learning_ui;MODE=MySQL;DB_CLOSE_DELAY=-1"})
 @Import({FakeAiConfiguration.class, FlashcardLearningUiBrowserTest.Observation.class})
 @EnabledIfSystemProperty(named="flash.learning.browser", matches="true")

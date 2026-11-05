@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/** Real AiService + CapabilityExecutor + localhost HTTP provider. No real model or paid request. */
+/** 使用真实 AiService、CapabilityExecutor 及本地 HTTP 供应方，不调用真实模型或付费接口。 */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local")
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:interview-ai-protocol;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.datasource.allow-runtime-switch=false","knowflow.exam.timeout-scheduler.enabled=false","knowflow.coding.seed.algorithm.enabled=false","knowflow.ai.capability.enabled=true","knowflow.ai.capability.max-attempts=1","knowflow.ai.capability.circuit-failure-threshold=100","ai.api-key=local-test-placeholder","ai.model=local-protocol","ai.timeout-seconds=1","ai.max-tokens=512"})
 class InterviewAiProtocolTest {

@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.Set;
 import java.util.Objects;
+/**
+ * 管理题目校验、创建、更新、发布、审核和删除。
+ */
 @Service @RequiredArgsConstructor @PreAuthorize("hasRole('ADMIN')")
 public class QuizQuestionAdminService {
  private final org.mybatis.spring.SqlSessionTemplate sessions;
@@ -18,7 +21,7 @@ public class QuizQuestionAdminService {
  private static final Set<String> TYPES=Set.of("SINGLE_CHOICE","MULTIPLE_CHOICE","TRUE_FALSE","FILL_BLANK","SHORT_ANSWER");
  private void validate(QuizQuestion q){if(q.getTitle()==null||q.getTitle().isBlank()||q.getContent()==null||q.getContent().isBlank())throw new BusinessException(400,"标题与题干不能为空");if(!TYPES.contains(q.getQuestionType()))throw new BusinessException(400,"请使用对应专业题型编辑器");if(q.getDifficulty()==null||q.getDifficulty()<1||q.getDifficulty()>3)throw new BusinessException(400,"难度必须为1–3");if(q.getStatus()!=null&&q.getStatus()!=0&&q.getStatus()!=1)throw new BusinessException(400,"发布状态无效");}
  private QuizQuestion require(Long id) {
-  // A locking read must return the full current row, even in MySQL REPEATABLE READ.
+  // 加锁读取必须返回当前完整行，即使 MySQL 使用 REPEATABLE READ。
   sessions.clearCache();
   var q=mapper.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<QuizQuestion>()
     .eq(QuizQuestion::getId,id).last("FOR UPDATE"));

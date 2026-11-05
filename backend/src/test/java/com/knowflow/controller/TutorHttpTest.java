@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证导师会话的 HTTP 契约。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.tutor.enabled=true","knowflow.product.tutor-coaching.enabled=true","knowflow.product.private-quiz.enabled=true","server.address=127.0.0.1"}) @ActiveProfiles("local")
 class TutorHttpTest {
  @Autowired ObjectMapper json;@Autowired JwtUtils jwt;@Autowired JdbcTemplate sql;@Autowired AiCapabilityProperties capability;

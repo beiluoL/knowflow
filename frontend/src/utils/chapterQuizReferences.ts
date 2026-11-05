@@ -1,5 +1,5 @@
 import type { InterviewQuestion } from '@/api/interviewSeed'
-/** Only questions returned by this chapter may enable authored references. */
+/** 仅本章节返回的题目可启用编写好的参考资料。 */
 export function bindChapterQuizReferences(root:HTMLElement,questions:InterviewQuestion[]) {
  for(const button of root.querySelectorAll<HTMLButtonElement>('[data-quiz-ref-key]')) {
   const key=button.dataset.quizRefKey

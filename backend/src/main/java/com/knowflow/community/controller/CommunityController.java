@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 提供社区帖子、点赞和评论接口。
+ */
 @Tag(name = "社区讨论接口")
 @RestController
 @RequestMapping("/api/community")

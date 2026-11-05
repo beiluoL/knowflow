@@ -40,6 +40,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证文档、衍生知识及附件的访问隔离。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={
     "knowflow.datasource.h2.url=jdbc:h2:mem:oct2_docs;DB_CLOSE_DELAY=-1;MODE=MySQL",

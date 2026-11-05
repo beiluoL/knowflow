@@ -23,7 +23,7 @@ public final class AtsAdapters {
 
     private static String now() { return Instant.now().toString(); }
 
-    /** Greenhouse Job Board API：https://developers.greenhouse.io/job-board.html */
+    /** Greenhouse 职位看板接口：https://developers.greenhouse.io/job-board.html */
     public static class Greenhouse implements JobSourceAdapter {
         private final HttpJson http;
         private final ObjectMapper json;
@@ -69,7 +69,7 @@ public final class AtsAdapters {
         }
     }
 
-    /** Lever Postings API：https://github.com/lever/postings-api */
+    /** Lever 职位发布接口：https://github.com/lever/postings-api */
     public static class Lever implements JobSourceAdapter {
         private final HttpJson http;
         private final ObjectMapper json;

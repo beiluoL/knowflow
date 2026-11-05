@@ -10,6 +10,9 @@ import org.springframework.test.context.*;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证聊天管理的持久化及归属行为。
+ */
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local")
 @TestPropertySource(properties={"knowflow.datasource.config-file=/tmp/chat-management-no-config.json","knowflow.datasource.type=h2","knowflow.datasource.h2.url=jdbc:h2:mem:chat_management;DB_CLOSE_DELAY=-1;MODE=MySQL"})
 class ChatManagementTest {

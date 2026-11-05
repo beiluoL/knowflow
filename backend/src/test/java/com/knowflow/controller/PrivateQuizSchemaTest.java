@@ -6,6 +6,9 @@ import java.sql.*;
 import java.nio.file.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证私有题目结构重复升级和文件数据库恢复。
+ */
 class PrivateQuizSchemaTest {
  @Test void repeatUpgradeAndRestoreFileDatabasePreservesLegacyAndNewRows() throws Exception{
   var dir=Files.createTempDirectory("private-quiz-migration-");String base=dir.resolve("db").toString();

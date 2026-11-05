@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/** Read-only exam observations. Never writes Mastery or changes Evidence/NextAction semantics. */
+/** 只读分析考试表现，不写入 Mastery，也不改变 Evidence 或 NextAction 语义。 */
 @Service @RequiredArgsConstructor
 public class ExamDiagnosisService {
     private final ExamService exams;
@@ -41,7 +41,7 @@ public class ExamDiagnosisService {
     }
     @Transactional(readOnly=true)
     public ExamDiagnosis diagnose(Long attemptId,Long userId) {
-        // Owner check precedes explicit submit-state gate and all auxiliary reads.
+        // 先检查归属，再校验提交状态并读取辅助数据。
         ExamVos.ResultVO result=exams.getResult(attemptId,userId);
         if(result.getSubmitTime()==null) throw new BusinessException(409,"考试尚未交卷，不能生成诊断");
         List<ExamVos.ResultItemVO> items=result.getItems();

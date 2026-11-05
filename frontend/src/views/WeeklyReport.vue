@@ -479,7 +479,7 @@ async function handleGenerate(): Promise<void> {
         (b.weekStart || '').localeCompare(a.weekStart || ''),
       );
     } catch {
-      // ignore
+      // 忽略此处可容忍的异常。
     }
     // 生成完刷新增强数据
     void loadMetrics();

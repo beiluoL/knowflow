@@ -419,7 +419,7 @@ public class PaperComposer {
         return answeredIds.contains(id) ? SelectionReason.GENERAL_POOL : SelectionReason.NEW_UNANSWERED;
     }
 
-    /** Explicit source identity wins. Titles are only a compatibility fallback for legacy rows without a key. */
+    /** 优先使用显式来源标识；标题仅用于缺少键的历史记录兼容回退。 */
     private static String questionIdentity(QuizQuestion q) {
         if(q.getCanonicalKey()!=null&&!q.getCanonicalKey().isBlank()) return "canonical:"+q.getCanonicalKey().trim();
         return "legacy:"+SemanticIdentity.fingerprint(q.getQuestionType(),q.getTitle(),q.getContent());
@@ -647,7 +647,7 @@ public class PaperComposer {
                     w.or().in(QuizQuestion::getCategoryId, categoryIds);
                 }
             });
-            // Both explicit associations must be readable; a null category cannot bypass a private document.
+            // 两个显式关联都必须可读；空分类不能绕过私有文档权限。
             qw.and(w -> {
                 w.isNull(QuizQuestion::getDocId);
                 if (!docIds.isEmpty()) w.or().in(QuizQuestion::getDocId, docIds);
@@ -684,7 +684,7 @@ public class PaperComposer {
         for (QuizQuestion q : questions) {
             qidTopic.put(q.getId(), topicOfQuestion(q));
         }
-        Map<String, int[]> agg = new HashMap<>(); // topic -> [wrong, total]
+        Map<String, int[]> agg = new HashMap<>(); // 主题映射到 [错误数, 总数]。
         for (QuizAnswerRecord r : answerRecordMapper.selectList(
                 new LambdaQueryWrapper<QuizAnswerRecord>().eq(QuizAnswerRecord::getUserId, userId))) {
             String topic = qidTopic.get(r.getQuestionId());

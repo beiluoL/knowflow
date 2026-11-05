@@ -40,7 +40,7 @@ public class FsSymbolsTool implements AgentTool {
 
     /** 各语言「定义」符号识别（捕获组 1 = 名称） */
     private static final Pattern DEF_PATTERN = Pattern.compile(
-            // python: def / class / async def
+            // Python 声明：def / class / async def。
             "^(?:async\\s+)?def\\s+([A-Za-z_]\\w*)|"
                     // js/ts: function / const|let|var x = (arrow|function) ; 以及 class
                     + "^(?:export\\s+)?(?:async\\s+)?function\\s+([A-Za-z_]\\w*)|"

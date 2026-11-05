@@ -14,6 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证用户搜索 HTTP 响应的隐私边界。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(FakeAiConfiguration.class)

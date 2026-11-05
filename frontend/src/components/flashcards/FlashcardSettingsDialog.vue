@@ -73,7 +73,7 @@ const intl = Intl as typeof Intl & { supportedValuesOf?: (key: string) => string
 const knownTimezones = intl.supportedValuesOf?.('timeZone') ?? []
 const timezoneOptions = computed(() => [...new Set([source.value?.timezone, 'Asia/Shanghai', 'UTC', ...knownTimezones].filter((zone): zone is string => !!zone))])
 
-// Move the decimal point as text so a legal saved double is not rounded on opening.
+// 以文本方式移动小数点，避免打开时将合法保存的 double 值舍入。
 function percent(value: number) {
   if (String(value).includes('e')) return String(value * 100)
   const [whole, fraction = ''] = String(value).split('.'), digits = fraction.padEnd(2, '0')
@@ -82,7 +82,7 @@ function percent(value: number) {
 }
 function retentionValue(value: string) {
   const decimal = /^\+?(\d+)(?:\.(\d*))?$/.exec(value.trim())
-  // The validated percentage is 70–99, so moving its decimal needs two digits.
+  // 已校验百分比为 70–99，因此移动小数点需两位。
   return decimal ? Number(`0.${String(Number(decimal[1])).padStart(2, '0')}${decimal[2] ?? ''}`) : Number(value) / 100
 }
 function complete(value: FlashcardReviewSettings): boolean {
@@ -119,8 +119,8 @@ function validate(): Partial<Record<Field, string>> {
   }
   for (const key of ['learningSteps', 'relearningSteps'] as const) { const parsed = steps(draft[key]); if (typeof parsed === 'string') result[key] = parsed }
   if (!draft.timezone.trim()) result.timezone = '请填写时区，例如Asia/Shanghai。'
-  // Java ZoneId accepts valid aliases/offset zones that browser Intl may not know.
-  // Preserve them and leave final timezone validity to the existing server contract.
+  // Java ZoneId 接受浏览器 Intl 可能不认识的别名和偏移时区。
+  // 保留这些值，由现有服务端契约最终校验时区合法性。
   return result
 }
 function checkField(field: Field) { touched.add(field); const all = validate(); errors.value = Object.fromEntries(Object.entries(all).filter(([key]) => attempted || touched.has(key as Field))) }

@@ -36,7 +36,7 @@ export const EVIDENCE_PRACTICE_ROUTES: string[] = [
   '/learning/center',
 ]
 
-/** Registered resource pages only; numeric IDs are canonical safe integers. */
+/** 仅允许已注册资源页，数字标识必须为标准安全整数。 */
 export function resourceEntryPath(path: string): string | null {
   const match = /^(\/learning\/(?:chapter|knowledge-mastery|code-practice)|\/doc)\/([1-9]\d*)$/.exec(path)
   return match && Number.isSafeInteger(Number(match[2])) ? `${match[1]}/:id` : null

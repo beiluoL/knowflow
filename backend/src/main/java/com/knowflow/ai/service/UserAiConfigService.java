@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Persists configuration changes and active-selection changes atomically. */
+/** 原子持久化配置变更与当前启用项变更。 */
 @Service
 @RequiredArgsConstructor
 public class UserAiConfigService {
@@ -19,7 +19,7 @@ public class UserAiConfigService {
     private final AiProviderRegistry providerRegistry;
     private final com.knowflow.identity.mapper.SysUserMapper users;
 
-    /** Saves configuration and clears previous active selection as one operation. */
+    /** 将保存配置和清除原启用项作为同一个操作执行。 */
     @Transactional(rollbackFor = Exception.class)
     public Result<UserAiConfig> save(Long userId, UserAiConfigDTO dto) {
         lockOwner(userId);
@@ -79,7 +79,7 @@ public class UserAiConfigService {
         }
         return Result.success(findActive(userId));
     }
-    /** Changes active selection with rollback if either update fails. */
+    /** 切换启用项；任一更新失败时整体回滚。 */
     @Transactional(rollbackFor = Exception.class)
     public Result<Void> activate(Long userId, Long id) {
         lockOwner(userId);

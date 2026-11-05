@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
-/** Fixed QA-only adapter sharing every HashMap engine guard and ledger rule. */
+/** 仅供 QA 使用的固定适配器，复用 HashMap 引擎的全部防护和台账规则。 */
 @Service @ConditionalOnProperty(name="knowflow.content-studio.qa.enabled",havingValue="true")
 public class ContentStudioThreadPoolService {
  private final ContentStudioHashMapService engine;

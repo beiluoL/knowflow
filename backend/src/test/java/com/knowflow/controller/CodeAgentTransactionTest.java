@@ -19,6 +19,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证编程智能体消息写入和会话删除的事务回滚。
+ */
 @SpringBootTest
 @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:code_agent_batch1;DB_CLOSE_DELAY=-1;MODE=MySQL")

@@ -1,6 +1,6 @@
 <template>
   <div class="wb-page workbench-space animate-fade-in recall-page" :style="{ '--mc': 'var(--kf-state-warning)' }">
-    <!-- ============ Module Hero ============ -->
+    <!-- ============ 模块主视觉区 ============ -->
     <section class="wb-hero">
       <div class="wb-hero-bg" aria-hidden="true">
         <span class="wb-blob"></span>

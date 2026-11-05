@@ -3,7 +3,7 @@
   <div v-if="loadError" role="alert" class="workbench-inline-error">{{ loadError }}<button class="kf-btn" @click="loadNote">重试</button></div>
   <div v-else-if="!noteLoaded" class="workbench-empty" role="status">正在读取笔记与来源…</div>
   <div v-else class="wb-page" :style="{ '--mc': themeColor }">
-    <!-- ============ Sticky Top Bar ============ -->
+    <!-- ============ 吸顶工具栏 ============ -->
     <header class="note-topbar">
       <div class="note-topbar-left">
         <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="返回列表" @click="goBack">
@@ -44,7 +44,7 @@
       </div>
     </header>
 
-    <!-- ============ Metadata Card ============ -->
+    <!-- ============ 元数据卡片 ============ -->
     <section class="note-meta-card" ref="exportRoot">
       <div class="note-meta-grid">
         <div class="note-meta-title-field">
@@ -92,7 +92,7 @@
         </div>
       </div>
 
-      <!-- ============ Cornell Three-Column Layout ============ -->
+      <!-- ============ 康奈尔三栏布局 ============ -->
       <div class="cornell-grid">
         <!-- 线索栏 -->
         <div class="cornell-col cornell-cue">
@@ -121,7 +121,7 @@
             </div>
           </div>
 
-          <!-- Rich Text Toolbar -->
+          <!-- 富文本工具栏。 -->
           <div class="rte-toolbar">
             <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="加粗 (Ctrl+B)" @mousedown.prevent="exec('bold')">
               <Icon name="bold" :size="16" aria-hidden="true" />
@@ -176,7 +176,7 @@
       </div>
     </section>
 
-    <!-- ============ Bottom Action Bar ============ -->
+    <!-- ============ 底部操作栏 ============ -->
     <footer class="note-action-bar">
       <div class="note-action-left">
         <span v-if="errors._form" class="note-err note-err-form">
@@ -585,7 +585,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 <style scoped>
 .wb-page { gap: 16px; }
 
-/* ===== Sticky Top Bar ===== */
+/* ===== 吸顶工具栏 ===== */
 .note-topbar {
   position: sticky;
   top: 0;
@@ -670,7 +670,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   cursor: not-allowed;
 }
 
-/* ===== Metadata Card ===== */
+/* ===== 元数据卡片 ===== */
 .note-meta-card {
   padding: var(--kf-space-6);
   border-radius: var(--kf-radius-lg);
@@ -764,7 +764,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   font-weight: 500;
 }
 
-/* ===== Cornell Three-Column ===== */
+/* ===== 康奈尔三栏 ===== */
 .cornell-grid {
   display: grid;
   grid-template-columns: var(--kf-wb-cue-width) minmax(0, 1fr);
@@ -825,7 +825,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   min-height: calc(var(--kf-space-8) * 3);
 }
 
-/* ===== Rich Text Editor ===== */
+/* ===== 富文本编辑器 ===== */
 .rte-toolbar {
   display: flex;
   align-items: center;
@@ -908,7 +908,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   padding: 0 2px;
 }
 
-/* ===== Bottom Action Bar ===== */
+/* ===== 底部操作栏 ===== */
 .note-action-bar {
   position: sticky;
   bottom: 0;
@@ -951,7 +951,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   cursor: not-allowed;
 }
 
-/* ===== Responsive ===== */
+/* ===== 响应式 ===== */
 @media (max-width: 1024px) {
   .note-meta-grid {
     grid-template-columns: 1fr 1fr;

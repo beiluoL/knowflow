@@ -11,7 +11,7 @@ function score(value: unknown): number {
   return value
 }
 function colour(value: number) { return value >= 85 ? 'var(--kf-success)' : value >= 75 ? 'var(--kf-primary)' : value >= 60 ? 'var(--kf-warning)' : 'var(--kf-danger)' }
-/** Strict model-output validation: absence and failure never become a generated grade. */
+/** 严格校验模型输出，缺失和失败不能变成生成的成绩。 */
 export function parseWritingScore(raw: string): WritingScore {
   let data: Record<string, unknown>
   try {

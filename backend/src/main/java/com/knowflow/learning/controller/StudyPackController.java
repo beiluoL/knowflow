@@ -9,6 +9,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
+/**
+ * 提供资料学习包上传、查询、重试及取消接口。
+ */
 @RestController @RequestMapping("/api/learning/study-packs") @RequiredArgsConstructor
 @ConditionalOnProperty(name={"knowflow.product.study-pack.enabled","knowflow.product.private-quiz.enabled","knowflow.product.tutor.enabled"},havingValue="true")
 public class StudyPackController {

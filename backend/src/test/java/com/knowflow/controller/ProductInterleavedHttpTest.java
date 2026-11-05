@@ -1,5 +1,8 @@
 package com.knowflow.controller;
 import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import java.util.*;import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证交错练习的 HTTP 契约。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.adaptive-learning.enabled=true","knowflow.product.interview-learning.enabled=true","knowflow.product.private-quiz.enabled=true","knowflow.product.tutor.enabled=true","knowflow.product.tutor-coaching.enabled=true","server.address=127.0.0.1"})
 class ProductInterleavedHttpTest extends ProductFeedbackHttpTest {
  @Autowired com.knowflow.knowledge.mapper.DocDocumentMapper docs;@Autowired com.knowflow.knowledge.mapper.DocCategoryMapper cats;@Autowired com.knowflow.knowledge.mapper.KgEntityMapper kg;

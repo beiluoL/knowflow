@@ -35,7 +35,7 @@ public class ExamAnswer extends BaseEntity {
     private Integer score;
     private Integer maxScore;
 
-    /** RULE / AI / PENDING */
+    /** 评分来源：RULE（规则）/ AI（模型）/ PENDING（待处理）。 */
     private String gradeType;
     /** 评分证据 JSON */
     private String gradeDetail;

@@ -1,5 +1,8 @@
 package com.knowflow.controller;
 import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import java.time.*;import java.util.*;import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证智能计划的 HTTP 预览与确认行为。
+ */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"knowflow.product.adaptive-learning.enabled=true","knowflow.product.interview-learning.enabled=true","knowflow.product.private-quiz.enabled=true","knowflow.product.tutor.enabled=true","knowflow.product.tutor-coaching.enabled=true","server.address=127.0.0.1"})
 class ProductSmartPlanHttpTest extends ProductFeedbackHttpTest {
  @Autowired com.knowflow.learning.actions.LearningWriteGuard guard;@Autowired com.knowflow.productivity.service.TaskService tasks;@Autowired com.knowflow.productivity.mapper.TaskMapper mapper;

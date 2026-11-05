@@ -14,6 +14,9 @@ import org.springframework.test.context.TestPropertySource;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证直接调用工具不能绕过宿主机能力授权。
+ */
 @SpringBootTest @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:host_tools;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.host-capabilities.enabled=false"})
 class HostToolBoundaryTest {

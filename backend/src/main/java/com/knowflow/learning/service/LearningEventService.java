@@ -36,8 +36,7 @@ public interface LearningEventService extends com.knowflow.learning.contract.Lea
 
     void record(Long userId, String eventType, String resourceType, Long resourceId);
 
-    /** Atomic review writes: joins caller transaction, fails if the primary event cannot be saved.
-     * Existing best-effort record methods retain their original behavior. */
+    /** 原子写入复习结果并加入调用方事务，主事件保存失败则整体失败；现有尽力记录方法保持原有行为。 */
     void recordRequired(Long userId, String eventType, String resourceType, Long resourceId, Map<String, Object> metadata);
 
     /** 分页查询指定用户的学习事件，供掌握度引擎 / AI 教练 / 看板消费。 */

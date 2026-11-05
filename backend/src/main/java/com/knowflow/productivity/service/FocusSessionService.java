@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Objects;
 
 
+/**
+ * 编排专注会话生命周期、归属查询及统计。
+ */
 @org.springframework.stereotype.Service
 
 @RequiredArgsConstructor

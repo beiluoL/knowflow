@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证编程智能体短事务中的会话、消息及统计持久化。
+ */
 class CodeAgentPersistenceServiceTest {
     private AgentSessionMapper sessions;
     private AgentMessageMapper messages;

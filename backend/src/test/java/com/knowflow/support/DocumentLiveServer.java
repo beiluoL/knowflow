@@ -18,7 +18,7 @@ import org.springframework.context.annotation.*;
 import java.nio.file.*;
 import java.util.*;
 
-/** Explicit manual loopback browser/HTTP fixture server, never part of production builds. */
+/** 供人工显式运行的回环浏览器及 HTTP 夹具服务，不参与生产构建。 */
 public final class DocumentLiveServer {
     @TestConfiguration public static class OfflineConfiguration {
         @Bean @Primary EmbeddingService offlineEmbedding(){return org.mockito.Mockito.mock(EmbeddingService.class);}

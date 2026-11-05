@@ -2,6 +2,9 @@ package com.knowflow.ai.vo;
 
 import lombok.Data;
 
+/**
+ * 承载用户 AI 配置的响应投影。
+ */
 @Data
 public class UserAiConfigVO {
     private Long id;
@@ -11,9 +14,9 @@ public class UserAiConfigVO {
     private String baseUrl;
     private String model;
     private Integer isActive;
-    /** CLOUD / LOCAL。 */
+    /** 部署方式：CLOUD（云端）/ LOCAL（本地）。 */
     private String providerType;
-    /** LIGHT / STANDARD / POWERFUL。 */
+    /** 能力等级：LIGHT（轻量）/ STANDARD（标准）/ POWERFUL（高能力）。 */
     private String capability;
     /** 用户自定义显示名。 */
     private String displayName;

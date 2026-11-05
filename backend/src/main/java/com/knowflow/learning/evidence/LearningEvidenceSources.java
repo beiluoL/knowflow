@@ -17,9 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-/**
-  * Read adapters over the original facts. No client-supplied grade, identity or knowledge mapping.
-  */
+/** 基于原始事实的读取适配器，不采信客户端提供的评分、身份或知识映射。 */
 @Component
 @RequiredArgsConstructor
 public class LearningEvidenceSources {
@@ -151,7 +149,7 @@ public class LearningEvidenceSources {
         requireSnapshotScope(json.valueToTree(receipt.get("questionSnapshot")), actor);
     }
 
-    /** Only authorization metadata, not answer text, grading JSON or complete source history. */
+    /** 仅提供授权元数据，不包含答案文本、评分 JSON 或完整来源历史。 */
     public void requireAccessible(long actor, String type, long id) {
         validate(type, id);
         switch (type) {
@@ -505,10 +503,7 @@ public class LearningEvidenceSources {
                 List.of());
     }
 
-    /**
-      * Historical presence is not proof of complete provenance. Never promote remaining IDs to
-      * original first.
-      */
+    /** 历史记录存在不代表来源完整，不能将剩余标识提升为原始首次记录。 */
     private long firstKnown(String query, Object[] args, String type, Map<String, Object> data) {
         var first =
                 jdbc.queryForMap(

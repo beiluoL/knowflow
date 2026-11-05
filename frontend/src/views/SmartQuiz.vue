@@ -862,7 +862,7 @@ const quizResultText = computed(() => {
 const learning = useLearningStore();
 const quizNextAction = computed(() => onlineResult.value && learning.loaded ? learning.nextAction : null);
 const onlineSubmitError=ref('');
-// Mirrors the existing objective-only QuizService submission contract.
+// 对齐现有 QuizService 仅客观题的提交契约。
 const canAutoGrade=computed(()=>onlineQuestions.value.every(q=>['SINGLE_CHOICE','MULTIPLE_CHOICE','TRUE_FALSE','FILL_BLANK'].includes(q.questionType)));
 const answeredCount=computed(()=>onlineQuestions.value.filter(q=>encodeAnswer(q)!=='').length);
 function focusQuizQuestion(id:number){document.getElementById(`quiz-question-${id}`)?.focus({preventScroll:true})}

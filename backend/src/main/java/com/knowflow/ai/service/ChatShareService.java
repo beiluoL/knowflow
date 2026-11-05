@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Pattern;
 
-/** Immutable, explicitly confirmed public text snapshots; no private message endpoint is exposed. */
+/** 显式确认后生成不可变公开文本快照，不暴露私有消息接口。 */
 @Service @RequiredArgsConstructor
 public class ChatShareService {
  private final JdbcTemplate jdbc; private final ObjectMapper json;
@@ -25,7 +25,7 @@ public class ChatShareService {
  @Transactional
  public Map<String,Object> create(long id,long user,Integer hours,Boolean confirmed){
   owner(id,user);if(!Boolean.TRUE.equals(confirmed)||hours==null||!Set.of(24,168,720).contains(hours))throw new BusinessException(400,"请确认公开纯文本范围并选择有效期");
-  // Any historical RAG turn may have contaminated later summaries or context, including deleted turns.
+  // 任何历史 RAG 轮次（含已删除轮次）均可能影响后续摘要或上下文。
   for (String references : jdbc.query("SELECT doc_references FROM chat_message WHERE conversation_id=?", (rs,n)->rs.getString(1), id)) {
    if(references!=null&&!references.isBlank()&&!references.trim().equals("[]"))
     throw new BusinessException(400,"该会话包含知识库关联历史，后续回复可能沿用私有上下文，无法安全公开；请使用无知识库关联的新对话");

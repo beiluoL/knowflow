@@ -1,5 +1,5 @@
 /**
- * Architecture-6：Learning Diagnosis（§8/§19-27/§32）
+ * 架构 6：学习诊断（§8/§19–27/§32）。
  *
  * 纯函数（§32-35）：只消费 LearningIntelligenceContext（真实数据），输出 Diagnosis[]。
  * 禁止在内部调用 API / fetch（§33-35）。

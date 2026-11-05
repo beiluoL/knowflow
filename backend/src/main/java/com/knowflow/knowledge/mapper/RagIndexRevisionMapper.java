@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+/**
+ * 提供检索增强索引版本的数据访问映射。
+ */
 @Mapper
 public interface RagIndexRevisionMapper extends BaseMapper<RagIndexRevision> {
   @Insert(

@@ -355,7 +355,7 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
         // 计算 content hash
         String contentHash = sha256(content);
 
-        // Resolve and authorize the actual destination before deduplication or filesystem effects.
+        // 去重或产生文件系统副作用前，先解析并授权实际目标。
         String dirPath = getDirPath(relPath);
         Long categoryId = createSubCats
                 ? resolveOrCreateCategory(dirPath, targetCategoryId, userId, dirCategoryCache, createdCategoryNames)
@@ -964,7 +964,7 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
         if (m.find()) {
             return m.group(1).trim();
         }
-        // front-matter title
+        // front-matter 中的标题。
         if (content != null && content.startsWith("---\n")) {
             Pattern titlePattern = Pattern.compile("(?m)^title:\\s*(.+)$");
             Matcher tm = titlePattern.matcher(content.substring(0, Math.min(content.length(), 500)));

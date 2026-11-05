@@ -271,7 +271,7 @@ async function handleStart() {
     try {
       await start('FLOW');
     } catch {
-      /* useFocusSession already notified */
+      /* useFocusSession 已发出通知。 */
     }
   }
 }
@@ -292,7 +292,7 @@ async function handleEnd() {
     try {
       await end({ distractionCount: distractionCount.value });
     } catch {
-      /* useFocusSession already notified */
+      /* useFocusSession 已发出通知。 */
     }
   }
   checkFlow(Math.round(elapsedSec.value / 60));
@@ -341,7 +341,7 @@ onUnmounted(async () => {
     try {
       await end({ distractionCount: distractionCount.value });
     } catch {
-      /* useFocusSession already notified */
+      /* useFocusSession 已发出通知。 */
     }
   }
 });

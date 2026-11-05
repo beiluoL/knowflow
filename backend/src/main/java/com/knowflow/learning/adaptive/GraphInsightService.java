@@ -10,10 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-/**
-  * A read adapter only. Knowledge identity, mastery synthesis and receipts remain in their original
-  * services.
-  */
+/** 仅读取适配；知识标识、掌握度综合及回执仍由原服务维护。 */
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "knowflow.product.adaptive-learning.enabled", havingValue = "true")
@@ -30,9 +27,9 @@ public class GraphInsightService {
     public Map<String, Object> detail(long user, long knowledge) {
         var state =
                 mastery.getDetail(
-                        user, knowledge); // authoritative current synthesis + knowledge/source authorization
+                        user, knowledge); // 权威的当前综合结果，加上知识点与来源授权。
         var receipts = evidence.page(user, 1, 10, null, knowledge);
-        // Exact accepted DOC identity only; never infer a private note by title or keywords.
+        // 仅接受精确的 DOC 标识，不按标题或关键词推断私有笔记。
         var notes = new ArrayList<Map<String, Object>>();
         var mappings =
                 sql.queryForList(

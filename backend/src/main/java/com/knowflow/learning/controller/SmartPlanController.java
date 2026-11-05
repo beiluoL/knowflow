@@ -1,5 +1,8 @@
 package com.knowflow.learning.controller;
 import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.actions.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
+/**
+ * 提供智能学习计划的设置、预览、确认和历史接口。
+ */
 @RestController @RequestMapping("/api/learning/action-plans/smart") @RequiredArgsConstructor @ConditionalOnProperty(name="knowflow.product.adaptive-learning.enabled",havingValue="true")
 public class SmartPlanController {
  private final DailyLearningPlanService service;private long user(){return SecurityUtils.getCurrentUserId();}

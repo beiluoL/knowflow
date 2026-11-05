@@ -38,7 +38,7 @@ function reset(): void {
 
 /** 全局快捷键：⌘K/Ctrl+K 切换。需在 App.vue onMounted 调用 register() */
 function onKeyDown(e: KeyboardEvent): void {
-  // ⌘K（Mac）/ Ctrl+K（Win/Linux）
+  // 快捷键：⌘K（Mac）/ Ctrl+K（Win/Linux）。
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault()
     toggle()

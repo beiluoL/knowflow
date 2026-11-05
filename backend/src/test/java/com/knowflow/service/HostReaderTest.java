@@ -14,6 +14,9 @@ import java.nio.file.*;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证宿主机文件读取、目录扫描及链接越界防护。
+ */
 class HostReaderTest {
     @TempDir Path temp;
     LocalReaderService reader; HostCapabilityGuard guard; Path root,outside;

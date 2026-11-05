@@ -1303,7 +1303,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   .timeline-item { gap: 12px; }
   .tl-arrow { display: none; }
 }
-/* The title and current chapter lead; the graph stays available on demand. */
+/* 优先展示标题与当前章节，按需提供图谱。 */
 .hero-card { background: var(--kf-card); box-shadow: none; }
 .hero-accent, .hero-glow { display: none; }
 .hero-body { padding: var(--kf-space-5); gap: var(--kf-space-4); }

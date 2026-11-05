@@ -19,7 +19,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.util.LinkedMultiValueMap;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Real Tomcat ASYNC completion; MockMvc initial dispatch alone cannot expose the committed-response failure. */
+/** 使用真实 Tomcat 验证 ASYNC 完成；仅 MockMvc 首次派发无法暴露响应已提交问题。 */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT) @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"server.address=127.0.0.1","knowflow.datasource.h2.url=jdbc:h2:mem:oct2_sse_http;DB_CLOSE_DELAY=-1;MODE=MySQL"})
 class ImportSseHttpCompletionTest {

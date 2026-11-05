@@ -1,4 +1,4 @@
-/* Phase A: C-shell chrome + explicitly opted-in dashboards. No B–F page skinning. */
+/* 阶段 A：用户端外壳与显式启用的仪表盘，不覆盖 B–F 页面样式。 */
 .pc-studio.ui-v2-shell .ui-v2-skip {
   position: fixed; z-index: 100; inset-inline-start: var(--kf-space-4);
   top: var(--kf-space-2); transform: translateY(-200%);
@@ -84,7 +84,7 @@
   .pc-studio.ui-v2-shell .csidebar, .pc-studio.ui-v2-shell .clayout-sidebar, .pc-studio.ui-v2-shell .clayout-main,
   .pc-studio.ui-v2-shell .pc-topnav, .pc-studio.ui-v2-shell .next-action-card { transition: none; }
 }
-/* Existing Button uses text-white; dark primary requires its semantic foreground. Scope to A only. */
+/* 现有 Button 使用 text-white；深色主按钮需使用语义前景色，仅限阶段 A。 */
 .pc-studio.ui-v2-shell :is(.ui-v2-home, .ui-v2-center) button.bg-primary-500.text-white {
   color: var(--kf-primary-foreground);
 }

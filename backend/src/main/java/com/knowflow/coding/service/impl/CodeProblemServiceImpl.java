@@ -51,7 +51,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
 
     private final org.mybatis.spring.SqlSessionTemplate catalogSessions;
     private QuizQuestion lockQuestion(Long id) {
-        // Read the full current row under the lock; clearing cache alone cannot clear an InnoDB snapshot.
+        // 持锁读取完整当前行；仅清缓存无法清除 InnoDB 快照。
         catalogSessions.clearCache();
         QuizQuestion q = questionMapper.selectOne(new LambdaQueryWrapper<QuizQuestion>()
                 .eq(QuizQuestion::getId, id).last("FOR UPDATE"));

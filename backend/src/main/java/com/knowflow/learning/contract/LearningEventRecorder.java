@@ -2,9 +2,9 @@ package com.knowflow.learning.contract;
 
 import java.util.Map;
 
-/** Best-effort append of a real activity; retains the existing independent transaction semantics. */
+/** 尽力追加真实活动，保留现有独立事务语义。 */
 public interface LearningEventRecorder {
-    /** Records a genuine activity; does not synthesize evidence or grant rewards directly. */
+    /** 记录真实活动，不伪造证据，也不直接发放奖励。 */
     void record(Long userId, LearningEventType type, String resourceType, Long resourceId,
                 Map<String, Object> metadata);
 }

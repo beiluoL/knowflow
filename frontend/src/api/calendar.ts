@@ -21,7 +21,7 @@ export const MARK_WORK_COLOR = 'var(--kf-warning)'
 
 export interface DateMark {
   type: DateMarkType
-  /** yyyy-MM-dd */
+  /** 日期格式：yyyy-MM-dd。 */
   date: string
   /** 标记名称（如「国庆节」「中秋节」「母亲节」） */
   name: string

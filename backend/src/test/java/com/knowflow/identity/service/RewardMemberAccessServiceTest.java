@@ -10,6 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证奖励成员投影、所有者锁及历史经验值和签到更新。
+ */
 class RewardMemberAccessServiceTest {
     @Test
     void projectsOnlyRewardProfileFieldsAndDoesNotMutatePersistenceRow() {

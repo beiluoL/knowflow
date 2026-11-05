@@ -16,9 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
-  * Server-side natural language dispatcher. Learning tools never inherit coding-agent privileges.
-  */
+/** 服务端自然语言分发器，学习工具不继承编程智能体特权。 */
 @Service
 @RequiredArgsConstructor
 public class ChatLearningActionService {

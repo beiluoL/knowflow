@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Short persistence units; model and tool execution always run outside these transactions. */
+/** 执行短持久化事务；模型和工具始终在这些事务之外运行。 */
 @Service
 @RequiredArgsConstructor
 public class CodeAgentPersistenceService {
@@ -21,10 +21,9 @@ public class CodeAgentPersistenceService {
     private final AgentMessageMapper messages;
     private final AgentCallLogMapper logs;
 
-    /** Creates or checks the owned session and atomically saves the incoming turn and statistics.
-     * @param userId authenticated request identity, captured before asynchronous execution
-     * @return session ID, or null when the supplied session is inaccessible
-     */
+    /** 创建或检查所属会话，原子保存输入轮次与统计。
+     * @param userId 异步执行前捕获的认证请求身份
+     * @return 会话标识；指定会话不可访问时返回 null */
     @Transactional(rollbackFor = Exception.class)
     public Long startTurn(Long sessionId, Long userId, Long configId, String title,
                           String content, String filePath, boolean agentMode) {
@@ -56,9 +55,7 @@ public class CodeAgentPersistenceService {
         return session.getId();
     }
 
-    /** Atomically saves stream completion and its accounting, after external model work has ended.
-     * Runtime tool messages are already persisted by AgentRuntimeService and are not repeated here.
-     */
+    /** 外部模型执行结束后，原子保存流完成状态与计量；运行时工具消息已由 AgentRuntimeService 持久化，此处不重复保存。 */
     @Transactional(rollbackFor = Exception.class)
     public void completeTurn(AgentMessage assistant, AgentCallLog callLog, String content) {
         AgentSession session = ownedSession(callLog.getSessionId(), callLog.getUserId());
@@ -74,7 +71,7 @@ public class CodeAgentPersistenceService {
         requireSingleWrite(logs.insert(callLog));
     }
 
-    /** Logically deletes an owned session and its owned messages as one rollback unit. */
+    /** 将所属会话及其消息的逻辑删除作为一个可回滚单元执行。 */
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteSession(Long sessionId, Long userId) {
         if (ownedSession(sessionId, userId) == null) return false;

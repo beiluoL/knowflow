@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.List;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证职业流程只记录真实状态变更并按所有者隔离。
+ */
 class CareerPipelineEventTest {
     @Test
     void recordsOnlyRealTransitionsAndUsesOwnerScope() {

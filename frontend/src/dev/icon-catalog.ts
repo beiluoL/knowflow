@@ -1,4 +1,4 @@
-// Extracted from actual Icon.vue branches; no invented names.
+// 从 Icon.vue 的真实分支提取，不虚构名称。
 export const iconNames = [
   "ai-assistant",
   "ai-chat",

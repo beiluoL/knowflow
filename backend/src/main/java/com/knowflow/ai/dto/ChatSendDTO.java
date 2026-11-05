@@ -51,7 +51,7 @@ public class ChatSendDTO {
      */
     private Boolean deepThinking = false;
 
-    /** Tutor-only bounded help, never interpreted by general chat. */
+    /** 仅用于导师场景的有界帮助，不由普通聊天解释处理。 */
     public record ReadingSelection(Long noteId,Long revision,String quote,Integer start) {}
     private ReadingSelection tutorSelection;
     private Integer tutorHintLevel;

@@ -3,7 +3,7 @@ package com.knowflow.interview.v2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.function.Consumer;
 
-/** Extracts only the root followupQuestion string as provisional text, never evaluation JSON. */
+/** 仅提取根 followupQuestion 字符串作为临时文本，不输出评价 JSON。 */
 final class FollowupQuestionDelta {
     private static final int MAX_DOCUMENT_CHARS = 120000;
     private final ObjectMapper json;
@@ -44,7 +44,7 @@ final class FollowupQuestionDelta {
     private void emitPrefix(String text, int start) {
         int end = stringEnd(text, start);
         String raw = text.substring(start, end < 0 ? text.length() : end);
-        // Incomplete escape/unicode at a token boundary is held until the next genuine delta.
+        // 令牌边界处未完成的转义或 Unicode 序列等待下一个真实增量。
         for (int trim = 0; trim <= Math.min(6, raw.length()); trim++) {
             try {
                 String decoded = json.readValue("\"" + raw.substring(0, raw.length() - trim) + "\"", String.class);
@@ -59,7 +59,7 @@ final class FollowupQuestionDelta {
                 }
                 return;
             } catch (com.fasterxml.jackson.core.JsonProcessingException incomplete) {
-                // Only a bounded trailing escape can be incomplete; final JSON still receives full validation.
+                // 仅允许末尾有界转义处于未完成状态；最终 JSON 仍须完整校验。
             }
         }
     }

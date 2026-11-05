@@ -1,5 +1,8 @@
 package com.knowflow.learning.controller;
 import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.feedback.QuestionVariantService;import jakarta.validation.Valid;import jakarta.validation.constraints.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;import java.util.*;
+/**
+ * 提供变式题生成、确认及作答接口。
+ */
 @RestController @RequestMapping("/api/learning/question-variants") @RequiredArgsConstructor
 @ConditionalOnProperty(name={"knowflow.product.interview-learning.enabled","knowflow.product.private-quiz.enabled","knowflow.product.tutor.enabled","knowflow.product.tutor-coaching.enabled"},havingValue="true")
 public class QuestionVariantController {

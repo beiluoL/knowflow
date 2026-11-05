@@ -3,7 +3,7 @@
     class="h-14 shrink-0 flex items-center justify-between px-4 sm:px-6 border-b"
     :style="topbarStyle"
   >
-    <!-- Left: mobile toggle + search -->
+    <!-- 左侧：窄屏开关与搜索。 -->
     <div class="flex items-center gap-3 flex-1 min-w-0 max-w-md">
       <button
         type="button"
@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <!-- Right: notifications + admin -->
+    <!-- 右侧：通知与管理员入口。 -->
     <div class="flex items-center gap-4 shrink-0 ml-4 sm:ml-6">
       <button
         type="button"
@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <!-- Notification Panel -->
+    <!-- 通知面板。 -->
     <div v-if="showNotifications" class="fixed inset-0 z-40" @click="showNotifications = false"></div>
     <div
       v-if="showNotifications"

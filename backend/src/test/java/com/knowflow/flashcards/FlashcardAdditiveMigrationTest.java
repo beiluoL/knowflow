@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+/**
+ * 验证闪卡重复增量迁移保留旧标识、到期时间和历史。
+ */
 class FlashcardAdditiveMigrationTest {
     @Test
     void repeatedUpgradePreservesLegacyIdsDueGradesAndHistory() {

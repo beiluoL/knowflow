@@ -554,7 +554,7 @@
             </div>
           </div>
 
-          <!-- API Key -->
+          <!-- API 密钥。 -->
           <div>
             <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">
               API Key
@@ -581,7 +581,7 @@
             <p class="text-xs mt-1" style="color: var(--kf-muted-foreground);">Key 提交至服务器保存；请勿向他人分享。</p>
           </div>
 
-          <!-- Base URL -->
+          <!-- 基础 URL。 -->
           <div>
             <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">API 地址</label>
             <input
@@ -593,7 +593,7 @@
             />
           </div>
 
-          <!-- Model -->
+          <!-- 模型。 -->
           <div>
             <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">模型名称</label>
             <input
@@ -921,7 +921,7 @@ const coachEvidenceLine = computed<string | null>(() => {
   return `${agg.totalEvidence} 条 · 覆盖 ${dims}/6 维 · 活跃 ${agg.activeDays} 天`
 })
 
-// Presentation only: decisions and evidence remain in the learning store.
+// 仅展示，决策和证据仍由学习 Store 管理。
 const coachPanelProps = computed(() => ({
   goal: learning.activeGoal?.title,
   path: learning.currentPath ? `${learning.currentPath.title}（${learning.currentPathPercent}%）` : undefined,
@@ -1299,7 +1299,7 @@ const messages = computed(() => {
   return chatMessages.value[activeChatId.value] || []
 })
 
-// Drafts are isolated by conversation and remain in memory only.
+// 草稿按会话隔离，仅保存在内存中。
 const viewStates = new Map<string, {input:string;images:string[];mode:CoachMode;expanded:boolean}>()
 const conversationMenu = ref<number|null>(null)
 const creatingConversation = ref(false)
@@ -2211,7 +2211,7 @@ async function refreshConversationMetadata(){
   const generation=++metadataEpoch
   try{const list=await chatApi.conversations();if(disposed||generation!==metadataEpoch)return
     for(const c of list){const row=chats.value.find(r=>r.id===c.id);if(row){row.title=c.title||'新对话';row.lastMessage=c.lastMessage||'';row.updateTime=c.updateTime;row.pinned=Boolean(c.pinned);row.archived=Boolean(c.archived)}}
-  }catch{ /* Message delivery remains visible; list can be retried independently. */ }
+  }catch{ /* 消息发送结果保持可见，列表可单独重试。 */ }
 }
 function mapConversation(c:import('@/api/types').ConversationVO):Chat{return {id:c.id,title:c.title||'新对话',lastMessage:c.lastMessage||'',createdAt:c.createTime||new Date().toISOString(),updateTime:c.updateTime,pinned:Boolean(c.pinned),archived:Boolean(c.archived)}}
 async function fetchConversationRows(){const [normal,archived]=await Promise.all([chatApi.conversations(),chatApi.conversations(true)]);return [...new Map([...normal,...archived].map(c=>[c.id,c])).values()]}
@@ -2629,7 +2629,7 @@ onUnmounted(() => {
 .share-modal-panel { overscroll-behavior: contain; }
 .ai-config-panel { overscroll-behavior: contain; }
 
-/* Input focus is owned by the shared kf-input rule (including forced colors). */
+/* 聚焦由公共 kf-input 规则控制，包括强制颜色模式。 */
 
 /* ===== 右侧悬浮历史栏 ===== */
 .chat-history-rail {
@@ -2779,7 +2779,7 @@ onUnmounted(() => {
 
 .quote-question {margin-top:.5rem;font-size:var(--kf-fs-caption);color:var(--kf-muted-foreground);opacity:.65;}
 .quote-question:hover,.quote-question:focus-visible {opacity:1;color:var(--kf-primary);}
-/* V2 workbench: reading and writing stay independent of the context drawer. */
+/* V2 工作台：阅读和写作独立于上下文抽屉。 */
 .chat-workbench .chat-workspace { background:var(--kf-card); }
 .chat-workspace-body { display:flex; flex:1; min-height:0; min-width:0; position:relative; }
 .chat-conversation-column { display:flex; flex-direction:column; flex:1; min-height:0; min-width:0; position:relative; }

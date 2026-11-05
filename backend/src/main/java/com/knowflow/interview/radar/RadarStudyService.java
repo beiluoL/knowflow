@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.*;
 import java.util.*;
 
-/** Reads existing V2 turns; first scores are derived from the first confirmed root, never overwritten. */
+/** 读取已有 V2 轮次；首次分数来自首个已确认根记录，不覆盖。 */
 @Service @RequiredArgsConstructor
 public class RadarStudyService {
  private final RadarInterviewBank bank;
@@ -111,7 +111,7 @@ public class RadarStudyService {
   var answered=rootTurns(actor).stream().filter(t->questionKey(questionId).equals(t.get("question_id"))).toList();if(answered.isEmpty())throw new BusinessException(409,"实际提交回答后才能收集薄弱点");var latest=answered.get(answered.size()-1);
   Long card=index(actor,"review/card/"+questionId),mistake=index(actor,"review/mistake/"+questionId);
   var doc=material.document();var category=categories.selectById(doc.getCategoryId());if(category==null||!actor.equals(category.getOwnerId()))throw new BusinessException(403,"只能启用本人私有资料作为复习来源");
-  // The owner explicitly activates a private readable study source; the question remains pending.
+  // 所有者显式激活私有可读学习来源，题目仍保持待审核。
   if(!Integer.valueOf(1).equals(doc.getStatus())){doc.setStatus(1);documents.updateById(doc);}
   if(card==null){var dto=new FlashcardSaveDTO();dto.setFront(material.prompt());dto.setBack(material.question().getAnswer()+"\n\n来源为本人待审教材；此卡和AI评价不代表客观掌握度。");dto.setCategoryId(doc.getCategoryId());dto.setDocId(doc.getId());dto.setChapterId(material.metadata().chapterId());dto.setCategory("Java + AI 面试雷达");dto.setTags("interview-radar,private-reference");card=learning.createMyFlashcard(actor,dto).getId();index(actor,"review/card/"+questionId,"FLASHCARD",card);}
   else learning.getMyFlashcard(card,actor);

@@ -16,10 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-/**
-  * Constraint adapter for the original daily draft/confirmation service, not a second task or plan
-  * store.
-  */
+/** 原每日草稿与确认服务的约束适配器，不另建任务或计划存储。 */
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "knowflow.product.adaptive-learning.enabled", havingValue = "true")

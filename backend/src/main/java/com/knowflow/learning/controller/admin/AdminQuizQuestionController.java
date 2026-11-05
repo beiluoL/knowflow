@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 提供管理端题目的分页、编辑、发布与下架接口。
+ */
 @Tag(name = "管理端-题库管理")
 @RestController
 @RequestMapping("/api/admin/quiz-questions")
@@ -36,7 +39,7 @@ public class AdminQuizQuestionController {
     private final AiService aiService;
     private final ObjectMapper objectMapper;
 
-    // ==================== CRUD ====================
+    // ==================== 增删改查 ====================
 
     @Operation(summary = "题目列表（分页 + 筛选）")
     @GetMapping

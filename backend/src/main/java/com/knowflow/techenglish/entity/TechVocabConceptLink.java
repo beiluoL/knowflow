@@ -20,12 +20,12 @@ public class TechVocabConceptLink extends BaseEntity {
     /** 来源词条 ID */
     private Long termId;
 
-    /** KNOWLEDGE / CHAPTER / DOCUMENT / NOTE / TERM */
+    /** 关联类型：KNOWLEDGE（知识点）/ CHAPTER（章节）/ DOCUMENT（文档）/ NOTE（笔记）/ TERM（术语）。 */
     private String targetType;
 
     /** 目标实体稳定 ID */
     private Long targetId;
 
-    /** EXPLAINS / RELATED / CONTRASTS / CONFUSABLE */
+    /** 关系类型：EXPLAINS（解释）/ RELATED（相关）/ CONTRASTS（对比）/ CONFUSABLE（易混淆）。 */
     private String relationType;
 }

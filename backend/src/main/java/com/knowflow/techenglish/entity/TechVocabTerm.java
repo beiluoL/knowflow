@@ -26,7 +26,7 @@ public class TechVocabTerm extends BaseEntity {
     /** 搜索归一化键：小写 + 空白折叠，仅用于检索/去重辅助，不判定含义 */
     private String normalizedKey;
 
-    /** WORD / ACRONYM / PHRASE */
+    /** 词条类型：WORD（单词）/ ACRONYM（缩写）/ PHRASE（短语）。 */
     private String termType;
 
     /** 同形异义义项键 */
@@ -77,7 +77,7 @@ public class TechVocabTerm extends BaseEntity {
     /** 别名，逗号分隔，仅用于搜索 */
     private String aliases;
 
-    /** DRAFT / REVIEWED / PUBLISHED / ARCHIVED */
+    /** 内容状态：DRAFT（草稿）/ REVIEWED（已审阅）/ PUBLISHED（已发布）/ ARCHIVED（已归档）。 */
     private String contentStatus;
 
     /** 定义、全称与读法来源 */

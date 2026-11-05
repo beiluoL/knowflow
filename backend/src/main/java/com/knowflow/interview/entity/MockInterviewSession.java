@@ -27,7 +27,7 @@ public class MockInterviewSession extends BaseEntity {
     /** BASIC（预置题基础模式）；AI 模式预留。 */
     private String mode;
 
-    /** IN_PROGRESS / FINISHED。 */
+    /** 会话状态：IN_PROGRESS（进行中）/ FINISHED（已结束）。 */
     private String status;
 
     private Integer questionCount;

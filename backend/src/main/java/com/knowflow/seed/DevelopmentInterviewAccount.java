@@ -17,7 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-/** Explicit development launcher opt-in; never provisions a known-password production account. */
+/** 仅供显式启用的开发启动器使用，不在生产环境创建已知密码账号。 */
 @Component @Order(100) @RequiredArgsConstructor
 public class DevelopmentInterviewAccount implements ApplicationRunner {
     private static final String USERNAME="seed-personal-v1";
@@ -34,7 +34,7 @@ public class DevelopmentInterviewAccount implements ApplicationRunner {
                 || !environment.acceptsProfiles(Profiles.of("local"))
                 || environment.acceptsProfiles(Profiles.of("prod","production")))return;
         String url=jdbc.execute((ConnectionCallback<String>)c->c.getMetaData().getURL());
-        // A local profile alone is insufficient: refuse external/persistent databases.
+        // 仅启用本地配置仍不足以授权，必须拒绝外部数据库和持久化数据库。
         if(url==null || !url.startsWith("jdbc:h2:mem:"))throw new IllegalStateException("Development interview account requires an isolated H2 memory database");
         SysUser existing=users.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername,USERNAME));
         Long actor;

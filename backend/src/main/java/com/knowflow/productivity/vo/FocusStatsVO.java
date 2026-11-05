@@ -6,6 +6,9 @@ import lombok.Data;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 承载专注时长及会话统计的响应数据。
+ */
 @Data
 public class FocusStatsVO {
 

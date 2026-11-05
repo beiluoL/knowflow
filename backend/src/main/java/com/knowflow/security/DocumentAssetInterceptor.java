@@ -9,7 +9,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.util.UriUtils;
 import java.nio.charset.StandardCharsets;
 
-/** Authorization follows persistent source ownership, not freely editable text references. */
+/** 按持久化来源归属授权，不按可自由编辑的文本引用授权。 */
 @Component @RequiredArgsConstructor
 public class DocumentAssetInterceptor implements HandlerInterceptor {
     private final DocDocumentMapper docs;

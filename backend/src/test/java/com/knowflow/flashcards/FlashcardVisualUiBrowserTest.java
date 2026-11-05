@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Opt-in real Chrome; IsolatedTestContextFactory supplies a new private H2 database. */
+/** 显式启用真实 Chrome；IsolatedTestContextFactory 提供新的私有 H2 数据库。 */
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, properties={"server.address=127.0.0.1","knowflow.datasource.h2.url=jdbc:h2:mem:flash_visual_ui;MODE=MySQL;DB_CLOSE_DELAY=-1"})
 @Import({FakeAiConfiguration.class, FlashcardVisualUiBrowserTest.Observation.class})
 @EnabledIfSystemProperty(named="flash.visual.browser", matches="true")
@@ -36,7 +36,7 @@ class FlashcardVisualUiBrowserTest {
     private static final String ISOLATED_JWT_SECRET=UUID.randomUUID().toString()+UUID.randomUUID();
     @org.springframework.test.context.DynamicPropertySource
     static void isolatedCredentials(org.springframework.test.context.DynamicPropertyRegistry properties) {
-        // A token left in localhost storage cannot authenticate against the normal backend.
+        // localhost 存储中遗留的令牌不能用于认证普通后端。
         properties.add("jwt.secret",()->ISOLATED_JWT_SECRET);
     }
     @org.springframework.boot.test.web.server.LocalServerPort int port;
@@ -105,7 +105,7 @@ class FlashcardVisualUiBrowserTest {
         try {
             long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(30);while(!Files.exists(RUN.resolve("ready.json"))&&System.nanoTime()<deadline){assertTrue(front.isAlive());Thread.sleep(100);}assertTrue(Files.exists(RUN.resolve("ready.json")));
             if(preview) {
-                // A separate opt-in preview process, not a completed verification run.
+                // 单独显式启动的预览进程，不代表已完成验证。
                 long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(3600);
                 while(front.isAlive()&&!Files.exists(RUN.resolve("stop"))&&System.nanoTime()<until)Thread.sleep(250);
                 return;

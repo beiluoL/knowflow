@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证考试应用安装的幂等性与认证归属。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
@@ -73,7 +76,7 @@ class ExamAppInstallIntegrationTest {
                 .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value(401));
         mvc.perform(put("/api/apps/user-apps/unknown-app").header("Authorization",token(owner,"USER"))
                 .contentType(MediaType.APPLICATION_JSON).content("{\"installed\":true}"))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(2006)); // existing BusinessException HTTP compatibility
+                .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(2006)); // 保留现有 BusinessException 的 HTTP 兼容行为。
         assertEquals(0,count(owner));
     }
     @Test void adminInstallsOnlyTheirOwnExam() throws Exception {

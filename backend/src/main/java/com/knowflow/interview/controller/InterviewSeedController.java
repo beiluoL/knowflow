@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+/**
+ * 提供面试学习内容包的状态、激活、重建及版本升级接口。
+ */
 @RestController @RequiredArgsConstructor
 @RequestMapping("/api/learning/seed/java-ai-v1")
 public class InterviewSeedController {

@@ -1,5 +1,8 @@
 package com.knowflow.interview.controller;
 import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.feedback.ProductMockInterviewService;import jakarta.validation.Valid;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
+/**
+ * 提供模拟面试主题查询和会话启动接口。
+ */
 @RestController @RequestMapping("/api/learning/mock-interviews") @RequiredArgsConstructor
 @ConditionalOnProperty(name={"knowflow.product.interview-learning.enabled","knowflow.product.private-quiz.enabled","knowflow.product.tutor.enabled","knowflow.product.tutor-coaching.enabled"},havingValue="true")
 public class ProductMockInterviewController {

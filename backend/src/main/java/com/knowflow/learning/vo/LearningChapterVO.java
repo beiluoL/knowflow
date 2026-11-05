@@ -22,7 +22,7 @@ public class LearningChapterVO {
     /** 章节正文内容 */
     private String content;
 
-    /** Owner-scoped inline source image aliases; original content/hash remains unchanged. */
+    /** 按所有者隔离的内联来源图片别名，原始内容及哈希保持不变。 */
     private java.util.Map<String,String> inlineSourceImages;
 
     /** 排序序号（同一路径内升序） */

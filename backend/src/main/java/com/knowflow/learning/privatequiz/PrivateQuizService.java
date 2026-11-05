@@ -24,9 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/**
-  * Private ownership and immutable attempts; shares the existing deterministic grader and provider.
-  */
+/** 管理私有归属和不可变作答，复用现有确定性评分器与供应方。 */
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "knowflow.product.private-quiz.enabled", havingValue = "true")
@@ -79,8 +77,8 @@ public class PrivateQuizService {
     }
 
     private LearningNote source(long id, long user) {
-        // The current row must be locked before the mapper's ordinary read. Mutation
-        // transactions use READ_COMMITTED, so a lock wait cannot reuse a stale source.
+        // 必须先锁定当前行，再执行 Mapper 普通读取；修改事务使用
+        // READ_COMMITTED，避免等待锁后复用过期来源。
         if (org.springframework.transaction.support.TransactionSynchronizationManager
                 .isActualTransactionActive()) {
             if (sql.queryForList(
@@ -199,7 +197,7 @@ public class PrivateQuizService {
         return tx(
                 user,
                 () -> {
-                    // Serialize source confirmation, including concurrent deletion or revision changes.
+                    // 串行确认来源，覆盖并发删除或版本变更。
                     sql.queryForList(
                             "SELECT id FROM learning_note WHERE id=? AND user_id=? FOR UPDATE",
                             input.noteId(),
@@ -239,7 +237,7 @@ public class PrivateQuizService {
                 });
     }
 
-    /** Internal F09 adapter: same private table, source locks, immutable version and grader. */
+    /** 内部 F09 适配器，复用私有表、来源锁、不可变版本和评分器。 */
     public Map<String, Object> variantDraft(
             long user, long note, long revision, String key, List<Question> questions) {
         validateQuestions(questions, 2);
@@ -315,8 +313,8 @@ public class PrivateQuizService {
                                         + " 100",
                                 user,
                                 noteId);
-        // The ordinary F03 UI has a fixed three-question submission contract. F09 reads its
-        // two-question drafts through its lineage adapter.
+        // 普通 F03 界面固定提交三道题；F09 通过来源适配器读取
+        // 其两道题的草稿。
         var result = new ArrayList<Map<String, Object>>();
         for (var q : rows) {
             if (questions(q.get("questions")).size() != 3) continue;
@@ -426,7 +424,7 @@ public class PrivateQuizService {
         return out;
     }
 
-    /** A micro challenge freezes one existing private question into the original attempt store. */
+    /** 微挑战将一道已有私有题目冻结到原作答存储中。 */
     public Map<String, Object> beginMicro(long user, long id, int index, String key) {
         return tx(
                 user,
@@ -524,7 +522,7 @@ public class PrivateQuizService {
                             answers,
                             encode(result),
                             id);
-                    // No invented knowledge mapping or mastery. The event is a private attempt fact only.
+                    // 不伪造知识映射或掌握度，事件仅表示一次私有作答事实。
                     events.recordRequired(
                             user,
                             "PRIVATE_QUIZ_SUBMITTED",

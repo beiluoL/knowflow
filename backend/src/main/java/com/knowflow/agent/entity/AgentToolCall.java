@@ -23,7 +23,7 @@ public class AgentToolCall extends BaseEntity {
     private String argsJson;
     /** 出参/错误 JSON */
     private String resultJson;
-    /** success/failed/cancelled */
+    /** 执行状态：success（成功）/ failed（失败）/ cancelled（取消）。 */
     private String status;
     /** 耗时毫秒 */
     private Long latencyMs;

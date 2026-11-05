@@ -19,6 +19,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * 验证宠物创建与修改的事务边界。
+ */
 @SpringBootTest
 @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties="knowflow.datasource.h2.url=jdbc:h2:mem:pet_batch1;DB_CLOSE_DELAY=-1;MODE=MySQL")

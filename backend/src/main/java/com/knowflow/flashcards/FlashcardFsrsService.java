@@ -18,6 +18,9 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
 
+/**
+ * 管理 FSRS 复习设置、调度预览、复习提交和统计。
+ */
 @Service
 @RequiredArgsConstructor
 public class FlashcardFsrsService {
@@ -25,7 +28,7 @@ public class FlashcardFsrsService {
     private final ObjectMapper json;
     private final LearningFlashcardMapper cards;
     private final LearningEventService events;
-    // Ensures additive columns exist before this service accepts requests.
+    // 接受请求前确保增量字段已存在。
     private final FlashcardSchedulingSchema schema;
 
     public record Settings(
@@ -265,7 +268,7 @@ public class FlashcardFsrsService {
             throw new BusinessException(400, "评分或请求编号无效");
         if (input.getSessionId() != null && !input.getSessionId().matches("[A-Za-z0-9_-]{12,80}"))
             throw new BusinessException(400, "会话编号无效");
-        // One user settings row serializes daily-limit checks across all their cards.
+        // 通过每位用户的一条设置记录，串行校验其所有卡片的每日限额。
         jdbc.update(
                 "INSERT INTO learning_flashcard_settings(user_id,settings_json,revision)"
                         + " VALUES(?,?,0) ON DUPLICATE KEY UPDATE user_id=user_id",
@@ -287,8 +290,8 @@ public class FlashcardFsrsService {
         var card = require(id, uid, true);
         var memory = memory(id);
         long revision = revision(id);
-        // Resolve old operations from the original event log, including retries after later
-        // reviews.
+        // 从原始事件日志解析旧操作，包括后续复习之后发起的
+        // 重试。
         for (var row :
                 jdbc.queryForList(
                         "SELECT metadata FROM learning_event WHERE user_id=? AND"
@@ -351,8 +354,8 @@ public class FlashcardFsrsService {
         meta.put("scheduler", next.schedulerJson());
         meta.put("reviewLog", next.reviewLogJson());
         meta.put("cardState", next.cardJson());
-        // Keep the real pre-cutover schedule for auditable/manual scheduling rollback; never
-        // synthesize old FSRS reviews.
+        // 保留切换前真实计划，以便审计或人工回滚调度；禁止
+        // 伪造旧 FSRS 复习记录。
         meta.put("previousDueAt", due(card) == null ? null : due(card).toString());
         meta.put("previousMemory", memory == null ? null : encode(memory));
         meta.put("schedulingResult", encode(updated));

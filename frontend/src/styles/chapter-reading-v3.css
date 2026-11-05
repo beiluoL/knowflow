@@ -1,4 +1,4 @@
-/* Reference-led chapter presentation, scoped to the existing shell and reader. */
+/* 参照样式的章节展示，范围限于现有外壳及阅读器。 */
 .chapter-shell {
  --kf-chapter-h2-size:calc(var(--kf-chapter-body-size) * 1.5); --kf-chapter-h3-size:calc(var(--kf-chapter-body-size) * 1.25); --kf-chapter-h4-size:calc(var(--kf-chapter-body-size) * 1.0625);
  --kf-chapter-code-size:calc(var(--kf-chapter-body-size) * .875);
@@ -107,7 +107,7 @@
 @media(max-width:1100px){.chapter-shell .chapter-learn .chapter-columns {flex-direction:column;}.chapter-shell .chapter-learn .outline-sidebar {width:100%;order:-1;}.chapter-shell .chapter-learn .outline-sticky {position:static;max-height:none;}.chapter-shell .chapter-learn .outline-content.is-collapsed {display:none;}.chapter-shell .chapter-learn .outline-content {margin-top:var(--kf-space-2);}.chapter-shell .chapter-learn .chapter-toc {max-height:32vh;}.chapter-shell .chapter-learn .bottom-action-bar {gap:var(--kf-space-2);padding-inline:var(--kf-space-3);}.chapter-shell .chapter-learn .bottom-action-bar button {padding-inline:var(--kf-space-2);font-size:var(--kf-fs-caption);}}
 @media(max-width:1100px){.chapter-shell .chapter-learn .outline-sidebar {position:static;}}
 @media(prefers-reduced-motion:reduce){.chapter-learn * {scroll-behavior:auto!important;transition:none!important;}}
-/* V4 authored blocks retain native keyboard interactions and never record completion. */
+/* V4 内容区块保留原生键盘交互，不记录完成状态。 */
 .chapter-shell .chapter-learn .chapter-article {color:var(--kf-foreground);overflow-wrap:anywhere;}
 .chapter-shell .chapter-learn .chapter-article p {color:var(--kf-foreground);line-height:1.8;margin-block:0 var(--kf-space-4);text-align:left;text-indent:0;}
 .chapter-shell .chapter-learn .chapter-article {font-size:var(--kf-chapter-body-size);}

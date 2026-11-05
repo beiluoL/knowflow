@@ -9,12 +9,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * 将所有者的掌握度记录投影为有界复习候选。
+ */
 @Service
 @RequiredArgsConstructor
 public class MasteryReviewQueryService implements MasteryReviewQuery {
     private final KnowledgeMasteryMapper masteryMapper;
 
-    /** Projects the owner's records without changing the candidate window or evidence rules. */
+    /** 投影所有者记录，不改变候选窗口或证据规则。 */
     @Override
     public List<ReviewCandidate> listCandidates(long ownerId) {
         return masteryMapper.selectList(new LambdaQueryWrapper<KnowledgeMastery>()

@@ -102,7 +102,7 @@ const props = withDefaults(
     showCancel?: boolean
     persistent?: boolean
     width?: string
-    /** Opt-in form layout; existing confirmation dialogs keep their original behavior. */
+    /** 显式启用表单布局，现有确认框保留原行为。 */
     placement?: 'center' | 'right'
     scrollable?: boolean
     description?: string
@@ -164,11 +164,11 @@ function onMaskClick() {
 }
 function onKey(e: KeyboardEvent) {
   if (!props.open || (hasModal() && !isTopModal(modalId))) return
-  // An owned selection popup consumes Escape before its parent modal.
+  // 所属选择弹层先于父模态框消费 Escape。
   if(e.key==='Escape' && e.target instanceof Element && e.target.closest('.kf-select-panel, .cascade-tree')) return
   if (props.scrollable) {
     if (!props.open || e.key !== 'Escape') return
-    // Capture before an underlying FocusShell can interpret Escape as "exit study".
+    // 在底层 FocusShell 将 Escape 解释为退出学习之前捕获。
     e.preventDefault(); e.stopPropagation()
     if (!props.persistent && props.closeOnEsc) onCancel()
   } else if (e.key === 'Escape' && props.closeOnEsc && !props.persistent) {
@@ -387,7 +387,7 @@ onUnmounted(() => { mounted = false; window.removeEventListener('keydown', onKey
   transform: translateY(8px) scale(0.98);
 }
 
-/* Only the opted-in settings form receives the viewport-contained layout. */
+/* 仅显式启用的设置表单使用视口内布局。 */
 .dlg-mask--scrollable { padding:var(--kf-space-4);overscroll-behavior:contain; }
 .dlg-card--scrollable { display:flex;flex-direction:column;max-height:min(calc(var(--kf-space-8) * 22.5),calc(100dvh - var(--kf-space-4) * 2));min-height:0;min-width:0;padding:0;overflow:hidden; }
 .dlg-card--scrollable .dlg-head { flex:none;align-items:flex-start;gap:var(--kf-space-3);padding:var(--kf-space-5);padding-inline-end:calc(var(--kf-space-8) * 2);margin:0;border-bottom:var(--kf-studio-rule) solid var(--kf-border); }

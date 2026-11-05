@@ -690,7 +690,7 @@ onMounted(() => {
   loadQuestions()
 })
 
-// Catalog links load the original full source editor, regardless of list pagination.
+// 目录链接加载原始完整来源编辑器，不受列表分页影响。
 const catalogRoute = useRoute()
 let catalogRequest = 0
 watch(() => catalogRoute.query.questionId, async (raw) => {

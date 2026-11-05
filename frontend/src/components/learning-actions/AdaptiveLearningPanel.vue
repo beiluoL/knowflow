@@ -153,7 +153,7 @@ async function preview() {
   finally { if (current === previewGeneration) { busy.value = false; drainConfirmationRefresh() } }
 }
 
-// A confirmed save must be read back even if an earlier refresh is still in flight.
+// 确认保存后必须回读，即使更早的刷新仍在进行。
 function refreshConfirmed(saved: LearningActionDraft) {
   const budget = validMinutes.value ? Number(minutes.value) : loadedMinutes.value ?? saved.availableMinutes
   if (!Number.isInteger(budget) || budget < 1 || budget > 720) return
@@ -167,7 +167,7 @@ function drainConfirmationRefresh() {
   void readDashboard(budget)
 }
 
-// Presentation only: use explicit resource/type fields, never parse reasons or rank actions.
+// 仅展示，使用显式资源和类型字段，不解析原因或排序动作。
 function presentation(item: Pick<PlanItem, 'resourceType' | 'type'>) {
   if (item.type === 'CODE') return { label: '编程练习', verb: '打开编程练习', summary: '结合真实题目练习代码，并核对结果与边界。' }
   if (item.resourceType === 'FLASHCARD') return { label: '闪卡复习', verb: '复习闪卡', summary: '先主动回忆，再核对答案并记录本次评分。' }

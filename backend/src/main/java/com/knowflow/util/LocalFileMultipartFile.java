@@ -24,7 +24,7 @@ import java.nio.file.Path;
  */
 public record LocalFileMultipartFile(File file, String relativePath, com.knowflow.security.HostCapabilityGuard guard) implements MultipartFile {
 
-    /** Only server-generated preprocessing files use this unguarded overload. */
+    /** 此无防护重载仅供服务端生成的预处理文件使用。 */
     public LocalFileMultipartFile(File file,String relativePath) { this(file,relativePath,null); }
 
     private Path checkedPath() { return guard == null ? file.toPath() : guard.requireAllowed(file.toPath()); }

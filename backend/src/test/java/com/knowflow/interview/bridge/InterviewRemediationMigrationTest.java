@@ -8,6 +8,9 @@ import org.springframework.jdbc.datasource.init.ScriptUtils;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证面试补救学习结构重复迁移和真实引用约束。
+ */
 class InterviewRemediationMigrationTest {
     @Test void h2MigrationCanRepeatPreservesHistoryAndEnforcesRealReferences() throws Exception {
         var source=new DriverManagerDataSource("jdbc:h2:mem:"+ UUID.randomUUID()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");

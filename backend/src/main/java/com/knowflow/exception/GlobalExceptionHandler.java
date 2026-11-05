@@ -22,6 +22,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+/**
+ * 将控制器异常转换为统一 HTTP 状态与错误响应。
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

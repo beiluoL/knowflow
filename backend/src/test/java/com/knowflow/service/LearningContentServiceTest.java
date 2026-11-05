@@ -76,13 +76,13 @@ class LearningContentServiceTest {
         FakeAiConfiguration.reset();
     }
 
-    // ===== helpers =====
+    // ===== 辅助方法 =====
 
     private KgEntity entity(Long id, String name, String description) {
         KgEntity e = new KgEntity();
         e.setId(id);
         com.knowflow.knowledge.entity.DocDocument source=new com.knowflow.knowledge.entity.DocDocument();source.setId(id);source.setTitle(name);source.setContent(description);source.setStatus(1);documents.insert(source);
-        e.setDocId(id); // Real published public source for document authorization.
+        e.setDocId(id); // 为文档授权提供真实已发布公共来源。
         e.setName(name);
         e.setType("CONCEPT");
         e.setDescription(description);
@@ -183,7 +183,7 @@ class LearningContentServiceTest {
                 {"label":"给出治理方案","keywords":["堆配置","对象创建速率"]}]}}
             """;
 
-    // ===== tests =====
+    // ===== 测试用例 =====
 
     @Test
     @DisplayName("A4.4-1: Knowledge→三类 Draft：结构合法、零写库、用户 Key 路由")

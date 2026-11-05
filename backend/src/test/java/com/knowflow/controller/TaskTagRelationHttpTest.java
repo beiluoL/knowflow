@@ -23,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 验证任务标签关联的 HTTP 行为。
+ */
 @SpringBootTest @AutoConfigureMockMvc @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.config-file=/tmp/select-v2-tag-rel-no-config.json","knowflow.datasource.type=h2","knowflow.datasource.h2.url=jdbc:h2:mem:select_v2_tag_rel;DB_CLOSE_DELAY=-1;MODE=MySQL"})
 class TaskTagRelationHttpTest {

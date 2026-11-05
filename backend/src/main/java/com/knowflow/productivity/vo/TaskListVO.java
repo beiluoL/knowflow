@@ -12,7 +12,7 @@ public class TaskListVO {
 
     private String name;
 
-    /** area / project / list。 */
+    /** 类型：area（领域）/ project（项目）/ list（清单）。 */
     private String kind;
 
     private Long parentId;

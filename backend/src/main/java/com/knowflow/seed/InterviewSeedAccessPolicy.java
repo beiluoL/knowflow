@@ -3,9 +3,7 @@ package com.knowflow.seed;
 import com.knowflow.identity.entity.SysUser;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/** Promoting an existing learner must not remove their own activated material.
- * Fresh administrator accounts remain excluded from automatic personal seeding.
- */
+/** 已有学习者晋升管理员时保留其已激活资料；新管理员账号不自动初始化个人学习内容。 */
 final class InterviewSeedAccessPolicy {
     private InterviewSeedAccessPolicy() {}
     static boolean allowed(SysUser user, JdbcTemplate jdbc) {

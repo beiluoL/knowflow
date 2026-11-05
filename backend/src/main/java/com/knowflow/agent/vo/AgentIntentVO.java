@@ -13,7 +13,7 @@ import java.util.Map;
  */
 @Data
 public class AgentIntentVO {
-    /** generate / modify / explain / debug / chat */
+    /** 操作类型：generate（生成）/ modify（修改）/ explain（解释）/ debug（调试）/ chat（聊天）。 */
     private String intent;
     /** 识别置信度 0~1 */
     private Double confidence;

@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证宿主机能力默认关闭、显式授权及路径边界。
+ */
 class HostCapabilityGuardTest {
     @TempDir Path temp;
     HostCapabilityProperties props;

@@ -8,7 +8,7 @@
 
     <WorkbenchReviewMethods active="memory-palace" />
     <div class="wb-page" :style="{ '--mc': themeColor }">
-    <!-- ============ Palace Grid ============ -->
+    <!-- ============ 记忆宫殿网格 ============ -->
     <section>
       <div v-if="error" role="alert" class="workbench-inline-error">{{ error }} <button class="kf-btn" @click="load">重试</button></div>
       <div v-else-if="loading" class="wb-palace-grid">
@@ -213,7 +213,7 @@ onBeforeUnmount(() => { request++ })
 }
 .wb-ghost-btn:hover { border-color: var(--mc); color: var(--mc); }
 
-/* ===== Palace Grid ===== */
+/* ===== 记忆宫殿网格 ===== */
 .wb-palace-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -235,7 +235,7 @@ onBeforeUnmount(() => { request++ })
   transform: translateY(-3px);
 }
 
-/* Cover */
+/* 封面。 */
 .wb-palace-cover {
   position: relative;
   height: 120px;
@@ -288,7 +288,7 @@ onBeforeUnmount(() => { request++ })
   letter-spacing: 0.04em;
 }
 
-/* Body */
+/* 正文。 */
 .wb-palace-body {
   flex: 1;
   padding: 16px;
@@ -314,7 +314,7 @@ onBeforeUnmount(() => { request++ })
   overflow: hidden;
 }
 
-/* Foot */
+/* 底部。 */
 .wb-palace-foot {
   display: flex;
   align-items: center;
@@ -334,7 +334,7 @@ onBeforeUnmount(() => { request++ })
 .wb-palace-cta :deep(svg) { transition: transform var(--kf-motion-slow) var(--kf-ease-standard); }
 .wb-palace-card:hover .wb-palace-cta :deep(svg) { transform: translateX(3px); }
 
-/* Color picker */
+/* 颜色选择器。 */
 .wb-color-picker {
   display: flex;
   align-items: center;

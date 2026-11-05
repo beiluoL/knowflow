@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-5">
-    <!-- Page Header -->
+    <!-- 页面标题。 -->
     <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
         <h1 class="kf-h1">社区管理</h1>
@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <!-- Stat cards -->
+    <!-- 统计卡片。 -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div
         v-for="stat in stats"
@@ -28,7 +28,7 @@
       </div>
     </section>
 
-    <!-- Tabs -->
+    <!-- 页签。 -->
     <div class="flex items-center gap-1 p-1 rounded-lg w-fit" style="background: var(--kf-muted);">
       <button
         v-for="tab in tabs"
@@ -48,7 +48,7 @@
       </button>
     </div>
 
-    <!-- Posts Management Tab -->
+    <!-- 帖子管理页签。 -->
     <section v-if="activeTab === 'posts'" class="rounded-xl border overflow-hidden" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="p-4 border-b flex flex-col sm:flex-row sm:items-center gap-3" style="border-color: var(--kf-border);">
         <div class="relative flex-1">
@@ -76,13 +76,13 @@
         </div>
       </div>
 
-      <!-- Loading -->
+      <!-- 加载中。 -->
       <div v-if="postLoading" class="p-10 flex items-center justify-center">
         <Icon name="refresh-cw" :size="20" class="animate-spin" style="color: var(--kf-primary);" />
         <span class="ml-2 text-sm" style="color: var(--kf-muted-foreground);">加载帖子列表...</span>
       </div>
 
-      <!-- Error -->
+      <!-- 错误状态。 -->
       <div v-else-if="postError" class="p-10 flex flex-col items-center justify-center gap-3">
         <Icon name="alert-circle" :size="32" style="color: var(--kf-destructive);" />
         <p class="text-sm" style="color: var(--kf-muted-foreground);">{{ postError }}</p>
@@ -94,7 +94,7 @@
         >重新加载</button>
       </div>
 
-      <!-- Empty -->
+      <!-- 空状态。 -->
       <div v-else-if="filteredPosts.length === 0" class="p-10 flex flex-col items-center justify-center gap-2">
         <Icon name="inbox" :size="32" style="color: var(--kf-muted-foreground);" />
         <p class="text-sm" style="color: var(--kf-muted-foreground);">
@@ -102,7 +102,7 @@
         </p>
       </div>
 
-      <!-- Table -->
+      <!-- 表格。 -->
       <div v-else class="overflow-x-auto">
         <table class="w-full">
           <thead style="background: var(--kf-background);">
@@ -187,7 +187,7 @@
             </tr>
           </tbody>
         </table>
-        <!-- Pagination info -->
+        <!-- 分页信息。 -->
         <div class="px-4 py-3 border-t flex items-center justify-between text-xs" style="border-color: var(--kf-border); color: var(--kf-muted-foreground);">
           <span>共 {{ postTotal }} 篇 · 当前展示 {{ filteredPosts.length }} 篇</span>
           <span class="flex items-center gap-1">
@@ -198,7 +198,7 @@
       </div>
     </section>
 
-    <!-- Topics Management Tab -->
+    <!-- 主题管理页签。 -->
     <section v-else-if="activeTab === 'topics'" class="rounded-xl border p-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5">
         <h2 class="kf-h3">话题列表</h2>
@@ -239,7 +239,7 @@
       </div>
     </section>
 
-    <!-- Reports Handling Tab -->
+    <!-- 举报处理页签。 -->
     <section v-else-if="activeTab === 'reports'" class="rounded-xl border overflow-hidden" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--kf-border);">
         <h2 class="kf-h3">举报处理</h2>

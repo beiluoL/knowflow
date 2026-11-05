@@ -7,6 +7,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.nio.file.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证宿主机工作区归属及路径隔离。
+ */
 class HostOwnedWorkspaceTest {
     @TempDir Path temp;
     @Test void normalOwnedFileStillWorks() {

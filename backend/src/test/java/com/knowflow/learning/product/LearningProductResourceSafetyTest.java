@@ -22,6 +22,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+/**
+ * 验证学习资源访问权限及未批准题目的使用边界。
+ */
 @SpringBootTest(properties="knowflow.datasource.h2.url=jdbc:h2:mem:learning_product_resources;MODE=MySQL;DB_CLOSE_DELAY=-1")
 @AutoConfigureMockMvc @Import(FakeAiConfiguration.class)
 class LearningProductResourceSafetyTest {

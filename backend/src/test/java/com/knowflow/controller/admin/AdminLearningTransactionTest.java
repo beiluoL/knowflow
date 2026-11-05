@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** Real Spring proxy and H2 writes, without a surrounding test transaction. */
+/** 使用真实 Spring 代理与 H2 写入，不包裹外层测试事务。 */
 @SpringBootTest(properties={
     "knowflow.datasource.h2.url=jdbc:h2:mem:admin_learning_tx;DB_CLOSE_DELAY=-1;MODE=MySQL",
     "knowflow.datasource.config-file=/tmp/admin-learning-tx-no-overrides.json",

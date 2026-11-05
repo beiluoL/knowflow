@@ -419,7 +419,7 @@ const handleExit = async () => {
       document.documentElement.style.removeProperty('--kf-primary');
       document.documentElement.style.removeProperty('--kf-base-font-size');
     } catch {
-      // ignore
+      // 忽略此处可容忍的异常。
     }
   }
   void router.push('/learning/center');

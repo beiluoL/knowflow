@@ -1,6 +1,6 @@
 import type { ComposeRequest } from '@/api/exam'
 export interface PracticePreset { key: string; label: string; description: string; config: Partial<ComposeRequest> }
-/** Configuration recipes for the existing PaperComposer; no second selection engine. */
+/** 现有 PaperComposer 的配置方案，不另建选题引擎。 */
 export const practicePresets: PracticePreset[] = [
   { key:'TOPIC', label:'知识点专项', description:'在下方选择真实题库知识点，并设置难度、题型和数量。', config:{strategy:'RANDOM',includeAnswered:true} },
   { key:'FOCUS', label:'重点题训练', description:'按已有公共练习频次选题，不能将练习频次当作真实招聘面试出现频率。', config:{strategy:'FREQUENCY',includeAnswered:true} },

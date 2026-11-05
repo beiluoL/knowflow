@@ -255,12 +255,12 @@ function stopSource(): void {
     try {
       waveLFO.stop();
     } catch {
-      /* oscillator may already be stopped */
+      /* 振荡器可能已经停止。 */
     }
     try {
       waveLFO.disconnect();
     } catch {
-      /* noop */
+      /* 无需额外处理。 */
     }
     waveLFO = null;
   }
@@ -268,12 +268,12 @@ function stopSource(): void {
     try {
       currentSource.stop();
     } catch {
-      /* source may already be stopped */
+      /* 音源可能已经停止。 */
     }
     try {
       currentSource.disconnect();
     } catch {
-      /* noop */
+      /* 无需额外处理。 */
     }
     currentSource = null;
   }
@@ -310,7 +310,7 @@ onUnmounted(() => {
     try {
       masterGain.disconnect();
     } catch {
-      /* noop */
+      /* 无需额外处理。 */
     }
     masterGain = null;
   }

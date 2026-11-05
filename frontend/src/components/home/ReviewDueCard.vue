@@ -1,6 +1,6 @@
 <template>
   <Card padding="md">
-    <!-- Loading -->
+    <!-- 加载中。 -->
     <div v-if="loading" class="animate-pulse">
       <div class="h-4 w-20 rounded" style="background: var(--kf-muted);"></div>
       <div class="mt-4 h-8 w-24 rounded" style="background: var(--kf-muted);"></div>

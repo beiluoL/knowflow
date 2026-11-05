@@ -33,6 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 提供管理端学习路径、章节及学习内容管理接口。
+ */
 @Slf4j
 @Tag(name = "管理员学习管理")
 @RestController

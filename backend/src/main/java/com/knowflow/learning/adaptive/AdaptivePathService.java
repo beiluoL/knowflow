@@ -30,10 +30,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
-  * Per-user study suggestions over original paths. Does not change canonical paths, grades or the
-  * NextAction resolver.
-  */
+/** 基于原路径生成用户学习建议，不改变标准路径、成绩或 NextAction 解析器。 */
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(

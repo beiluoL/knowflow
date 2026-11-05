@@ -1196,7 +1196,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         boolean sourceChanged = !Objects.equals(effective.getDocId(),card.getDocId()) || !Objects.equals(effective.getCategoryId(),card.getCategoryId())
                 || !Objects.equals(effective.getChapterId(),card.getChapterId()) || !Objects.equals(effective.getPathId(),card.getPathId());
         if (sourceChanged) validateManualCardSource(userId,effective);
-        // Content edits must never write a stale copy of concurrent SM-2/FSRS scheduling fields.
+        // 内容编辑不得用过期副本覆盖并发变更的 SM-2 或 FSRS 调度字段。
         var update = new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<LearningFlashcard>()
                 .eq(LearningFlashcard::getId, flashcardId).eq(LearningFlashcard::getUserId, userId);
         if (StrUtil.isNotBlank(dto.getFront())) update.set(LearningFlashcard::getFront, dto.getFront().trim());

@@ -84,9 +84,9 @@ interface Props {
   ariaLabel?: string
   manageFocus?: boolean
   exitDisabled?: boolean
-  /** Opt-in content-sized cards and a single scrollable reading area. */
+  /** 显式启用按内容定尺寸的卡片及单一可滚动阅读区。 */
   readingLayout?: boolean
-  /** Visual reference styling is limited to the flashcard caller. */
+  /** 参考视觉样式仅限闪卡调用方。 */
   flashcardLayout?: boolean
   progressDescription?: string
   /** 进度信息（如 3/6） */
@@ -296,7 +296,7 @@ watch(() => props.hasUnsavedProgress, () => {})
   padding-bottom: calc(var(--kf-space-4) + env(safe-area-inset-bottom, 0));
   }
 }
-/* Opt-in study sessions can wrap status without clipping the header. */
+/* 显式启用的学习会话允许状态换行，不裁切标题。 */
 .is-focus-managed .focus-header { height:auto;min-height:var(--kf-nav-height);padding-block:var(--kf-space-2);flex-wrap:wrap; }
 .is-reading-layout .focus-body { min-height:0;justify-content:flex-start;overflow-x:hidden;overscroll-behavior:contain; }
 .is-reading-layout .focus-progress-area { flex-wrap:wrap;gap:var(--kf-space-2); }
@@ -315,7 +315,7 @@ watch(() => props.hasUnsavedProgress, () => {})
  .is-focus-managed .focus-progress-area .kf-progress { display:none; }
  .is-focus-managed .focus-status { flex:1; }
 }
-/* V4 is opt-in; other study shells keep their original geometry. */
+/* V4 显式启用，其他学习外壳保留原尺寸。 */
 .is-flashcard-layout { background:var(--kf-background); }
 .is-flashcard-layout .focus-header { min-height:calc(var(--kf-space-8) * 2 + var(--kf-space-3));padding:var(--kf-space-3) var(--kf-space-6);display:flex;flex-wrap:nowrap;gap:var(--kf-space-4); }
 .is-flashcard-layout .focus-exit { height:var(--kf-control-hit-size);padding-inline:var(--kf-space-3);gap:var(--kf-space-3);font-size:var(--kf-fs-body-lg);flex-shrink:0; }

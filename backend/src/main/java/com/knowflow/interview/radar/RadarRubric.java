@@ -2,7 +2,7 @@ package com.knowflow.interview.radar;
 import java.math.*;
 import java.util.*;
 
-/** Versioned AI training scale; never writes objective Evidence or system mastery. */
+/** 版本化 AI 训练量表，不写入客观 Evidence 或系统掌握度。 */
 public final class RadarRubric {
  private RadarRubric(){}
  public static final String VERSION="radar-four-dimension-10-v1";

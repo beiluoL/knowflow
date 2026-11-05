@@ -3,6 +3,9 @@ import com.knowflow.common.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+/**
+ * 提供统一题目目录查询、批量状态、审计和筛选接口。
+ */
 @RestController
 @RequestMapping("/api/admin/question-catalog")
 @PreAuthorize("hasRole('ADMIN')")

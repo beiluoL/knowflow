@@ -8,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证语音协议的会话绑定、字段、序列及 PCM 帧边界。
+ */
 class VoiceProtocolTest {
     private static final int INPUT_MAGIC = 1262900785;
     private static final int OUTPUT_MAGIC = 1262900273;

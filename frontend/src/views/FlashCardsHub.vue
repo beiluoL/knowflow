@@ -1118,7 +1118,7 @@ async function loadSchedule() {
 }
 async function loadStatistics() {
   try { const result = await learningApi.flashcardStatistics(); todayStats.value = result.today; todayLearned.value = result.today.completed }
-  catch { todayStats.value = null } // Unavailable statistics are not displayed as zero.
+  catch { todayStats.value = null } // 统计不可用时不显示为零。
 }
 function openReviewSettings() { settingsOpen.value = true }
 async function reviewSettingsSaved(saved: FlashcardReviewSettings) {
@@ -1901,7 +1901,7 @@ const toggleId = (id: number) => {
   else selectedIds.value.push(id)
 }
 
-// ===================== CRUD =====================
+// ===================== 增删改查 =====================
 const resetForm = () => {
   noteId.value = null
   noteRevision.value = undefined
@@ -2019,12 +2019,12 @@ const batchDelete = async () => {
       } });
 }
 
-// ===================== Flip =====================
+// ===================== 翻转 =====================
 const toggleFlip = (id: number) => {
   flippedId.value = flippedId.value === id ? null : id
 }
 
-// ===================== AI Generate =====================
+// ===================== AI 生成 =====================
 const openGenerate = () => {
   genDialog.visible = true
   genDialog.source = 'kb'
@@ -2057,7 +2057,7 @@ const doGenerate = async () => {
   }
 }
 
-// ===================== Import / Export =====================
+// ===================== 导入与导出 =====================
 const openImport = () => { importDialog.visible = true; importDialog.jsonText = ''; importDialog.parseError = '' }
 const closeImport = () => { importDialog.visible = false }
 
@@ -2241,7 +2241,7 @@ async function clearContext(): Promise<void> {
   await loadLearnCards()
 }
 
-// ===================== Helpers =====================
+// ===================== 辅助方法 =====================
 const goBack = () => {
   if (window.history.length > 1) router.back()
   else router.push('/learning/center')
@@ -3504,7 +3504,7 @@ onUnmounted(() => {
   .prep-actions { gap: 8px; }
   .prep-actions button { flex: 1 1 auto; justify-content: center; }
 }
-/* Phase C: opt-in session layout, no global learning-page overrides. */
+/* 阶段 C：显式启用会话布局，不全局覆盖学习页。 */
 .phase-c-flashcards .prep-title { font-family:inherit;font-size:var(--kf-section-title-size); }
 .flip-card-face { border-width:var(--kf-studio-rule); }
 .flip-card-back { border-color:var(--kf-border); }
@@ -3526,7 +3526,7 @@ onUnmounted(() => {
  .face-question { font-size:var(--kf-fs-body-lg); }
  .back-title { font-size:var(--kf-fs-body-md); }
 }
-/* V3: local reading stage; recommendation cards retain their original layout. */
+/* V3：局部阅读区，推荐卡片保留原布局。 */
 .flashcard-stage { width:min(100%,calc(var(--kf-space-8) * 30));min-width:0;margin:var(--kf-space-4) auto; }
 .session-mode { color:var(--kf-foreground);font-size:var(--kf-fs-body-sm);font-weight:600;white-space:nowrap; }
 .session-status { display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:var(--kf-space-3);font-size:var(--kf-fs-caption);color:var(--kf-muted-foreground); }
@@ -3584,7 +3584,7 @@ onUnmounted(() => {
  .action-bar .fsrs-rating { min-height:calc(var(--kf-control-hit-size) + var(--kf-space-3)); }
 }
 @media(prefers-reduced-motion:reduce) { .flashcard-stage .flip-card-inner { transition:none; } }
-/* V4 visual reference: local geometry and semantic colors, original data contracts. */
+/* V4 视觉参考：局部尺寸与语义色，沿用原数据契约。 */
 .review-brand { display:inline-flex;align-items:center;gap:var(--kf-space-2);padding-right:var(--kf-space-6);border-right:var(--kf-studio-rule) solid var(--kf-border);font-size:var(--kf-fs-h3);font-weight:750;letter-spacing:-.04em;color:var(--kf-foreground);white-space:nowrap; }
 .review-brand > svg { font-size:var(--kf-space-8);color:var(--kf-primary); }
 .session-statistics { display:inline-flex;align-items:center;gap:var(--kf-space-2);white-space:nowrap; }

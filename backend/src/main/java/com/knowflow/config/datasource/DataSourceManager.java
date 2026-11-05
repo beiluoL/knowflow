@@ -178,7 +178,7 @@ public class DataSourceManager {
                 runScript(conn, item.getSchemaLocation(), type, "schema");
                 runScript(conn, item.getDataLocation(), type, "data");
             }
-            // Always migrate the target connection before publication, including existing auto/never databases.
+            // 发布前始终迁移目标连接，包括已有的 auto 或 never 数据库配置。
             com.knowflow.ai.service.ChatManagementSchema.migrate(conn);
             com.knowflow.knowledge.service.NoteSchema.migrate(conn);
             // 技术英语 P0：存量 H2/MySQL 库同样需要增量建表

@@ -637,7 +637,7 @@ const saveProgress = async () => {
   try {
     await docsApi.updateProgress({ docId: doc.value.id, progress: readProgress.value })
   } catch {
-    /* ignore */
+    /* 忽略此处可容忍的异常。 */
   } finally {
     savingProgress.value = false
   }
@@ -1154,7 +1154,7 @@ onUnmounted(() => {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-/* Phase B reading layout, scoped to this real document view. */
+/* 阶段 B 阅读布局，仅限此真实文档视图。 */
 .document-reader { min-width:0; }
 .reader-layout { display:grid;grid-template-columns:minmax(0,1fr) minmax(12rem,16rem);gap:var(--kf-space-6);align-items:start; }
 .reader-article { width:100%;max-width:var(--kf-notes-reading-width);min-width:0;justify-self:center; }

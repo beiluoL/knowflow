@@ -31,7 +31,7 @@ class LearningPlanBaselineTest {
         Class<?> cls = Class.forName("com.knowflow.learning.entity.LearningPlan");
         assertField(cls, "userId", Long.class);
         assertField(cls, "planDate", LocalDate.class);
-        assertField(cls, "timeBlocks", String.class);   // JSON array
+        assertField(cls, "timeBlocks", String.class);   // JSON 数组。
         assertField(cls, "learningTaskIds", String.class);
         assertField(cls, "habitIds", String.class);
         assertField(cls, "todoIds", String.class);

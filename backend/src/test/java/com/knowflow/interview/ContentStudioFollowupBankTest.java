@@ -12,6 +12,9 @@ import java.util.*;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 验证内容工作室追问题库的内容契约。
+ */
 class ContentStudioFollowupBankTest {
  QuizQuestion q(String key,String title,String answer,String tail){QuizQuestion q=new QuizQuestion();q.setId((long)key.hashCode());q.setCanonicalKey(key);q.setTitle(title);q.setAnswer(answer);q.setTopicCode("JAVA_COLLECTION");q.setCategoryId(1L);q.setExplanation(tail==null?null:"正文\n来源与审核原记录：\n"+tail);return q;}
  ContentStudioInterviewBank bank(List<QuizQuestion> rows){QuizQuestionMapper mapper=mock(QuizQuestionMapper.class);when(mapper.selectList(any())).thenReturn(rows);DocumentAccessPolicy access=mock(DocumentAccessPolicy.class);when(access.canReadCategory(any(),eq(7L))).thenReturn(true);when(access.canReadCategory(eq(2L),eq(7L))).thenReturn(false);return new ContentStudioInterviewBank(mapper,access,mock(DocDocumentMapper.class));}

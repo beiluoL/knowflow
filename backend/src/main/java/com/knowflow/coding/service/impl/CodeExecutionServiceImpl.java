@@ -289,7 +289,7 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
         // 继承当前环境（PATH/JAVA_HOME 等），保证各运行时可被定位
         Process process = pb.start();
 
-        // Feed asynchronously so a child that does not consume stdin cannot bypass the timeout.
+        // 异步写入标准输入，防止不消费输入的子进程绕过超时。
         Thread inputWriter=new Thread(() -> {
             try (OutputStream os = process.getOutputStream()) {
                 if (stdin!=null && !stdin.isEmpty()) os.write(stdin.getBytes(StandardCharsets.UTF_8));
@@ -441,7 +441,7 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
                             buffer.write(chunk, 0, remain);
                         }
                         truncated = true;
-                        // Keep draining without retaining bytes; avoid full pipes deadlocking the child.
+                        // 持续排空但不保留字节，避免管道写满导致子进程死锁。
                         continue;
                     }
                     buffer.write(chunk, 0, n);

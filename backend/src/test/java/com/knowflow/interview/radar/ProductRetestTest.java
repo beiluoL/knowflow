@@ -16,6 +16,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.nio.charset.StandardCharsets;import java.security.MessageDigest;import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * 验证复测需要真实练习并保留原始快照和未知历史。
+ */
 @SpringBootTest @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:product_retest;DB_CLOSE_DELAY=-1;MODE=MySQL","knowflow.product.interview-learning.enabled=true","knowflow.product.private-quiz.enabled=true","knowflow.product.tutor.enabled=true","knowflow.product.tutor-coaching.enabled=true"})
 class ProductRetestTest {
@@ -53,7 +56,7 @@ class ProductRetestTest {
   assertEquals(plan.get("id"),retests.create(uid,turn).get("id"));
   assertEquals(0,plan.get("completedCount"));assertThrows(BusinessException.class,()->retests.start(uid,id,"retest-request-01"));
   assertThrows(BusinessException.class,()->retests.detail(user().getId(),id));
-  // A manual task checkbox is deliberately insufficient; practice is an actual saved F07 submission.
+  // 手工勾选任务不足以证明练习完成，必须存在实际保存的 F07 提交。
   long note=((Number)plan.get("noteId")).longValue();
   assertThrows(BusinessException.class,()->retests.linkPractice(uid,id,123456));
   assertTrue(jdbc.queryForObject("SELECT COUNT(*) FROM learning_note WHERE id=? AND user_id=?",Integer.class,note,uid)>0);
