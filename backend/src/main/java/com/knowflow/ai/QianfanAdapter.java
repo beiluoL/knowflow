@@ -35,7 +35,7 @@ public class QianfanAdapter implements ModelAdapter {
         String url = buildChatUrl(request.baseUrl, request.model, token);
         Map<String, Object> body = buildBody(request);
         String resp = new SimplePost(url, null, null, body, objectMapper).execute();
-        return parseResponse(resp);
+        return parseResponse(resp, request);
     }
 
     @Override
@@ -130,9 +130,10 @@ public class QianfanAdapter implements ModelAdapter {
         return body;
     }
 
-    private ChatResult parseResponse(String resp) {
+    private ChatResult parseResponse(String resp, ChatRequest request) {
         try {
             JsonNode root = objectMapper.readTree(resp);
+            request.reportedUsage = Usage.from(root.get("usage"), "prompt_tokens", "completion_tokens");
             if (root.has("error_code")) {
                 throw new AiException("文心返回错误");
             }

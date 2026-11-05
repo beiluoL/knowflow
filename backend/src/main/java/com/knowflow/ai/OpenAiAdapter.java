@@ -40,7 +40,7 @@ public class OpenAiAdapter implements ModelAdapter {
         String url = ensureChatCompletionsUrl(request.baseUrl);
         try {
             String resp = rt.postForObject(url, body, String.class);
-            return parseChatCompletion(resp);
+            return parseChatCompletion(resp, request);
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
@@ -60,6 +60,9 @@ public class OpenAiAdapter implements ModelAdapter {
         SseClient.stream(url, request.apiKey, body, objectMapper, new SseClient.Handler() {
             @Override
             public void onData(JsonNode frame) {
+                if (frame.hasNonNull("usage")) {
+                    request.reportedUsage = Usage.from(frame.get("usage"), "prompt_tokens", "completion_tokens");
+                }
                 // SSE 帧结构：{"choices":[{"delta":{"content":"...","role":"assistant"},"finish_reason":null}]}
                 JsonNode choices = frame.get("choices");
                 if (choices == null || !choices.isArray() || choices.isEmpty()) {
@@ -182,9 +185,10 @@ public class OpenAiAdapter implements ModelAdapter {
         return out;
     }
 
-    private ChatResult parseChatCompletion(String resp) {
+    private ChatResult parseChatCompletion(String resp, ChatRequest request) {
         try {
             JsonNode root = objectMapper.readTree(resp);
+            request.reportedUsage = Usage.from(root.get("usage"), "prompt_tokens", "completion_tokens");
             JsonNode choices = root.get("choices");
             if (choices == null || !choices.isArray() || choices.isEmpty()) {
                 throw new AiException("模型返回格式异常（无 choices）");

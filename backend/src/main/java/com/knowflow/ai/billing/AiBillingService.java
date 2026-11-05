@@ -67,6 +67,13 @@ public class AiBillingService {
   /** 仅按供应商上报的输入输出结算，未知用量保留原额度预留。 */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void settle(Reservation reservation, Long input, Long output, boolean success) {
+    settle(reservation, input, output, success, false);
+  }
+
+  /** 取消后仍结算已上报用量，缺失时保留预留并记录取消。 */
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void settle(
+      Reservation reservation, Long input, Long output, boolean success, boolean cancelled) {
     boolean known = input != null && output != null && input >= 0 && output >= 0;
     BigDecimal cost = known ? price(reservation, input, output) : null;
     var update =
@@ -75,7 +82,9 @@ public class AiBillingService {
             .eq(AiBillingEntry::getStatus, "RESERVED")
             .set(
                 AiBillingEntry::getStatus,
-                known ? "SETTLED" : success ? "UNREPORTED" : "FAILED_UNKNOWN")
+                known
+                    ? "SETTLED"
+                    : cancelled ? "CANCELLED_UNKNOWN" : success ? "UNREPORTED" : "FAILED_UNKNOWN")
             .set(AiBillingEntry::getInputTokens, input)
             .set(AiBillingEntry::getOutputTokens, output)
             .set(AiBillingEntry::getCostUsd, cost);
@@ -86,6 +95,43 @@ public class AiBillingService {
     adjust(reservation.day(), reservation.userKey(), delta);
     adjust(reservation.day(), reservation.sceneKey(), delta);
   }
+
+  /** 管理员分页读取持久化账单，不返回请求、凭证或提示词。 */
+  public com.knowflow.common.PageResult<EntryView> page(int page, int size) {
+    var rows =
+        entries.selectPage(
+            new com.baomidou.mybatisplus.extension.plugins.pagination.Page<AiBillingEntry>(
+                Math.max(1, page), Math.min(100, Math.max(1, size))),
+            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AiBillingEntry>()
+                .orderByDesc(AiBillingEntry::getUsageDay)
+                .orderByDesc(AiBillingEntry::getId));
+    return com.knowflow.common.PageResult.of(
+        rows.convert(
+            row ->
+                new EntryView(
+                    row.getId(),
+                    row.getUsageDay(),
+                    row.getUserId(),
+                    row.getScene(),
+                    row.getModelScope(),
+                    row.getStatus(),
+                    row.getReservedTokens(),
+                    row.getInputTokens(),
+                    row.getOutputTokens(),
+                    row.getCostUsd())));
+  }
+
+  public record EntryView(
+      String id,
+      LocalDate day,
+      Long userId,
+      String scene,
+      String modelScope,
+      String status,
+      long reservedTokens,
+      Long inputTokens,
+      Long outputTokens,
+      BigDecimal costUsd) {}
 
   private void reserveDimension(LocalDate day, String key, long limit, long tokens) {
     if (key == null) return;

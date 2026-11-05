@@ -42,6 +42,7 @@
       </StateView>
     </Card>
 
+    <AiBillingPanel v-if="auth.isAdmin" />
     <StateView :status="configLoading ? 'loading' : configError ? 'error' : 'ready'" error-title="AI 配置加载失败" error-description="未成功读取配置，请重试后再编辑。" @retry="loadConfig">
     <p v-if="actionError" role="alert" class="text-sm" style="color:var(--kf-danger)">{{ actionError }}</p>
     <p v-if="saving || deleting" role="status" aria-live="polite" class="text-sm">{{ saving ? '正在保存配置…' : '正在确认或删除配置…' }}</p>
@@ -421,6 +422,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
+import AiBillingPanel from './AiBillingPanel.vue'
 import StateView from '@/components/ui/StateView.vue'
 import { useAiCapabilityStore } from '@/stores/aiCapability'
 import { aiConfigApi } from '@/api/aiConfig'

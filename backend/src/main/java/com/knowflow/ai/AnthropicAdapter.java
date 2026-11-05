@@ -41,7 +41,7 @@ public class AnthropicAdapter implements ModelAdapter {
         String url = ensureMessagesUrl(request.baseUrl);
         try {
             String resp = postJson(url, request.apiKey, headers, body);
-            return parseMessage(resp);
+            return parseMessage(resp, request);
         } catch (AiException e) {
             throw e;
         } catch (Exception e) {
@@ -152,9 +152,10 @@ public class AnthropicAdapter implements ModelAdapter {
         return body;
     }
 
-    private ChatResult parseMessage(String resp) {
+    private ChatResult parseMessage(String resp, ChatRequest request) {
         try {
             JsonNode root = objectMapper.readTree(resp);
+            request.reportedUsage = Usage.from(root.get("usage"), "input_tokens", "output_tokens");
             if (root.has("error")) {
                 throw new AiException("Anthropic 返回错误");
             }

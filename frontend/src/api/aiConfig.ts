@@ -15,7 +15,25 @@ export interface AiModelCenterOverview {
   }
 }
 
+export interface AiBillingPage {
+  records: Array<{
+    id: string
+    day: string
+    userId: number | null
+    scene: string
+    modelScope: string
+    status: string
+    reservedTokens: number
+    inputTokens: number | null
+    outputTokens: number | null
+    costUsd: number | null
+  }>
+  pageNum: number
+  pages: number
+}
+
 export const aiConfigApi = {
+  billing: (page: number) => apiGet<AiBillingPage>(`/admin/ai-model-center/billing?page=${page}`),
   modelCenter: () => apiGet<AiModelCenterOverview>('/admin/ai-model-center'),
   getConfig: () => apiGet<UserAiConfigVO>('/ai-config'),
   listConfigs: () => apiGet<UserAiConfigVO[]>('/ai-config/list'),

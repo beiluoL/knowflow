@@ -220,6 +220,29 @@ public class AiServiceImpl implements AiService {
         }).content();
     }
 
+    private final class BillableAttempt implements AutoCloseable {
+        private final com.knowflow.ai.billing.AiBillingService.Reservation reservation;
+        private final ModelAdapter.ChatRequest request;
+        private boolean success;
+        private java.util.function.BooleanSupplier cancelled = () -> false;
+
+        private BillableAttempt(Long userId, String scene, EffectiveAiConfig config, String model,
+                                ModelAdapter.ChatRequest request) {
+            requireAiEnabled();
+            String provider = config.provider() == null ? "platform" : config.provider();
+            Long owner = userId != null ? userId : com.knowflow.common.SecurityUtils.getCurrentUserIdNullable();
+            reservation = billing.reserve(owner, scene, provider + ":" + model);
+            this.request = request;
+        }
+
+        @Override
+        public void close() {
+            var usage = request.reportedUsage;
+            billing.settle(reservation, usage == null ? null : usage.input(),
+                    usage == null ? null : usage.output(), success, cancelled.getAsBoolean());
+        }
+    }
+
     private boolean canFallback(AiFailureKind kind) {
         return switch (kind) {
             case CIRCUIT_OPEN, PROVIDER_ERROR, RATE_LIMITED, TIMEOUT, NETWORK_ERROR -> true;
@@ -246,7 +269,9 @@ public class AiServiceImpl implements AiService {
         String scope = effective.provider() + ":" + effective.model();
         return capabilityExecutor.execute(scope, false, () -> {
             if (cancelled.getAsBoolean()) { throw new AiCapabilityException(AiFailureKind.CANCELLED, null); }
-            try {
+            try (var attempt = new BillableAttempt(userId, "structured-stream", effective,
+                    effective.model(), new ModelAdapter.ChatRequest())) {
+                attempt.cancelled = cancelled;
                 Map<String, Object> body = new LinkedHashMap<>();
                 body.put("model", effective.model());
                 body.put("messages", List.of(Map.of("role", "system", "content", systemPrompt),
@@ -272,6 +297,7 @@ public class AiServiceImpl implements AiService {
                         objectMapper, delta, () -> cancelled.getAsBoolean() || !capabilityProperties.isEnabled(),
                         aiConfig.getTimeoutSeconds());
                 // Conservative upper-bound accounting; streaming providers need not return usage frames.
+                attempt.success = true;
                 return new AiRawResult(text, Math.max(1, aiConfig.getMaxTokens()),
                         AiRawResult.UsageSource.ESTIMATED);
             } catch (java.io.IOException | IllegalArgumentException invalid) {
@@ -539,7 +565,8 @@ public class AiServiceImpl implements AiService {
                     capabilityProperties.isEnabled() ? AiFailureKind.UNCONFIGURED : AiFailureKind.SYSTEM_DISABLED);
         }
 
-        try {
+        var metering = new ModelAdapter.ChatRequest();
+        try (var attempt = new BillableAttempt(userId, "vision", effective, visionModel, metering)) {
             // 构建多模态 content 数组
             List<Map<String, Object>> multimodalContent = new ArrayList<>();
             multimodalContent.add(Map.of("type", "text", "text", userMessage));
@@ -575,16 +602,21 @@ public class AiServiceImpl implements AiService {
             HttpResponse<String> resp = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (resp.statusCode() == 200) {
                 Map<String, Object> responseMap = objectMapper.readValue(resp.body(), Map.class);
+                metering.reportedUsage = ModelAdapter.Usage.from(
+                        objectMapper.valueToTree(responseMap.get("usage")), "prompt_tokens", "completion_tokens");
                 List<Map<String, Object>> choices = (List<Map<String, Object>>) responseMap.get("choices");
                 if (choices != null && !choices.isEmpty()) {
                     Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
                     String content = (String) message.get("content");
                     if (content == null) content = choices.get(0).get("text") != null ? (String) choices.get(0).get("text") : "（AI 未返回有效内容）";
+                    attempt.success = true;
                     return content;
                 }
             }
             log.error("Vision API 调用失败: status={}", resp.statusCode());
             return "抱歉，图像分析失败（状态码 " + resp.statusCode() + "）";
+        } catch (AiCapabilityException e) {
+            throw e;
         } catch (Exception e) {
             log.warn("视觉模型调用失败: {}", e.getClass().getSimpleName());
             return "抱歉，图像分析失败";
@@ -756,49 +788,53 @@ public class AiServiceImpl implements AiService {
                     new ModelAdapter.ChatMessage("user", userPrompt));
 
             requireAiEnabled();
-            if (useSummary) {
-                // OpenAI Responses API：只读取官方 reasoning summary，不冒充完整思维链
-                responsesStreamClient.stream(req, new OpenAiResponsesStreamClient.Handler() {
-                    @Override
-                    public void onReasoning(String delta) {
-                        onReasoning.accept(delta);
-                    }
+            ModelAdapter adapter = useSummary ? null : adapterFactory.getAdapter(effective.provider());
+            try (var attempt = new BillableAttempt(userId, "chat-stream", effective, effective.model(), req)) {
+                attempt.cancelled = () -> clientAborted[0];
+                if (useSummary) {
+                    // OpenAI Responses API：只读取官方 reasoning summary，不冒充完整思维链
+                    responsesStreamClient.stream(req, new OpenAiResponsesStreamClient.Handler() {
+                        @Override
+                        public void onReasoning(String delta) {
+                            onReasoning.accept(delta);
+                        }
 
-                    @Override
-                    public void onContent(String delta) {
-                        onAnswer.accept(delta);
+                        @Override
+                        public void onContent(String delta) {
+                            onAnswer.accept(delta);
+                        }
+                    });
+                    if (!clientAborted[0]) {
+                        finishSuccess(emitter, callback, full, reasoning, reasoningStarted, reasoningStart,
+                                reasoningDuration, reasoningDoneSent, reasoningKind, callbackDone);
                     }
-                });
-                if (!clientAborted[0]) {
-                    finishSuccess(emitter, callback, full, reasoning, reasoningStarted, reasoningStart,
-                            reasoningDuration, reasoningDoneSent, reasoningKind, callbackDone);
+                } else {
+                    // adapter 解析期间总开关可能被关闭：外呼前再校验一次，关闭态绝不消耗付费 Token
+                    requireAiEnabled();
+                    adapter.streamChat(req,
+                            delta -> {
+                                if (delta.reasoning != null && !delta.reasoning.isEmpty()) {
+                                    onReasoning.accept(delta.reasoning);
+                                }
+                                if (delta.delta != null && !delta.delta.isEmpty()) {
+                                    onAnswer.accept(delta.delta);
+                                }
+                            },
+                            done -> {
+                                if (clientAborted[0]) return;
+                                if (done.content != null && done.content.length() > full.length()) {
+                                    full.setLength(0);
+                                    full.append(done.content);
+                                }
+                                if (reasoning.length() == 0 && done.reasoning != null && !done.reasoning.isEmpty()) {
+                                    // 适配器在结束时才回填完整推理（增量按理已推送过，这里只兜底累积）
+                                    reasoning.append(done.reasoning);
+                                }
+                                finishSuccess(emitter, callback, full, reasoning, reasoningStarted, reasoningStart,
+                                        reasoningDuration, reasoningDoneSent, reasoningKind, callbackDone);
+                            });
                 }
-            } else {
-                ModelAdapter adapter = adapterFactory.getAdapter(effective.provider());
-                // adapter 解析期间总开关可能被关闭：外呼前再校验一次，关闭态绝不消耗付费 Token
-                requireAiEnabled();
-                adapter.streamChat(req,
-                        delta -> {
-                            if (delta.reasoning != null && !delta.reasoning.isEmpty()) {
-                                onReasoning.accept(delta.reasoning);
-                            }
-                            if (delta.delta != null && !delta.delta.isEmpty()) {
-                                onAnswer.accept(delta.delta);
-                            }
-                        },
-                        done -> {
-                            if (clientAborted[0]) return;
-                            if (done.content != null && done.content.length() > full.length()) {
-                                full.setLength(0);
-                                full.append(done.content);
-                            }
-                            if (reasoning.length() == 0 && done.reasoning != null && !done.reasoning.isEmpty()) {
-                                // 适配器在结束时才回填完整推理（增量按理已推送过，这里只兜底累积）
-                                reasoning.append(done.reasoning);
-                            }
-                            finishSuccess(emitter, callback, full, reasoning, reasoningStarted, reasoningStart,
-                                    reasoningDuration, reasoningDoneSent, reasoningKind, callbackDone);
-                        });
+                attempt.success = !clientAborted[0] && callbackDone[0];
             }
             if (clientAborted[0] && !callbackDone[0]) {
                 callbackDone[0] = true;
@@ -978,7 +1014,11 @@ public class AiServiceImpl implements AiService {
         req.maxTokens = aiConfig.getMaxTokens();
         try {
             requireAiEnabled();
-            return adapter.chat(req);
+            try (var attempt = new BillableAttempt(userId, "tools", effective, req.model, req)) {
+                var result = adapter.chat(req);
+                attempt.success = true;
+                return result;
+            }
         } catch (AiCapabilityException e) {
             throw e;
         } catch (AiException e) {
@@ -1017,7 +1057,12 @@ public class AiServiceImpl implements AiService {
         req.topP = topP;
         try {
             requireAiEnabled();
-            adapter.streamChat(req, onToken, onDone);
+            try (var attempt = new BillableAttempt(userId, "tools-stream", effective, req.model, req)) {
+                adapter.streamChat(req, onToken, done -> {
+                    attempt.success = true;
+                    onDone.accept(done);
+                });
+            }
         } catch (AiCapabilityException e) {
             throw e;
         } catch (AiException e) {

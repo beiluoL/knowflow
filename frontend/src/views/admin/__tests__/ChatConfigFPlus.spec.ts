@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { beforeEach,it,expect,vi } from 'vitest'
 import {mount,flushPromises} from '@vue/test-utils'
-const api=vi.hoisted(()=>({getConfig:vi.fn(),modelCenter:vi.fn(),platformModels:vi.fn(),saveConfig:vi.fn(),testConnection:vi.fn(),deleteAll:vi.fn()}))
+const api=vi.hoisted(()=>({getConfig:vi.fn(),modelCenter:vi.fn(),billing:vi.fn(),platformModels:vi.fn(),saveConfig:vi.fn(),testConnection:vi.fn(),deleteAll:vi.fn()}))
 vi.mock('@/api/aiConfig',()=>({aiConfigApi:api}))
 vi.mock('@/utils/toast',()=>({notify:vi.fn(),confirmDialog:vi.fn()}))
 const cap=vi.hoisted(()=>({status:{status:'DISABLED',enabled:false},userEnabled:true,aiAvailable:false,error:'',loading:false,refresh:vi.fn()}))
@@ -21,6 +21,7 @@ it('仅管理员读取模型目录，并区分上报和估算用量', async () =
   const regular = render()
   await flushPromises()
   expect(api.modelCenter).not.toHaveBeenCalled()
+  expect(api.billing).not.toHaveBeenCalled()
   regular.unmount()
 
   auth.isAdmin = true
@@ -29,11 +30,23 @@ it('仅管理员读取模型目录，并区分上报和估算用量', async () =
     usage: { day: '2026-11-05', reportedTokens: 120, estimatedTokens: 50,
       unreportedCalls: 1, unpricedTokens: 20, pricedCostUsd: 0.002, dailyTokenLimit: 1000 },
   })
+  api.billing.mockResolvedValue({
+    records: [{ id: 'bill-1', day: '2026-11-05', userId: 1, scene: 'vision',
+      modelScope: 'platform:example', status: 'UNREPORTED', reservedTokens: 60,
+      inputTokens: null, outputTokens: null, costUsd: null }],
+    pageNum: 1,
+    pages: 2,
+  })
   const admin = render()
   await flushPromises()
   expect(api.modelCenter).toHaveBeenCalledOnce()
   expect(admin.text()).toContain('上报 Token120')
   expect(admin.text()).toContain('估算 Token50')
   expect(admin.text()).toContain('本地测试 · example')
+  expect(admin.text()).toContain('platform:example / vision')
+  expect(admin.text()).toContain('未知 / 未知')
+  await admin.findAll('button').find(button => button.text() === '下一页')?.trigger('click')
+  await flushPromises()
+  expect(api.billing).toHaveBeenLastCalledWith(2)
   admin.unmount()
 })

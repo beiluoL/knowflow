@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AiModelCenterController {
   private final AiProviderRegistry providers;
   private final AiCapabilityExecutor executor;
+  private final com.knowflow.ai.billing.AiBillingService billing;
 
   @GetMapping
   public Result<Overview> overview() {
@@ -43,6 +44,14 @@ public class AiModelCenterController {
                 })
             .toList();
     return Result.success(new Overview(models, executor.usageSnapshot()));
+  }
+
+  @GetMapping("/billing")
+  public Result<com.knowflow.common.PageResult<com.knowflow.ai.billing.AiBillingService.EntryView>>
+      billing(
+          @org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
+          @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int size) {
+    return Result.success(billing.page(page, size));
   }
 
   public record ModelEntry(

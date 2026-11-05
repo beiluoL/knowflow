@@ -57,6 +57,18 @@ public interface ModelAdapter {
         public String arguments; // 原始 JSON 字符串
     }
 
+    /** 供应商实际返回的计费字段，缺失时保持 null。 */
+    record Usage(Long input, Long output) {
+        public static Usage from(com.fasterxml.jackson.databind.JsonNode node, String inputKey, String outputKey) {
+            return node == null ? null : new Usage(count(node.path(inputKey)), count(node.path(outputKey)));
+        }
+
+        private static Long count(com.fasterxml.jackson.databind.JsonNode value) {
+            return value.isIntegralNumber() && value.canConvertToLong() && value.longValue() >= 0
+                    ? value.longValue() : null;
+        }
+    }
+
     /** 统一对话请求。 */
     class ChatRequest {
         public List<ChatMessage> messages;
@@ -69,6 +81,7 @@ public interface ModelAdapter {
         public Double temperature;
         public Integer maxTokens;
         public Double topP;
+        public Usage reportedUsage;
     }
 
     /** 流式 token 增量。 */

@@ -84,4 +84,17 @@ class AiBillingIntegrationTest {
       workers.shutdownNow();
     }
   }
+
+  @Test
+  void cancelledUsageRemainsUnknownAndCanBeReadFromPersistentPage() {
+    var reservation = billing.reserve(98721L, "cancelled", "p:m");
+    billing.settle(reservation, null, null, false, true);
+    var row =
+        billing.page(1, 100).getRecords().stream()
+            .filter(entry -> entry.id().equals(reservation.id()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("CANCELLED_UNKNOWN", row.status());
+    org.junit.jupiter.api.Assertions.assertNull(row.costUsd());
+  }
 }
