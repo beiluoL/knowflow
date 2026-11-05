@@ -61,3 +61,6 @@ content-studio/**/target/
 # Python bytecode / caches (helper scripts)
 __pycache__/
 *.pyc
+
+# Project documents and generated plans/reports are local-only.
+/docs/
