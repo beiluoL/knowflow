@@ -1,4 +1,5 @@
 package com.knowflow.catalog;
+import com.knowflow.catalog.util.QuestionEditToken;
 
 import com.knowflow.coding.entity.CodeQuestion;
 import com.knowflow.coding.mapper.CodeQuestionMapper;
@@ -37,6 +38,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class QuestionCatalogIntegrationTest {
  @Autowired MockMvc mvc; @Autowired ObjectMapper json; @Autowired JdbcTemplate jdbc; @Autowired JwtUtils jwt;
  @Autowired SysUserMapper users; @Autowired QuizQuestionMapper quiz; @Autowired CodeQuestionMapper legacy; @Autowired LearningScenarioMapper scenes; @Autowired CodeProblemMapper code;
+ @Autowired org.springframework.context.ApplicationContext context;
+ @Autowired org.apache.ibatis.session.SqlSessionFactory sessions;
+ @Test void catalogRelocationPreservesUniqueRegistration() throws Exception {
+  var rows=json.readTree(java.util.Objects.requireNonNull(getClass().getResourceAsStream("/architecture/CATALOG_RELOCATION_2026-11-06.json")));
+  var names=new HashSet<String>();
+  assertEquals(6,rows.size());
+  for(var row:rows){
+   String name=row.path("new_fqn").asText();
+   assertTrue(names.add(name));
+   Class<?> type=Class.forName(name);
+   assertThrows(ClassNotFoundException.class,()->Class.forName(row.path("old_fqn").asText()));
+   if(org.springframework.core.annotation.AnnotatedElementUtils.hasAnnotation(type,org.springframework.stereotype.Component.class)){
+    String bean=java.beans.Introspector.decapitalize(type.getSimpleName());
+    assertEquals(Set.of(bean),context.getBeansOfType(type).keySet());
+   }
+   assertFalse(sessions.getConfiguration().hasMapper(type));
+  }
+ }
  String admin,user,key;
  @BeforeEach void init(){key="catalog-"+UUID.randomUUID();admin=actor("ADMIN");user=actor("USER");}
  String actor(String role){var u=new SysUser();u.setUsername(UUID.randomUUID().toString());u.setPassword("test-only");u.setRole(role);users.insert(u);return "Bearer "+jwt.generateToken(u.getId(),u.getUsername(),role);}

@@ -1,0 +1,50 @@
+[
+  {
+    "old_path": "backend/src/main/java/com/knowflow/catalog/QuestionCatalogController.java",
+    "new_path": "backend/src/main/java/com/knowflow/catalog/controller/QuestionCatalogController.java",
+    "old_fqn": "com.knowflow.catalog.QuestionCatalogController",
+    "new_fqn": "com.knowflow.catalog.controller.QuestionCatalogController",
+    "batch": "2-A",
+    "date": "2026-11-06"
+  },
+  {
+    "old_path": "backend/src/main/java/com/knowflow/catalog/QuestionCatalogItem.java",
+    "new_path": "backend/src/main/java/com/knowflow/catalog/vo/QuestionCatalogItem.java",
+    "old_fqn": "com.knowflow.catalog.QuestionCatalogItem",
+    "new_fqn": "com.knowflow.catalog.vo.QuestionCatalogItem",
+    "batch": "2-A",
+    "date": "2026-11-06"
+  },
+  {
+    "old_path": "backend/src/main/java/com/knowflow/catalog/QuestionCatalogService.java",
+    "new_path": "backend/src/main/java/com/knowflow/catalog/service/QuestionCatalogService.java",
+    "old_fqn": "com.knowflow.catalog.QuestionCatalogService",
+    "new_fqn": "com.knowflow.catalog.service.QuestionCatalogService",
+    "batch": "2-A",
+    "date": "2026-11-06"
+  },
+  {
+    "old_path": "backend/src/main/java/com/knowflow/catalog/QuestionEditToken.java",
+    "new_path": "backend/src/main/java/com/knowflow/catalog/util/QuestionEditToken.java",
+    "old_fqn": "com.knowflow.catalog.QuestionEditToken",
+    "new_fqn": "com.knowflow.catalog.util.QuestionEditToken",
+    "batch": "2-A",
+    "date": "2026-11-06"
+  },
+  {
+    "old_path": "backend/src/main/java/com/knowflow/catalog/QuestionMutationAudit.java",
+    "new_path": "backend/src/main/java/com/knowflow/catalog/service/QuestionMutationAudit.java",
+    "old_fqn": "com.knowflow.catalog.QuestionMutationAudit",
+    "new_fqn": "com.knowflow.catalog.service.QuestionMutationAudit",
+    "batch": "2-A",
+    "date": "2026-11-06"
+  },
+  {
+    "old_path": "backend/src/main/java/com/knowflow/catalog/QuizQuestionAdminService.java",
+    "new_path": "backend/src/main/java/com/knowflow/catalog/service/QuizQuestionAdminService.java",
+    "old_fqn": "com.knowflow.catalog.QuizQuestionAdminService",
+    "new_fqn": "com.knowflow.catalog.service.QuizQuestionAdminService",
+    "batch": "2-A",
+    "date": "2026-11-06"
+  }
+]

@@ -1,4 +1,4 @@
-package com.knowflow.catalog;
+package com.knowflow.catalog.service;
 import com.knowflow.common.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;

@@ -1,4 +1,5 @@
-package com.knowflow.catalog;
+package com.knowflow.catalog.service;
+import com.knowflow.catalog.util.QuestionEditToken;
 import com.knowflow.learning.entity.QuizQuestion;
 import com.knowflow.learning.mapper.QuizQuestionMapper;
 import com.knowflow.common.SecurityUtils;

@@ -1,4 +1,4 @@
-package com.knowflow.catalog;
+package com.knowflow.catalog.vo;
 import lombok.Data;
 import java.util.List;
 import java.time.LocalDateTime;

@@ -34,7 +34,7 @@ import java.util.List;
 public class LearningScenarioAdminController {
 
     private final LearningScenarioService scenarioService;
-    private final com.knowflow.catalog.QuestionMutationAudit catalogAudit;
+    private final com.knowflow.catalog.service.QuestionMutationAudit catalogAudit;
 
     @Operation(summary = "场景列表（含下架，可按关键词/状态过滤）")
     @GetMapping

@@ -27,7 +27,7 @@ import java.util.Map;
 public class AdminCodeProblemController {
 
     private final CodeProblemService codeProblemService;
-    private final com.knowflow.catalog.QuestionMutationAudit catalogAudit;
+    private final com.knowflow.catalog.service.QuestionMutationAudit catalogAudit;
 
     @Operation(summary = "算法题分页（含草稿/待审核/下架）")
     @GetMapping

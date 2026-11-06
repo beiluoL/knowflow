@@ -33,7 +33,7 @@ import java.util.Map;
 @Slf4j
 public class AdminQuizQuestionController {
 
-    private final com.knowflow.catalog.QuizQuestionAdminService questionAdmin;
+    private final com.knowflow.catalog.service.QuizQuestionAdminService questionAdmin;
     private final QuizQuestionMapper quizQuestionMapper;
     private final QuizSourceQueryService quizSources;
     private final AiService aiService;

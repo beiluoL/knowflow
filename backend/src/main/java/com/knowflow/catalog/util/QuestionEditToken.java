@@ -1,4 +1,4 @@
-package com.knowflow.catalog;
+package com.knowflow.catalog.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 /** 管理端编辑上下文指纹，不包含答案内容本身；不是题目规范身份。 */
 public final class QuestionEditToken {

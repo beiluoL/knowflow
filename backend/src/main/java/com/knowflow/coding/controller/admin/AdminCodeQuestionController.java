@@ -26,7 +26,7 @@ import java.util.List;
 public class AdminCodeQuestionController {
 
     private final CodeQuestionMapper questionMapper;
-    private final com.knowflow.catalog.QuestionMutationAudit catalogAudit;
+    private final com.knowflow.catalog.service.QuestionMutationAudit catalogAudit;
 
     @Operation(summary = "题目列表（支持按标题/难度/语言/状态筛选）")
     @GetMapping

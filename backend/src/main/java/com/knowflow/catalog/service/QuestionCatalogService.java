@@ -1,4 +1,6 @@
-package com.knowflow.catalog;
+package com.knowflow.catalog.service;
+import com.knowflow.catalog.vo.QuestionCatalogItem;
+import com.knowflow.catalog.util.QuestionEditToken;
 import com.knowflow.common.PageResult;
 import com.knowflow.exception.BusinessException;
 import com.fasterxml.jackson.databind.JsonNode;
