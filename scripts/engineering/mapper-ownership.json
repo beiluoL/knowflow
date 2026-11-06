@@ -176,6 +176,10 @@
         "backend/src/main/java/com/knowflow/techenglish/service/TechVocabReviewService.java",
         "backend/src/main/java/com/knowflow/techenglish/service/TechVocabService.java"
       ]
+    },
+    "com.knowflow.catalog.mapper.QuestionCatalogAuditMapper": {
+      "entity": "QuestionCatalogAudit",
+      "callers": ["backend/src/main/java/com/knowflow/catalog/service/QuestionMutationAudit.java"]
     }
   }
 }

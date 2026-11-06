@@ -1,5 +1,7 @@
 package com.knowflow.catalog.controller;
 
+import com.knowflow.catalog.dto.QuestionCatalogBasicEditRequest;
+import com.knowflow.catalog.dto.QuestionCatalogBatchStatusRequest;
 import com.knowflow.catalog.service.QuestionCatalogService;
 import com.knowflow.common.Result;
 import lombok.RequiredArgsConstructor;
@@ -61,10 +63,8 @@ public class QuestionCatalogController {
             topicCode));
   }
 
-  public record BatchStatus(java.util.List<String> catalogIds, boolean published) {}
-
   @PostMapping("/batch-status")
-  public Result<?> batch(@RequestBody BatchStatus body) {
+  public Result<?> batch(@RequestBody QuestionCatalogBatchStatusRequest body) {
     service.batchStatus(body.catalogIds(), body.published());
     return Result.success();
   }
@@ -82,7 +82,7 @@ public class QuestionCatalogController {
 
   @PutMapping("/{catalogId}/basic")
   public Result<?> basic(
-      @PathVariable String catalogId, @RequestBody QuestionCatalogService.BasicEdit body) {
+      @PathVariable String catalogId, @RequestBody QuestionCatalogBasicEditRequest body) {
     service.editBasic(catalogId, body);
     return Result.success();
   }

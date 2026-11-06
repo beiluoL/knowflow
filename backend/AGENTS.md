@@ -29,3 +29,5 @@ Catalog 不获得来源题表第二所有权；Store 不拥有 Reward 钱包；L
 代码质量（命名、格式化、注释、职责、事务、异常、交付流水线）以 [CODE_QUALITY_STANDARD](../docs/architecture/backend/CODE_QUALITY_STANDARD.md) 为准；格式化唯一工具为 Spotless + Google Java Format，只对本次改动文件执行 `-DspotlessFiles` 限定。
 
 详细设计见 [架构规范](../docs/architecture/backend/ARCHITECTURE_STANDARD_V2.md)。docs 可按本地管理策略忽略；本入口及根规则包含可独立理解的核心约束。
+
+Java 注释统一执行 `docs/engineering/BACKEND_JAVA_STANDARD.md` BJ-67（路径相对仓库根）：Entity/DTO/VO 全字段、record 组件、公共业务方法及复杂逻辑须说明真实业务约束；存量分批治理，禁止猜测或覆盖他人 WIP。

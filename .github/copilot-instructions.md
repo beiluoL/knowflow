@@ -25,3 +25,5 @@
 - 不删除测试、不跳过测试、不改断言制造 PASS。
 - 无法验证的结论标注 `⚠️ Not verified`；不得把规范写入说成全站实现。
 - 提交前运行 `node scripts/engineering/check.mjs` 与对应前后端门禁。
+
+Java 注释统一执行 `docs/engineering/BACKEND_JAVA_STANDARD.md` BJ-67（路径相对仓库根）：Entity/DTO/VO 全字段、record 组件、公共业务方法及复杂逻辑须说明真实业务约束；存量分批治理，禁止猜测或覆盖他人 WIP。

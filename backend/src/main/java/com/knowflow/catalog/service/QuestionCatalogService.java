@@ -1,8 +1,11 @@
 package com.knowflow.catalog.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.knowflow.catalog.dto.QuestionCatalogBasicEditRequest;
 import com.knowflow.catalog.util.QuestionEditToken;
+import com.knowflow.catalog.vo.QuestionCatalogAuditVO;
 import com.knowflow.catalog.vo.QuestionCatalogItem;
+import com.knowflow.catalog.vo.QuestionCatalogTopicVO;
 import com.knowflow.coding.contract.CodeProblemCatalogPort;
 import com.knowflow.coding.contract.LegacyCodeCatalogQueryPort;
 import com.knowflow.common.PageResult;
@@ -41,14 +44,24 @@ public class QuestionCatalogService {
       Set.of("QUIZ", "SCENARIO", "LEGACY_CODE", "CODE_PROBLEM");
   private static final String BANK =
       """
-SELECT 'QUIZ' source_type,q.id source_question_id,q.canonical_key,q.question_type,q.title,q.content search_text,q.category_id,q.topic_code,NULL knowledge_id,q.difficulty,q.difficulty source_difficulty,q.tags,q.status,q.review_status,q.version source_version,q.create_time,q.update_time FROM quiz_question q WHERE q.deleted=0 AND (q.question_type IS NULL OR q.question_type<>'CODE')
+SELECT 'QUIZ' source_type,q.id source_question_id,q.canonical_key,q.question_type,q.title,q.content search_text,q.category_id,q.topic_code,NULL knowledge_id,q.difficulty,q.difficulty source_difficulty,q.tags,q.status,q.review_status,q.version source_version,q.create_time,q.update_time,NULL source_storage_id FROM quiz_question q WHERE q.deleted=0 AND (q.question_type IS NULL OR q.question_type<>'CODE')
 UNION ALL
-SELECT 'CODE_PROBLEM',q.id,q.canonical_key,'CODE',q.title,q.content,q.category_id,q.topic_code,NULL,q.difficulty,q.difficulty,q.tags,q.status,q.review_status,q.version,q.create_time,q.update_time FROM quiz_question q LEFT JOIN code_problem c ON c.question_id=q.id AND c.deleted=0 WHERE q.deleted=0 AND q.question_type='CODE'
+SELECT 'CODE_PROBLEM',q.id,q.canonical_key,'CODE',q.title,q.content,q.category_id,q.topic_code,NULL,q.difficulty,q.difficulty,q.tags,q.status,q.review_status,q.version,q.create_time,q.update_time,c.id source_storage_id FROM quiz_question q LEFT JOIN code_problem c ON c.question_id=q.id AND c.deleted=0 WHERE q.deleted=0 AND q.question_type='CODE'
 UNION ALL
-SELECT 'SCENARIO',s.id,NULL,'SCENARIO',s.title,CONCAT(s.context_text,' ',s.question_text),NULL,NULL,s.knowledge_id,s.difficulty,s.difficulty,NULL,s.status,NULL,NULL,s.create_time,s.update_time FROM learning_scenario s WHERE s.deleted=0
+SELECT 'SCENARIO',s.id,NULL,'SCENARIO',s.title,CONCAT(s.context_text,' ',s.question_text),NULL,NULL,s.knowledge_id,s.difficulty,s.difficulty,NULL,s.status,NULL,NULL,s.create_time,s.update_time,NULL source_storage_id FROM learning_scenario s WHERE s.deleted=0
 UNION ALL
-SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NULL,c.difficulty+1,c.difficulty,c.tags,c.status,NULL,NULL,c.create_time,c.update_time FROM code_question c WHERE c.deleted=0
+SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NULL,c.difficulty+1,c.difficulty,c.tags,c.status,NULL,NULL,c.create_time,c.update_time,NULL source_storage_id FROM code_question c WHERE c.deleted=0
 """;
+
+  /**
+   * 题库视图的显式投影列。
+   *
+   * <p>不用 `SELECT *`：列顺序与集合一旦变化会静默影响行映射，显式列出可在编译期之外 由 SQL 审查发现漂移，也避免把未来新增的内部列带到接口层。
+   */
+  private static final String CATALOG_COLUMNS =
+      "source_type,source_question_id,canonical_key,question_type,title,search_text,category_id,"
+          + "topic_code,knowledge_id,difficulty,source_difficulty,tags,status,review_status,"
+          + "source_version,create_time,update_time,source_storage_id";
 
   /**
    * 分页查询目录。
@@ -104,19 +117,14 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
     paged.add(((long) page - 1) * size);
     List<QuestionCatalogItem> rows =
         jdbc.query(
-            "SELECT *"
+            "SELECT "
+                + CATALOG_COLUMNS
                 + from
                 + " ORDER BY create_time DESC, source_type ASC, source_question_id DESC LIMIT ?"
                 + " OFFSET ?",
             this::row,
             paged.toArray());
-    for (var item : rows)
-      if (item.isCanonicalEvidence())
-        item.setDuplicateCount(
-            jdbc.queryForObject(
-                "SELECT COUNT(*) FROM (" + BANK + ") bank WHERE canonical_key=?",
-                Long.class,
-                item.getCanonicalKey()));
+    fillDuplicateCounts(rows);
     PageResult<QuestionCatalogItem> result = new PageResult<>();
     result.setRecords(rows);
     result.setTotal(total == null ? 0 : total);
@@ -179,11 +187,11 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
                 ? List.of("旧版代码执行不直接加入考试；其浏览器执行/统计体系独立，不能当作安全Judge")
                 : List.of());
     if (source.equals("CODE_PROBLEM")) {
-      var storage =
-          jdbc.queryForList(
-              "SELECT id FROM code_problem WHERE question_id=? AND deleted=0", Long.class, id);
-      if (storage.isEmpty()) v.setRestrictions(List.of("缺少算法扩展数据；仅基本信息可编辑，专业编辑/判题/组卷不可用，需要修复扩展关系"));
-      else v.setSourceStorageId(storage.get(0));
+      // 扩展数据主键已随 UNION 的 LEFT JOIN 一并投影，无需再按行查询；
+      // 缺失时语义不变：仅保留基础编辑能力，并给出需要修复扩展关系的原因。
+      Long storageId = number(r, "source_storage_id", Long.class);
+      if (storageId == null) v.setRestrictions(List.of("缺少算法扩展数据；仅基本信息可编辑，专业编辑/判题/组卷不可用，需要修复扩展关系"));
+      else v.setSourceStorageId(storageId);
     }
     v.setCapabilities(
         source.equals("QUIZ") || source.equals("CODE_PROBLEM")
@@ -214,6 +222,39 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
   }
 
   /**
+   * 批量填充规范身份的重复计数。
+   *
+   * <p>原实现对每条规范记录单独执行一次 `COUNT(*)`，一页 20 行会产生最多 20 次额外查询。 这里改为对本页的规范键做一次 `IN (...) GROUP BY`
+   * 聚合，查询次数从 O(页大小) 降为 O(1)； 计数口径与逐条查询完全一致（同一个题库视图子查询，同一个 canonical_key 等值条件）。
+   *
+   * <p>页内没有规范记录时不发查询（与原来的零次查询一致）。
+   */
+  private void fillDuplicateCounts(List<QuestionCatalogItem> rows) {
+    List<String> keys =
+        rows.stream()
+            .filter(QuestionCatalogItem::isCanonicalEvidence)
+            .map(QuestionCatalogItem::getCanonicalKey)
+            .distinct()
+            .toList();
+    if (keys.isEmpty()) return;
+    String placeholders = String.join(",", java.util.Collections.nCopies(keys.size(), "?"));
+    Map<String, Long> counts = new HashMap<>();
+    jdbc.query(
+        "SELECT canonical_key,COUNT(*) AS duplicate_count FROM ("
+            + BANK
+            + ") bank WHERE canonical_key IN ("
+            + placeholders
+            + ") GROUP BY canonical_key",
+        rs -> {
+          counts.put(rs.getString("canonical_key"), rs.getLong("duplicate_count"));
+        },
+        keys.toArray());
+    for (var item : rows)
+      if (item.isCanonicalEvidence())
+        item.setDuplicateCount(counts.getOrDefault(item.getCanonicalKey(), 0L));
+  }
+
+  /**
    * 目录项详情：目录投影 + 来源模块的编辑投影。
    *
    * <p>来源投影通过 contract 取得，仅用于计算编辑令牌；令牌不包含答案正文。
@@ -222,18 +263,16 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
     var identity = parse(catalogId);
     var rows =
         jdbc.query(
-            "SELECT * FROM (" + BANK + ") bank WHERE source_type=? AND source_question_id=?",
+            "SELECT "
+                + CATALOG_COLUMNS
+                + " FROM ("
+                + BANK
+                + ") bank WHERE source_type=? AND source_question_id=?",
             this::row,
             identity.source(),
             identity.id());
     if (rows.isEmpty()) throw new BusinessException(404, "题目不存在");
-    if (rows.get(0).isCanonicalEvidence())
-      rows.get(0)
-          .setDuplicateCount(
-              jdbc.queryForObject(
-                  "SELECT COUNT(*) FROM (" + BANK + ") bank WHERE canonical_key=?",
-                  Long.class,
-                  rows.get(0).getCanonicalKey()));
+    fillDuplicateCounts(rows);
     Object payload =
         switch (identity.source()) {
           case "QUIZ" -> learningQuestions.findQuiz(identity.id());
@@ -265,17 +304,6 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
     }
   }
 
-  public record BasicEdit(
-      String title,
-      Integer difficulty,
-      String tags,
-      Integer expectedSourceVersion,
-      String expectedUpdatedAt,
-      Long categoryId,
-      String topicCode,
-      List<Long> knowledgePointIds,
-      String expectedEditToken) {}
-
   @org.springframework.transaction.annotation.Transactional(
       isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
   /**
@@ -285,7 +313,7 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
    *
    * <p>加锁与重读必须处于同一事务，否则乐观锁比较的是过期快照。
    */
-  public void editBasic(String catalogId, BasicEdit req) {
+  public void editBasic(String catalogId, QuestionCatalogBasicEditRequest req) {
     validateBasics(req);
     var identity = parse(catalogId);
     String lockedTable =
@@ -379,7 +407,7 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
   }
 
   /** 基础字段入参校验；错误码与校验顺序与重构前保持一致。 */
-  private static void validateBasics(BasicEdit req) {
+  private static void validateBasics(QuestionCatalogBasicEditRequest req) {
     if (req.title() == null
         || req.title().isBlank()
         || req.title().length() > 200
@@ -396,7 +424,7 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
    * <p>场景题与旧版代码题没有版本号，只能依赖令牌；其余来源两者都校验，任一不匹配即 409， 避免覆盖他人编辑。
    */
   private static void assertNoConcurrentEdit(
-      Identity identity, BasicEdit req, QuestionCatalogItem item) {
+      Identity identity, QuestionCatalogBasicEditRequest req, QuestionCatalogItem item) {
     if ((identity.source().equals("SCENARIO")
             || identity.source().equals("LEGACY_CODE")
             || req.expectedEditToken() != null)
@@ -407,7 +435,8 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
   }
 
   /** 解析期望更新时间；允许前端用空格代替 `T`，格式非法统一按 400 返回。 */
-  private static java.time.LocalDateTime parseExpectedUpdatedAt(BasicEdit req) {
+  private static java.time.LocalDateTime parseExpectedUpdatedAt(
+      QuestionCatalogBasicEditRequest req) {
     if (req.expectedUpdatedAt() == null) return null;
     try {
       return java.time.LocalDateTime.parse(req.expectedUpdatedAt().replace(' ', 'T'));
@@ -456,8 +485,6 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
     }
   }
 
-  public record Topic(String code, String name, String parentCode, long questionCount) {}
-
   /** 筛选面板数据：来源、分类、知识点（含题目数）与题型集合。 */
   public Map<String, Object> facets() {
     var counts =
@@ -474,7 +501,7 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
             "SELECT code,name,parent_code FROM question_topic WHERE deleted=0 AND status=1 ORDER BY"
                 + " sort_order,id",
             (rs, index) ->
-                new Topic(
+                new QuestionCatalogTopicVO(
                     rs.getString("code"),
                     rs.getString("name"),
                     rs.getString("parent_code"),
@@ -498,39 +525,19 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
             "CODE"));
   }
 
-  public record AuditEntry(
-      long id,
-      long actorId,
-      String sourceType,
-      long sourceQuestionId,
-      String action,
-      String beforeState,
-      String afterState,
-      java.time.LocalDateTime createdAt) {}
-
-  /** 审计分页；按写入顺序倒序，便于定位最近一次变更。 */
-  public PageResult<AuditEntry> auditPage(int page, int size) {
+  /**
+   * 审计分页；按写入顺序倒序，便于定位最近一次变更。
+   *
+   * <p>持久化与行映射由 {@link QuestionMutationAudit} 负责，本方法只做分页参数校验与分页元数据组装。
+   */
+  public PageResult<QuestionCatalogAuditVO> auditPage(int page, int size) {
     if (page < 1 || size < 1 || size > 100) throw new BusinessException(400, "分页范围不正确");
-    var result = new PageResult<AuditEntry>();
-    result.setTotal(jdbc.queryForObject("SELECT COUNT(*) FROM question_catalog_audit", Long.class));
+    var result = new PageResult<QuestionCatalogAuditVO>();
+    result.setTotal(audit.count());
     result.setPageNum(page);
     result.setPageSize(size);
     result.setPages((result.getTotal() + size - 1) / size);
-    result.setRecords(
-        jdbc.query(
-            "SELECT * FROM question_catalog_audit ORDER BY id DESC LIMIT ? OFFSET ?",
-            (rs, index) ->
-                new AuditEntry(
-                    rs.getLong("id"),
-                    rs.getLong("actor_id"),
-                    rs.getString("source_type"),
-                    rs.getLong("source_question_id"),
-                    rs.getString("action"),
-                    rs.getString("before_state"),
-                    rs.getString("after_state"),
-                    rs.getTimestamp("created_at").toLocalDateTime()),
-            size,
-            ((long) page - 1) * size));
+    result.setRecords(audit.page(size, ((long) page - 1) * size));
     return result;
   }
 }

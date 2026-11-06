@@ -40,6 +40,10 @@ function appsViolations(file, code) {
 // Existing Catalog reads and Quiz admin writes are scoped to these exact files.
 const catalogMapperEdges = new Map([
   ['QuizQuestionAdminService.java', new Set(['QuizQuestionMapper'])],
+  // Catalog 自有审计表（question_catalog_audit）的 Mapper 与使用方；
+  // 仅登记本模块自有数据，不涉及任何来源模块的实体或表。
+  ['mapper/QuestionCatalogAuditMapper.java', new Set(['BaseMapper', 'QuestionCatalogAuditMapper'])],
+  ['QuestionMutationAudit.java', new Set(['QuestionCatalogAuditMapper'])],
 ])
 
 function catalogViolations(file, code, source) {

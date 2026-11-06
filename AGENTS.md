@@ -415,3 +415,5 @@ Catalog 不获得来源题表第二所有权；Store 不拥有 Reward 钱包；L
 执行 ARCH-001～012：Controller 禁 Mapper/JDBC/事务；Service 禁 Controller；Mapper 模块所有权；Entity 不跨模块；禁跨 ServiceImpl；跨模块仅 Contract；Common 不依赖业务；业务模块无循环；角色按传统分层；根目录禁角色堆积。严格门禁报告存量，不新增永久豁免；历史 610 类 manifest 保留原路径→历史路径，V2 目标另列，不改写历史。
 
 本批次只改规范、检查脚本和测试，不移动生产 Java、不改前端/Schema、不提交推送、不进入 Batch 2。后续批次需逐类台账、WIP 归属、权限/事务/API 回归及真实门禁证据。执行 `node scripts/engineering/check.mjs` 和相关 Maven 架构测试；FAIL/PARTIAL/NOT_VERIFIED/SKIPPED 不得写成 PASS。
+
+Java 注释统一执行 `docs/engineering/BACKEND_JAVA_STANDARD.md` BJ-67（路径相对仓库根）：Entity/DTO/VO 全字段、record 组件、公共业务方法及复杂逻辑须说明真实业务约束；存量分批治理，禁止猜测或覆盖他人 WIP。

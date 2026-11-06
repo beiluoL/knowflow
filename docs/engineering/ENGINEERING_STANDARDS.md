@@ -141,3 +141,5 @@ cd backend && mvn -B test
 ### V1.1-Final 本地增量门禁（2026-11-02）
 
 新增 `node --test scripts/engineering/check.test.mjs`，以及前端 `npm run lint`、`npm run lint:report`、`node --test scripts/lint.test.mjs`。实现与限制见 [V1.1 执行报告](GOVERNANCE_V1_1_REPORT.md)。关键文件 Git 可移植性和 CI 接入仍阻断，不能称跨设备部署成功。
+
+Java 注释统一执行 `docs/engineering/BACKEND_JAVA_STANDARD.md` BJ-67（路径相对仓库根）：Entity/DTO/VO 全字段、record 组件、公共业务方法及复杂逻辑须说明真实业务约束；存量分批治理，禁止猜测或覆盖他人 WIP。

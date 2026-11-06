@@ -29,3 +29,5 @@ cd backend && mvn -B test
 ```
 
 纯文档改动只跑工程检查与文档链接检查，不伪报业务 E2E。
+
+Java 注释统一执行 `docs/engineering/BACKEND_JAVA_STANDARD.md` BJ-67（路径相对仓库根）：Entity/DTO/VO 全字段、record 组件、公共业务方法及复杂逻辑须说明真实业务约束；存量分批治理，禁止猜测或覆盖他人 WIP。
