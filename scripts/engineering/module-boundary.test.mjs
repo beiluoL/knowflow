@@ -160,3 +160,35 @@ test('Agent cannot use Reward and Store persistence directly', () => {
   assert.deepEqual(boundaryViolations(agent,
     'package com.knowflow.agent; import com.knowflow.agent.tool.ToolRegistry;'), [])
 })
+
+import { directoryViolations as check } from './module-boundary.mjs'
+const roleFile = (pkg, name) => `backend/src/main/java/com/knowflow/${pkg.replaceAll('.', '/')}/${name}.java`
+test('新增根目录角色被拒绝，合法传统分层通过', () => {
+ for (const [name,layer,decl] of [['ThingController','controller','@RestController class'],['ThingMapper','mapper','@Mapper interface'],['Thing','entity','@TableName("x") class'],['ThingService','service','class'],['ThingServiceImpl','service.impl','class'],['ThingDTO','dto','record'],['ThingVO','vo','record']]) {
+  assert.ok(check(roleFile('learning',name), `package com.knowflow.learning; ${decl} ${name} {}`).length)
+  assert.deepEqual(check(roleFile(`learning.${layer}`,name),`package com.knowflow.learning.${layer}; ${decl} ${name} {}`),[])
+ }
+})
+test('保留技术专包及公开契约数据，注释不冒充注解',()=>{
+ for(const [pkg,name,code] of [['framework.web','CorsConfig','class'],['voice.asr','Provider','interface'],['identity.contract','UserDTO','record']]) assert.deepEqual(check(roleFile(pkg,name),`package com.knowflow.${pkg}; ${code} ${name} {}`),[])
+ assert.deepEqual(check(roleFile('ai.transport','Client'),'package com.knowflow.ai.transport; /* @Service */ class Client {}'),[])
+ assert.ok(check(roleFile('ai.domain','Model'),'package com.knowflow.ai.domain; class Model {}').length)
+})
+
+test('V2路径继承历史检查，不扩大Catalog持久化例外', () => {
+  assert.deepEqual(boundaryViolations(java + 'apps/service/UserAppService.java', 'package com.knowflow.apps.service; class UserAppService {}'), [])
+  assert.ok(boundaryViolations(java + 'apps/service/UserAppService.java', 'package com.knowflow.apps.service; import com.knowflow.store.mapper.ProductMapper;').length)
+  assert.ok(boundaryViolations(java + 'catalog/service/QuestionCatalogService.java', 'package com.knowflow.catalog.service; CodeQuestionMapper mapper;').length)
+  assert.ok(boundaryViolations(java + 'catalog/service/NewService.java', 'package com.knowflow.catalog.service; QuizQuestionMapper mapper;').length)
+})
+
+test('公开契约不能伪装持久化类型，层包路径必须一致', () => {
+ assert.ok(check(roleFile('learning.contract','BadMapper'), 'package com.knowflow.learning.contract; @Mapper interface BadMapper {}').length)
+ assert.ok(check(roleFile('learning.contract','BadEntity'), 'package com.knowflow.learning.contract; @TableName("x") class BadEntity {}').length)
+ assert.ok(check(roleFile('learning.service','GoodService'), 'package com.knowflow.learning; class GoodService {}').length)
+})
+
+test('未知业务模块不得承载角色，既有技术层保持合法', () => {
+ assert.ok(check(roleFile('newbusiness.service','NewService'), 'package com.knowflow.newbusiness.service; @Service class NewService {}').length)
+ assert.deepEqual(check(roleFile('framework.web','TechnicalController'), 'package com.knowflow.framework.web; class TechnicalController {}'), [])
+})

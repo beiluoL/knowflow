@@ -26,6 +26,13 @@
     </properties>
 
     <dependencies>
+        <!-- Architecture verification only; excluded from production runtime. -->
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>1.5.1</version>
+            <scope>test</scope>
+        </dependency>
         <!-- FSRS-6, MIT; pinned to the upstream reference fixture. -->
         <dependency>
             <groupId>io.github.open-spaced-repetition</groupId>

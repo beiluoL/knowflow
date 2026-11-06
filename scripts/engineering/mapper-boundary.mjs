@@ -1,5 +1,7 @@
 /** Incremental lexical mapper registry guard; not a Java compiler or SQL write analyzer. */
 export function mapperViolations(sources, registry) {
+  // V2 目标 Mapper 路径复用历史所有权身份；不表示迁移已发生，不重写注册表。
+  sources = Object.fromEntries(Object.entries(sources).map(([file, text]) => [file, text.replaceAll('com.knowflow.learning.mapper.actions.LearningActionDraftMapper', 'com.knowflow.learning.actions.LearningActionDraftMapper').replace('package com.knowflow.learning.mapper.actions;', 'package com.knowflow.learning.actions;')]))
   const errors = [], entities = new Map()
   const owned = registry.owned || {}, legacy = new Set(registry.legacy || [])
   const clean = text => text.replace(/"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, value => value.replace(/[^\n]/g,' '))
@@ -19,7 +21,7 @@ export function mapperViolations(sources, registry) {
       registered.add(fqn)
       if (!legacy.has(fqn)) {
         if (!rule) errors.push(`${file}: new mapper requires reviewed ownership registry`)
-        if (!/^com\.knowflow\.[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*\.mapper$/.test(pkg || '') || !file.endsWith(pkg?.replaceAll('.','/') + '/' + name + '.java')) errors.push(`${file}: illegal mapper package or source path`)
+        if (!/^com\.knowflow\.[a-z][a-z0-9]*\.mapper(?:\.[a-z][a-z0-9]*)*$/.test(pkg || '') || !file.endsWith(pkg?.replaceAll('.','/') + '/' + name + '.java')) errors.push(`${file}: illegal mapper package or source path`)
         if (!/^[A-Z][A-Za-z0-9]*Mapper$/.test(name) || name === 'CommonMapper') errors.push(`${file}: invalid mapper name`)
         const entity = code.match(/\bBaseMapper\s*<\s*([\w.]+)\s*>/)?.[1]
         if (!entity || (rule && entity.split('.').at(-1) !== rule.entity)) errors.push(`${file}: mapped entity requires explicit review`)

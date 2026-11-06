@@ -11,7 +11,7 @@ import { readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { fingerprint, additions } from './snapshot.mjs'
-import { boundaryViolations } from './module-boundary.mjs'
+import { boundaryViolations, directoryViolations } from './module-boundary.mjs'
 import { jdbcBoundaryViolations } from './jdbc-boundary.mjs'
 import { mapperViolations } from './mapper-boundary.mjs'
 import { fileURLToPath } from 'node:url'
@@ -349,14 +349,17 @@ async function checkSnapshot() {
 
 async function checkModuleBoundaries() {
   const violations = []
+  const directories = []
   const entityNames = (await walk(path.join(root, 'backend/src/main/java/com/knowflow/entity'))).filter(file => file.endsWith('.java')).map(file => path.basename(file, '.java'))
   for (const file of await walk(path.join(root, 'backend/src/main/java'))) {
     if (!file.endsWith('.java')) continue
     const relative = path.relative(root, file).split(path.sep).join('/')
+    directories.push(...directoryViolations(relative, await readFile(file, 'utf8')).map(detail => `${relative}: ${detail}`))
     for (const detail of boundaryViolations(relative, await readFile(file, 'utf8'), entityNames)) {
       violations.push(`${relative}: ${detail}`)
     }
   }
+  record('backend-v2-directory', directories.length === 0, directories.join('; ') || 'V2目录通过', 'zero')
   record('module-boundary-scoped', violations.length === 0,
     violations.length ? violations.join('; ') : 'DocServiceImpl user mapper edge absent; QueryPort contracts checked', 'zero')
 }

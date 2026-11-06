@@ -22,3 +22,15 @@ test('different entities mapped to the same table fail',()=>{
  assert.ok(mapperViolations({[file]:'import com.knowflow.entity.Term; '+source,[other]:'import com.knowflow.entity.Other; '+source.replaceAll('TermMapper','OtherMapper').replace('BaseMapper<Term>','BaseMapper<Other>'),'Term.java':'package com.knowflow.entity; @TableName("term") class Term {}','Other.java':'package com.knowflow.entity; @TableName("term") class Other {}'},registry).some(x=>x.includes('duplicate')))
 })
 test('deleting a governed mapper fails',()=>assert.ok(mapperViolations({},registry).some(x=>x.includes('missing'))))
+
+test('V2 Mapper专包允许注册，旧FQN身份仍检查重复和未知Mapper',()=>{
+ const pkg='com.knowflow.learning.mapper.actions'
+ const path='backend/src/main/java/com/knowflow/learning/mapper/actions/'
+ const draft=`package ${pkg}; @Mapper interface LearningActionDraftMapper extends BaseMapper<Draft> {}`
+ const rules={legacy:['com.knowflow.learning.actions.LearningActionDraftMapper'],owned:{}}
+ assert.deepEqual(mapperViolations({[path+'LearningActionDraftMapper.java']:draft},rules),[])
+ assert.ok(mapperViolations({[path+'OtherMapper.java']:draft.replaceAll('LearningActionDraftMapper','OtherMapper')},rules).length)
+ assert.ok(mapperViolations({[path+'LearningActionDraftMapper.java']:draft,'old.java':draft},rules).some(x=>x.includes('duplicate')))
+ const nested=source.replaceAll('techenglish.mapper','techenglish.mapper.terms')
+ assert.deepEqual(mapperViolations({[file.replace('/mapper/','/mapper/terms/')]:nested},{legacy:[],owned:{'com.knowflow.techenglish.mapper.terms.TermMapper':{entity:'Term',callers:[]}}}),[])
+})

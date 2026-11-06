@@ -202,6 +202,25 @@ function agentViolations(file, code) {
 
 export function boundaryViolations(file, source, entityNames = []) {
   if (!file.replaceAll('\\', '/').startsWith('backend/src/main/java/')) return []
+  // V2 迁移保持历史规则身份，不修改历史 manifest，也不豁免数据边界。
+  const aliases = [
+    ['apps/service/UserAppService.java', 'apps/UserAppService.java'],
+    ['apps/registry/OfficialAppRegistry.java', 'apps/OfficialAppRegistry.java'],
+    ['catalog/controller/QuestionCatalogController.java', 'catalog/QuestionCatalogController.java'],
+    ['catalog/service/QuestionCatalogService.java', 'catalog/QuestionCatalogService.java'],
+    ['catalog/service/QuizQuestionAdminService.java', 'catalog/QuizQuestionAdminService.java'],
+    ['catalog/service/QuestionMutationAudit.java', 'catalog/QuestionMutationAudit.java'],
+    ['catalog/vo/QuestionCatalogItem.java', 'catalog/QuestionCatalogItem.java'],
+    ['catalog/util/QuestionEditToken.java', 'catalog/QuestionEditToken.java'],
+    ['mastery/service/impl/KnowledgeMasteryServiceImpl.java', 'mastery/service/KnowledgeMasteryServiceImpl.java'],
+  ]
+  for (const [target, previous] of aliases) {
+    if (file.endsWith('/com/knowflow/' + target)) {
+      file = file.slice(0, -target.length) + previous
+      source = source.replace(/\bpackage\s+[\w.]+\s*;/, 'package com.knowflow.' + previous.slice(0, previous.lastIndexOf('/')).replaceAll('/', '.') + ';')
+      break
+    }
+  }
   const code = source.replace(/"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, value => value.replace(/[^\n]/g, ' '))
   const violations = commonViolations(file.replaceAll('\\', '/'), code)
   violations.push(...frameworkViolations(code))
@@ -226,4 +245,33 @@ export function boundaryViolations(file, source, entityNames = []) {
     }
   }
   return violations
+}
+
+/** V2.0 严格目录检查：存量违规仍报告，不设置永久豁免。 */
+export const modules = new Set('identity learning interview exam coding flashcards mastery knowledge ai agent voice reward store catalog techenglish community productivity workbench administration apps'.split(' '))
+export function directoryViolations(file, source) {
+  if (!file.startsWith('backend/src/main/java/')) return []
+  const code = source.replace(/"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, s => s.replace(/[^\n]/g, ' '))
+  const pkg = code.match(/\bpackage\s+([\w.]+)\s*;/)?.[1] || ''
+  const parts = pkg.split('.'), module = parts[2]
+  if (['controller','service','mapper','entity','dto','vo'].includes(module)) return ['ARCH-011: 禁止全局业务分层']
+  const name = file.split('/').at(-1).replace(/\.java$/, '')
+  const ann = pattern => new RegExp('@(?:[\\w]+\\.)*' + pattern + '\\b').test(code)
+  let layer = ann('(RestController|Controller)') || name.endsWith('Controller') ? 'controller'
+    : ann('Mapper') || /\bBaseMapper\s*</.test(code) ? 'mapper'
+    : ann('TableName') ? 'entity'
+    : name.endsWith('ServiceImpl') ? 'service.impl'
+    : ann('Service') || name.endsWith('Service') ? 'service'
+    : name.endsWith('DTO') ? 'dto' : name.endsWith('VO') ? 'vo' : ''
+  if (!modules.has(module)) {
+    const technical = new Set('common config exception framework security util utils websocket seed'.split(' '))
+    return layer && pkg.startsWith('com.knowflow.') && !technical.has(module) ? ['ARCH-011: 业务角色必须归属已登记模块'] : []
+  }
+  // Contract 内公开数据和接口按契约归属，不按 DTO 后缀移回内部包。
+  if (parts[3] === 'contract' && !['controller', 'mapper', 'entity', 'service.impl'].includes(layer)) layer = 'contract'
+  const errors = []
+  if (['api','web','application','domain','infrastructure'].includes(parts[3])) errors.push('ARCH-011: 禁止业务DDD模板目录')
+  if (layer && !(pkg === `com.knowflow.${module}.${layer}` || pkg.startsWith(`com.knowflow.${module}.${layer}.`))) errors.push(`ARCH-011/012: ${name} 应归 ${module}.${layer}`)
+  if (!file.endsWith(pkg.replaceAll('.', '/') + '/' + name + '.java')) errors.push('ARCH-011: package与文件路径不一致')
+  return errors
 }
