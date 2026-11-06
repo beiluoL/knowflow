@@ -15,6 +15,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.util.List;
 import java.util.Map;
 
+import com.knowflow.interview.service.generation.InterviewRagGenerationService;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;

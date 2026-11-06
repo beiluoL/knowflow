@@ -4,6 +4,7 @@ import com.knowflow.exception.BusinessException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.knowflow.interview.controller.speech.InterviewSpeechController;
 /** 语音接口明确返回真实 HTTP 状态，避免旧全局处理器把 503 包成 200。 */
 @Order(0) @RestControllerAdvice(assignableTypes=InterviewSpeechController.class)
 public class InterviewSpeechExceptionHandler {

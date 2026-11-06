@@ -41,6 +41,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.knowflow.interview.core.ContentStudioInterviewBank;
+import com.knowflow.interview.radar.RadarInterviewBank;
+import com.knowflow.interview.v2.InterviewV2Guard;
+import com.knowflow.interview.vo.InterviewVos;
 /**
  * 模拟面试基础模式实现（无 AI 依赖）。
  *

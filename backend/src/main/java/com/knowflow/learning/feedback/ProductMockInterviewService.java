@@ -2,7 +2,7 @@ package com.knowflow.learning.feedback;
 
 import com.knowflow.exception.BusinessException;
 import com.knowflow.interview.radar.*;
-import com.knowflow.interview.v2.InterviewV2Service;
+import com.knowflow.interview.service.v2.InterviewV2Service;
 import com.knowflow.learning.actions.LearningWriteGuard;
 import jakarta.validation.constraints.*;
 import java.util.*;

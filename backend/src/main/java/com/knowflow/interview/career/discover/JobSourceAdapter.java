@@ -2,6 +2,7 @@ package com.knowflow.interview.career.discover;
 
 import java.util.List;
 
+import com.knowflow.interview.service.career.discover.JobSearchService;
 /**
  * 岗位数据源适配器。
  *

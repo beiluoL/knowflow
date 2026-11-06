@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.Map;
 import java.util.List;
+import com.knowflow.interview.service.career.CareerJobPipelineService;
+import com.knowflow.interview.service.career.CareerRecordService;
 import static org.mockito.Mockito.*;
 
 /**

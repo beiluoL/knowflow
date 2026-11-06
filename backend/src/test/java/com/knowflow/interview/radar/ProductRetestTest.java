@@ -4,7 +4,7 @@ import com.knowflow.identity.entity.SysUser;
 import com.knowflow.identity.mapper.SysUserMapper;
 import com.knowflow.seed.InterviewRadarImportService;
 import com.knowflow.support.FakeAiConfiguration;
-import com.knowflow.interview.v2.InterviewV2Service;
+import com.knowflow.interview.service.v2.InterviewV2Service;
 import com.knowflow.interview.service.MockInterviewService;
 import com.knowflow.ai.capability.AiCapabilityProperties;
 import com.knowflow.exception.BusinessException;
@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import com.knowflow.interview.service.radar.RadarStudyService;
 import java.nio.charset.StandardCharsets;import java.security.MessageDigest;import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 /**

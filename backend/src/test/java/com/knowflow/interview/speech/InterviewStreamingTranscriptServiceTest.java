@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import com.knowflow.interview.service.speech.InterviewSpeechService;
+import com.knowflow.interview.service.speech.InterviewStreamingTranscriptService;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 使用实际准入与隔离 H2 验证轮次绑定、权限和幂等，不触发任何云端调用。 */

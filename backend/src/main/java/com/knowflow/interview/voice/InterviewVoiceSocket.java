@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.interview.speech.*;
-import com.knowflow.interview.v2.InterviewV2Service;
+import com.knowflow.interview.service.v2.InterviewV2Service;
 import jakarta.annotation.PreDestroy;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -18,6 +18,11 @@ import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
+import com.knowflow.interview.service.speech.InterviewSpeechService;
+import com.knowflow.interview.service.speech.InterviewStreamingTranscriptService;
+import com.knowflow.interview.service.voice.VoiceAccess;
+import com.knowflow.interview.speech.InterviewStreamingAsrProvider;
+import com.knowflow.interview.speech.InterviewTtsProvider;
 /** 有界串行会话队列；WebSocket回调只校验大小/入队，网络与JDBC全部在受控工作池。 */
 @Component
 public class InterviewVoiceSocket extends BinaryWebSocketHandler {

@@ -7,7 +7,6 @@ import com.knowflow.knowledge.mapper.DocCategoryMapper;
 import com.knowflow.knowledge.mapper.DocDocumentMapper;
 import com.knowflow.knowledge.mapper.KgEntityMapper;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.productivity.dto.TaskDTO;
 import com.knowflow.exception.BusinessException;
@@ -18,6 +17,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import java.util.*;
+import com.knowflow.interview.service.bridge.InterviewLearningBridge;
+import com.knowflow.interview.service.bridge.InterviewProjectContextService;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

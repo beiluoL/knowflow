@@ -1,9 +1,11 @@
 package com.knowflow.interview.career.studio;
 
 import com.knowflow.exception.BusinessException;
-import com.knowflow.interview.career.CareerRecordService;
+import com.knowflow.interview.service.career.CareerRecordService;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import com.knowflow.interview.controller.career.studio.ResumeStudioSkillController;
+import com.knowflow.interview.service.career.studio.ResumeStudioSkillService;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

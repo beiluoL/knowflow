@@ -7,12 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
+import com.knowflow.interview.service.bridge.InterviewProjectContextService;
 /** 项目快照消费知识模块所有者提供的投影，不直接使用实体或 Mapper。 */
 class InterviewProjectContextBoundaryTest {
     @Test
     void projectContextUsesOnlyTheKnowledgeReadContract() throws Exception {
         String source = Files.readString(Path.of(
-                "src/main/java/com/knowflow/interview/bridge/InterviewProjectContextService.java"));
+                "src/main/java/com/knowflow/interview/service/bridge/InterviewProjectContextService.java"));
         assertFalse(source.contains("com.knowflow.knowledge.mapper."));
         assertFalse(source.contains("com.knowflow.knowledge.entity."));
         assertFalse(source.contains("DocumentAccessPolicy"));

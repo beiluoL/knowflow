@@ -6,9 +6,7 @@ import com.knowflow.knowledge.mapper.DocDocumentMapper;
 import com.knowflow.learning.entity.QuizQuestion;
 import com.knowflow.learning.mapper.QuizQuestionMapper;
 
-
 import com.knowflow.learning.mapper.LearningChapterMapper;
-
 
 import com.knowflow.security.DocumentAccessPolicy;
 import com.knowflow.seed.InterviewRadarImportService;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.regex.*;
 
+import com.knowflow.interview.core.InterviewQuestionBank;
 /** 所有者私有的参考练习，待审核内容不成为已批准公共题库。 */
 @Component @RequiredArgsConstructor
 public class RadarInterviewBank {

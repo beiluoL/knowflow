@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.knowflow.interview.vo.InterviewVos;
 /**
  * 模拟面试（Phase 3H）。基础模式完整可用、零 AI 依赖；
  * 身份一律取 SecurityUtils，会话归属在服务层校验。

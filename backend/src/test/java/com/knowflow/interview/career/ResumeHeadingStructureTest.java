@@ -1,6 +1,7 @@
 package com.knowflow.interview.career;
 
 import org.junit.jupiter.api.Test;
+import com.knowflow.interview.service.career.CareerParsingService;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 明确标题的保守分段，不调用模型，不猜不存在的经历。 */

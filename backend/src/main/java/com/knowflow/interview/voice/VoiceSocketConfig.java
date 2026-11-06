@@ -9,6 +9,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.*;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import com.knowflow.interview.service.voice.VoiceAccess;
 /** 独立精确Origin与一次性票据，不修改旧IM/群聊的认证流程。 */
 @Configuration
 @EnableWebSocket

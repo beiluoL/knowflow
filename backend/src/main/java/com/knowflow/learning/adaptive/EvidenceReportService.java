@@ -42,7 +42,7 @@ public class EvidenceReportService {
     private final InterleavedPracticeService interleaved;
     private final FeedbackSourceService sources;
     private final KnowledgeMasteryService mastery;
-    private final com.knowflow.interview.v2.InterviewV2Service interviews;
+    private final com.knowflow.interview.service.v2.InterviewV2Service interviews;
 
     private long n(Map<String, Object> r, String k) {
         return ((Number) r.get(k)).longValue();

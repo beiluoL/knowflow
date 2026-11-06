@@ -3,9 +3,7 @@ package com.knowflow.interview.radar;
 import com.knowflow.knowledge.mapper.DocCategoryMapper;
 import com.knowflow.knowledge.mapper.DocDocumentMapper;
 
-
 import com.knowflow.learning.mapper.LearningChapterMapper;
-
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.knowflow.knowledge.entity.DocDocument;
