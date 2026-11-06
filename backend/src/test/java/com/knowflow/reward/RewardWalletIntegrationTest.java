@@ -16,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.knowflow.reward.service.RewardEngine;
+import com.knowflow.reward.service.RewardLedgerService;
+import com.knowflow.reward.service.WalletService;
 /**
  * Architecture-2 集成测试：钱包惰性初始化 + 奖励引擎（幂等 / 每日上限 / 不奖励事件）。 遵循项目既有 @SpringBootTest
  * + @ActiveProfiles("local")（H2）测试风格。

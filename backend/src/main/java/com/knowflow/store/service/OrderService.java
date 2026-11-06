@@ -1,4 +1,4 @@
-package com.knowflow.store;
+package com.knowflow.store.service;
 
 import com.knowflow.store.entity.Order;
 import com.knowflow.store.entity.OrderItem;

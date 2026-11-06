@@ -9,7 +9,7 @@ import com.knowflow.learning.mapper.LearningTaskMapper;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.reward.WalletService;
+import com.knowflow.reward.service.WalletService;
 import com.knowflow.learning.service.LearningService;
 import com.knowflow.support.FakeAiConfiguration;
 import com.knowflow.utils.JwtUtils;

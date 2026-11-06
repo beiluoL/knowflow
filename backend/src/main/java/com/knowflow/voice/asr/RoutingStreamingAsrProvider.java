@@ -3,7 +3,7 @@ package com.knowflow.voice.asr;
 import com.knowflow.interview.speech.InterviewStreamingAsrProvider;
 import com.knowflow.interview.speech.SpeechStreamCapabilities;
 import com.knowflow.voice.VoiceMode;
-import com.knowflow.voice.VoiceRuntimeSettingsService;
+import com.knowflow.voice.service.VoiceRuntimeSettingsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;

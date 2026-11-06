@@ -109,11 +109,11 @@
     },
     "com.knowflow.reward.mapper.RewardLedgerMapper": {
       "entity": "RewardLedger",
-      "callers": ["backend/src/main/java/com/knowflow/reward/RewardLedgerService.java"]
+      "callers": ["backend/src/main/java/com/knowflow/reward/service/RewardLedgerService.java"]
     },
     "com.knowflow.reward.mapper.WalletMapper": {
       "entity": "Wallet",
-      "callers": ["backend/src/main/java/com/knowflow/reward/WalletService.java"]
+      "callers": ["backend/src/main/java/com/knowflow/reward/service/WalletService.java"]
     },
     "com.knowflow.identity.mapper.OAuthStateMapper": {
       "entity": "OAuthState",
@@ -133,19 +133,19 @@
     },
     "com.knowflow.store.mapper.OrderItemMapper": {
       "entity": "OrderItem",
-      "callers": ["backend/src/main/java/com/knowflow/store/OrderService.java"]
+      "callers": ["backend/src/main/java/com/knowflow/store/service/OrderService.java"]
     },
     "com.knowflow.store.mapper.OrderMapper": {
       "entity": "Order",
-      "callers": ["backend/src/main/java/com/knowflow/store/OrderService.java"]
+      "callers": ["backend/src/main/java/com/knowflow/store/service/OrderService.java"]
     },
     "com.knowflow.store.mapper.EntitlementMapper": {
       "entity": "Entitlement",
-      "callers": ["backend/src/main/java/com/knowflow/store/EntitlementService.java"]
+      "callers": ["backend/src/main/java/com/knowflow/store/service/EntitlementService.java"]
     },
     "com.knowflow.store.mapper.ProductMapper": {
       "entity": "Product",
-      "callers": ["backend/src/main/java/com/knowflow/store/ProductService.java"]
+      "callers": ["backend/src/main/java/com/knowflow/store/service/ProductService.java"]
     },
     "com.knowflow.apps.mapper.UserAppMapper": {
       "entity": "UserApp",

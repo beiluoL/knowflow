@@ -1,4 +1,4 @@
-package com.knowflow.voice;
+package com.knowflow.voice.service;
 
 import com.knowflow.exception.BusinessException;
 import jakarta.annotation.PostConstruct;
@@ -10,6 +10,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.knowflow.voice.VoiceMode;
+import com.knowflow.voice.VoiceRuntimeProperties;
+import com.knowflow.voice.VoiceRuntimeSetting;
 /**
  * 实例级语音设置：进程内缓存 + 单行表持久化。
  * <p>不做逻辑删除（设置行只更新不删除），因此不存在「唯一键被软删行占死」的问题；

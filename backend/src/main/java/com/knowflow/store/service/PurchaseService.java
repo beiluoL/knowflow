@@ -1,9 +1,9 @@
-package com.knowflow.store;
+package com.knowflow.store.service;
 
 import com.knowflow.apps.contract.AppPurchaseAccess;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.reward.RewardLedgerService;
-import com.knowflow.reward.WalletService;
+import com.knowflow.reward.service.RewardLedgerService;
+import com.knowflow.reward.service.WalletService;
 import com.knowflow.store.entity.Order;
 import com.knowflow.store.entity.Product;
 import com.knowflow.store.vo.PurchaseResultVO;
@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.knowflow.store.EconomyError;
 /**
  * 购买服务：唯一购买事务入口（§66/§90/§161）。
  *

@@ -1,9 +1,10 @@
-package com.knowflow.flashcards;
+package com.knowflow.flashcards.controller;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
+import com.knowflow.flashcards.service.FlashcardExchangeService;
 /**
  * 提供闪卡导入预览、确认导入和导出接口。
  */

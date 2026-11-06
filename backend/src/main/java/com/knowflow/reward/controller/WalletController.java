@@ -2,8 +2,8 @@ package com.knowflow.reward.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.reward.RewardLedgerService;
-import com.knowflow.reward.WalletService;
+import com.knowflow.reward.service.RewardLedgerService;
+import com.knowflow.reward.service.WalletService;
 import com.knowflow.reward.vo.LedgerVO;
 import com.knowflow.reward.vo.WalletVO;
 import io.swagger.v3.oas.annotations.Operation;

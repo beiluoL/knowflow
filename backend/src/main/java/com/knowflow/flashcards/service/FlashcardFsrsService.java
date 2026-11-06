@@ -1,4 +1,4 @@
-package com.knowflow.flashcards;
+package com.knowflow.flashcards.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +18,8 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
 
+import com.knowflow.flashcards.FlashcardScheduler;
+import com.knowflow.flashcards.FlashcardSchedulingSchema;
 /**
  * 管理 FSRS 复习设置、调度预览、复习提交和统计。
  */

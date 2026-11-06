@@ -69,7 +69,7 @@
       "backend/src/main/java/com/knowflow/exam/service/impl/ExamServiceImpl.java#commitAiGrading",
       "backend/src/main/java/com/knowflow/exam/service/impl/ExamServiceImpl.java#composeAi",
       "backend/src/main/java/com/knowflow/exam/service/impl/ExamServiceImpl.java#finalizeAttemptAfterClaim",
-      "backend/src/main/java/com/knowflow/flashcards/FlashcardFsrsService.java#review",
+      "backend/src/main/java/com/knowflow/flashcards/service/FlashcardFsrsService.java#review",
       "backend/src/main/java/com/knowflow/interview/voice/InterviewVoiceSocket.java#speak",
       "backend/src/main/java/com/knowflow/interview/voice/InterviewVoiceSocket.java#startAudio",
       "backend/src/main/java/com/knowflow/interview/voice/InterviewVoiceSocket.java#text",
@@ -94,7 +94,11 @@
       "backend/src/main/java/com/knowflow/workbench/service/WbRecallSessionSchema.java",
       "backend/src/main/java/com/knowflow/workbench/service/WbReviewCardSchema.java",
       "backend/src/main/java/com/knowflow/reward/service/impl/AchievementServiceImpl.java",
-      "backend/src/main/java/com/knowflow/learning/service/impl/LearningServiceImpl.java"
+      "backend/src/main/java/com/knowflow/learning/service/impl/LearningServiceImpl.java",
+      "backend/src/main/java/com/knowflow/flashcards/service/FlashcardExchangeService.java",
+      "backend/src/main/java/com/knowflow/flashcards/service/FlashcardFsrsService.java",
+      "backend/src/main/java/com/knowflow/flashcards/service/FlashcardNoteService.java",
+      "backend/src/main/java/com/knowflow/voice/service/VoiceRuntimeSettingsService.java"
     ],
     "frontend.arch.apiOutsideApiDir": [],
     "frontend.arch.directHttp": [],

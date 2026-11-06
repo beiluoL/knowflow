@@ -1,4 +1,4 @@
-package com.knowflow.store;
+package com.knowflow.store.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.store.entity.Entitlement;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.knowflow.store.EconomyError;
 /**
  * 资格服务：查询资格、授予资格（§163/§204）。
  * Entitlement = 拥有资格；UserApp = 启用状态（§45/§87），二者互不影响。

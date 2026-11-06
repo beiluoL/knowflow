@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 public class LearningContextService {
     private final com.knowflow.mastery.service.ResourceKnowledgeService mappings;
     private final LearningFlashcardMapper flashcards;
-    private final com.knowflow.flashcards.FlashcardFsrsService fsrs;
+    private final com.knowflow.flashcards.service.FlashcardFsrsService fsrs;
     private final MasteryReviewQuery mastery;
     private final KgEntityMapper knowledge;
     private final DocDocumentMapper docs;

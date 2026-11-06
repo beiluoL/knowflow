@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.knowflow.flashcards.service.FlashcardFsrsService;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 显式启用的浏览器夹具，设置和复习写入均限于全新测试 H2 数据库。 */

@@ -7,6 +7,8 @@ import com.knowflow.exception.BusinessException;
 import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
+import com.knowflow.flashcards.service.FlashcardExchangeService;
+import com.knowflow.flashcards.service.FlashcardNoteService;
 /**
  * 验证闪卡导出数量限制与重新导入能力一致。
  */

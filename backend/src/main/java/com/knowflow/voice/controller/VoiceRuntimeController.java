@@ -1,4 +1,4 @@
-package com.knowflow.voice;
+package com.knowflow.voice.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.knowflow.voice.service.VoiceCapabilityService;
+import com.knowflow.voice.service.VoiceRuntimeSettingsService;
+import com.knowflow.voice.VoiceRuntimeSetting;
 /** 语音运行时设置与能力。读取需登录；切换模式需 ADMIN（影响整机所有语音会话）。 */
 @RestController
 @RequestMapping("/api/voice/runtime")

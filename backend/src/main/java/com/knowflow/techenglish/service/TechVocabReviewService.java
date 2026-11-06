@@ -9,7 +9,7 @@ import com.knowflow.techenglish.entity.TechVocabPronunciation;
 import com.knowflow.techenglish.entity.TechVocabTerm;
 import com.knowflow.techenglish.entity.UserVocabState;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.flashcards.FlashcardFsrsService;
+import com.knowflow.flashcards.service.FlashcardFsrsService;
 import com.knowflow.flashcards.mapper.LearningFlashcardMapper;
 import com.knowflow.techenglish.mapper.TechVocabPronunciationMapper;
 import com.knowflow.techenglish.mapper.TechVocabTermMapper;

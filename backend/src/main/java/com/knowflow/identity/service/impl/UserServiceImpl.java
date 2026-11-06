@@ -53,7 +53,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     private final LearningFlashcardMapper flashcardMapper;
     private final LearningTaskMapper taskMapper;
     /** Architecture-2：XP/等级统一从钱包读取（修 G1：消除 stats 推导公式口径分裂，§11/§131） */
-    private final com.knowflow.reward.WalletService walletService;
+    private final com.knowflow.reward.service.WalletService walletService;
 
     /**
      * 逻辑删除用户时释放唯一键所用的内部归档前缀（18 字符）。

@@ -1,4 +1,4 @@
-package com.knowflow.flashcards;
+package com.knowflow.flashcards.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.exception.BusinessException;
@@ -15,6 +15,8 @@ import java.security.*;
 import java.time.Instant;
 import java.util.*;
 
+import com.knowflow.flashcards.ClozeParser;
+import com.knowflow.flashcards.FlashcardDelimitedText;
 /** 仅交换内容，所有实例与复习事件仍保存在现有学习表中。 */
 @Service
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class FlashcardExchangeService {
     public record Preview(List<String> headers, List<String> warnings, List<Item> rows, Map<String,Integer> counts,
                           int cardCount, String token) {}
     public record Outcome(int insertedNotes, int insertedCards, int skipped, List<Long> noteIds) {}
-    @PostConstruct void initialize() {
+    @PostConstruct public void initialize() {
         jdbc.execute("CREATE TABLE IF NOT EXISTS learning_flashcard_import_owner (user_id BIGINT PRIMARY KEY)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS learning_flashcard_import_source (user_id BIGINT NOT NULL,identity_key VARCHAR(64) NOT NULL,source_name VARCHAR(200) NOT NULL,external_id VARCHAR(200) NOT NULL,deck_name VARCHAR(100) NOT NULL,fingerprint VARCHAR(64) NOT NULL,note_id BIGINT NOT NULL,PRIMARY KEY(user_id,identity_key),UNIQUE(note_id))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS learning_flashcard_import_receipt (user_id BIGINT NOT NULL,token_hash VARCHAR(64) NOT NULL,result_json TEXT NOT NULL,PRIMARY KEY(user_id,token_hash))");

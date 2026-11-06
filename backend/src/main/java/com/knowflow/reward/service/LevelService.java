@@ -1,4 +1,4 @@
-package com.knowflow.reward;
+package com.knowflow.reward.service;
 
 import org.springframework.stereotype.Service;
 

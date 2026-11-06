@@ -1,4 +1,4 @@
-package com.knowflow.store;
+package com.knowflow.store.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.store.entity.Product;

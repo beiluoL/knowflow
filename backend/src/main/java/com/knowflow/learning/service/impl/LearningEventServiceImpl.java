@@ -38,7 +38,7 @@ public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, L
     private final KnowledgeMasteryService knowledgeMasteryService;
 
     /** 奖励引擎（Architecture-2）：事件是奖励的唯一行为输入（§13/§19），失败不影响主流程。 */
-    private final com.knowflow.reward.RewardEngine rewardEngine;
+    private final com.knowflow.reward.service.RewardEngine rewardEngine;
     private final org.springframework.transaction.PlatformTransactionManager transactionManager;
     private final org.springframework.context.ApplicationEventPublisher publisher;
 

@@ -5,6 +5,7 @@ import com.knowflow.common.persistence.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import com.knowflow.reward.service.LevelService;
 /**
  * 用户钱包：当前 XP/Coin/Level 状态（Wallet = 当前状态，RewardLedger = 历史事实）。 一人一个（user_id 唯一）；xp 为成长值、coin
  * 为平台内消费积分（不可提现/转账）。

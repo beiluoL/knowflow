@@ -1,4 +1,4 @@
-package com.knowflow.flashcards;
+package com.knowflow.flashcards.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import com.knowflow.flashcards.service.FlashcardNoteService;
 /**
  * 提供闪卡内容笔记的预览、创建、读取和更新接口。
  */

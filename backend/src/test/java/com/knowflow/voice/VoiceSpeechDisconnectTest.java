@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.knowflow.voice.controller.VoiceSpeechController;
 /**
  * 验证语音连接断开时的处理行为。
  */

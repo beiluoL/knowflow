@@ -1,4 +1,4 @@
-package com.knowflow.flashcards;
+package com.knowflow.flashcards.service;
 
 import com.knowflow.flashcards.dto.FlashcardSaveDTO;
 import com.knowflow.exception.BusinessException;
@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Statement;
 import java.util.*;
 
+import com.knowflow.flashcards.ClozeParser;
 /** 仅管理内容笔记和链接，可复习实例统一保存在 learning_flashcard。 */
 @Service
 @RequiredArgsConstructor

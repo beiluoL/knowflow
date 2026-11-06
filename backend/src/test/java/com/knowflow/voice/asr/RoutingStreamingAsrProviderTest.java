@@ -9,7 +9,7 @@ import com.knowflow.interview.speech.SpeechStreamCapabilities;
 import com.knowflow.voice.VoiceMode;
 import com.knowflow.voice.VoiceRuntimeProperties;
 import com.knowflow.voice.VoiceRuntimeSetting;
-import com.knowflow.voice.VoiceRuntimeSettingsService;
+import com.knowflow.voice.service.VoiceRuntimeSettingsService;
 import org.junit.jupiter.api.Test;
 
 /** LOCAL 绝不偷偷切到云端；只有 HYBRID/CLOUD 且显式允许降级时才换路。 */
