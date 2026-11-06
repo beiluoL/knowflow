@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
+import com.knowflow.agent.service.approval.ToolApprovalService;
 /**
  * 验证工具审批的归属、一次消费及过期取消状态。
  */

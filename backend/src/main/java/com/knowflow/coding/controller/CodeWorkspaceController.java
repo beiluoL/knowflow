@@ -2,7 +2,7 @@ package com.knowflow.coding.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.coding.dto.CodeWorkspaceFileVO;
+import com.knowflow.coding.vo.CodeWorkspaceFileVO;
 import com.knowflow.coding.service.CodeWorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

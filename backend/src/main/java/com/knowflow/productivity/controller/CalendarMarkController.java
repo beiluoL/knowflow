@@ -35,43 +35,43 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CalendarMarkController {
 
-    private final CalendarMarkService calendarMarkService;
+  private final CalendarMarkService calendarMarkService;
 
-    private Long uid() {
-        return SecurityUtils.getCurrentUserId();
-    }
+  private Long uid() {
+    return SecurityUtils.getCurrentUserId();
+  }
 
-    @Operation(summary = "按日期区间查询日期标记（start/end 必填，yyyy-MM-dd）")
-    @GetMapping("/marks")
-    public Result<List<DateMarkVO>> marks(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return Result.success(calendarMarkService.listMarks(uid(), start, end));
-    }
+  @Operation(summary = "按日期区间查询日期标记（start/end 必填，yyyy-MM-dd）")
+  @GetMapping("/marks")
+  public Result<List<DateMarkVO>> marks(
+    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+    return Result.success(calendarMarkService.listMarks(uid(), start, end));
+  }
 
-    @Operation(summary = "纪念日列表（当前登录用户）")
-    @GetMapping("/memorials")
-    public Result<List<MemorialVO>> memorials() {
-        return Result.success(calendarMarkService.listMemorials(uid()));
-    }
+  @Operation(summary = "纪念日列表（当前登录用户）")
+  @GetMapping("/memorials")
+  public Result<List<MemorialVO>> memorials() {
+    return Result.success(calendarMarkService.listMemorials(uid()));
+  }
 
-    @Operation(summary = "新建纪念日（fixed 固定日期 / yearly 每年重复）")
-    @PostMapping("/memorials")
-    public Result<Long> create(@RequestBody MemorialDTO dto) {
-        return Result.success(calendarMarkService.createMemorial(dto, uid()));
-    }
+  @Operation(summary = "新建纪念日（fixed 固定日期 / yearly 每年重复）")
+  @PostMapping("/memorials")
+  public Result<Long> create(@RequestBody MemorialDTO dto) {
+    return Result.success(calendarMarkService.createMemorial(dto, uid()));
+  }
 
-    @Operation(summary = "更新纪念日")
-    @PutMapping("/memorials/{id}")
-    public Result<Void> update(@PathVariable Long id, @RequestBody MemorialDTO dto) {
-        calendarMarkService.updateMemorial(id, dto, uid());
-        return Result.success();
-    }
+  @Operation(summary = "更新纪念日")
+  @PutMapping("/memorials/{id}")
+  public Result<Void> update(@PathVariable Long id, @RequestBody MemorialDTO dto) {
+    calendarMarkService.updateMemorial(id, dto, uid());
+    return Result.success();
+  }
 
-    @Operation(summary = "删除纪念日")
-    @DeleteMapping("/memorials/{id}")
-    public Result<Void> delete(@PathVariable Long id) {
-        calendarMarkService.deleteMemorial(id, uid());
-        return Result.success();
-    }
+  @Operation(summary = "删除纪念日")
+  @DeleteMapping("/memorials/{id}")
+  public Result<Void> delete(@PathVariable Long id) {
+    calendarMarkService.deleteMemorial(id, uid());
+    return Result.success();
+  }
 }

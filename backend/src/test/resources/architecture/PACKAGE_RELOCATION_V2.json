@@ -1,0 +1,458 @@
+[
+  {
+    "oldType": "com.knowflow.agent.AgentContextManager",
+    "newType": "com.knowflow.agent.service.AgentContextManager"
+  },
+  {
+    "oldType": "com.knowflow.agent.AgentRuntimeService",
+    "newType": "com.knowflow.agent.service.AgentRuntimeService"
+  },
+  {
+    "oldType": "com.knowflow.agent.approval.ToolApprovalService",
+    "newType": "com.knowflow.agent.service.approval.ToolApprovalService"
+  },
+  {
+    "oldType": "com.knowflow.ai.billing.AiBillingService",
+    "newType": "com.knowflow.ai.service.billing.AiBillingService"
+  },
+  {
+    "oldType": "com.knowflow.ai.capability.AiCapabilityController",
+    "newType": "com.knowflow.ai.controller.capability.AiCapabilityController"
+  },
+  {
+    "oldType": "com.knowflow.ai.capability.AiCapabilityStateService",
+    "newType": "com.knowflow.ai.service.capability.AiCapabilityStateService"
+  },
+  {
+    "oldType": "com.knowflow.ai.capability.AiCapabilityVO",
+    "newType": "com.knowflow.ai.vo.capability.AiCapabilityVO"
+  },
+  {
+    "oldType": "com.knowflow.ai.capability.AiModelCenterController",
+    "newType": "com.knowflow.ai.controller.capability.AiModelCenterController"
+  },
+  {
+    "oldType": "com.knowflow.coding.dto.CodeWorkspaceFileVO",
+    "newType": "com.knowflow.coding.vo.CodeWorkspaceFileVO"
+  },
+  {
+    "oldType": "com.knowflow.coding.workspace.JavaPracticeService",
+    "newType": "com.knowflow.coding.service.workspace.JavaPracticeService"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.ClozeParser",
+    "newType": "com.knowflow.flashcards.parser.ClozeParser"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardDelimitedText",
+    "newType": "com.knowflow.flashcards.parser.FlashcardDelimitedText"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardExchangeController",
+    "newType": "com.knowflow.flashcards.controller.FlashcardExchangeController"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardExchangeService",
+    "newType": "com.knowflow.flashcards.service.FlashcardExchangeService"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardFsrsController",
+    "newType": "com.knowflow.flashcards.controller.FlashcardFsrsController"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardFsrsService",
+    "newType": "com.knowflow.flashcards.service.FlashcardFsrsService"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardNoteController",
+    "newType": "com.knowflow.flashcards.controller.FlashcardNoteController"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardNoteService",
+    "newType": "com.knowflow.flashcards.service.FlashcardNoteService"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardScheduler",
+    "newType": "com.knowflow.flashcards.scheduler.FlashcardScheduler"
+  },
+  {
+    "oldType": "com.knowflow.flashcards.FlashcardSchedulingSchema",
+    "newType": "com.knowflow.flashcards.schema.FlashcardSchedulingSchema"
+  },
+  {
+    "oldType": "com.knowflow.interview.ai.InterviewAiController",
+    "newType": "com.knowflow.interview.controller.ai.InterviewAiController"
+  },
+  {
+    "oldType": "com.knowflow.interview.ai.InterviewAiService",
+    "newType": "com.knowflow.interview.service.ai.InterviewAiService"
+  },
+  {
+    "oldType": "com.knowflow.interview.bridge.InterviewLearningBridge",
+    "newType": "com.knowflow.interview.service.bridge.InterviewLearningBridge"
+  },
+  {
+    "oldType": "com.knowflow.interview.bridge.InterviewLearningBridgeController",
+    "newType": "com.knowflow.interview.controller.bridge.InterviewLearningBridgeController"
+  },
+  {
+    "oldType": "com.knowflow.interview.bridge.InterviewProjectContextService",
+    "newType": "com.knowflow.interview.service.bridge.InterviewProjectContextService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerController",
+    "newType": "com.knowflow.interview.controller.career.CareerController"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerDesignService",
+    "newType": "com.knowflow.interview.service.career.CareerDesignService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerJobPipelineService",
+    "newType": "com.knowflow.interview.service.career.CareerJobPipelineService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerLinkImportService",
+    "newType": "com.knowflow.interview.service.career.CareerLinkImportService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerParsingService",
+    "newType": "com.knowflow.interview.service.career.CareerParsingService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerRecordService",
+    "newType": "com.knowflow.interview.service.career.CareerRecordService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerToolboxService",
+    "newType": "com.knowflow.interview.service.career.CareerToolboxService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerUploadService",
+    "newType": "com.knowflow.interview.service.career.CareerUploadService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerWorkflowService",
+    "newType": "com.knowflow.interview.service.career.CareerWorkflowService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.CareerWorkspaceService",
+    "newType": "com.knowflow.interview.service.career.CareerWorkspaceService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.ResumeDraftController",
+    "newType": "com.knowflow.interview.controller.career.ResumeDraftController"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.ResumeDraftService",
+    "newType": "com.knowflow.interview.service.career.ResumeDraftService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.discover.CareerDiscoverController",
+    "newType": "com.knowflow.interview.controller.career.discover.CareerDiscoverController"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.discover.CareerDiscoverService",
+    "newType": "com.knowflow.interview.service.career.discover.CareerDiscoverService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.discover.JobSearchService",
+    "newType": "com.knowflow.interview.service.career.discover.JobSearchService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.insights.CareerInsightsService",
+    "newType": "com.knowflow.interview.service.career.insights.CareerInsightsService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.matching.CareerMatchingController",
+    "newType": "com.knowflow.interview.controller.career.matching.CareerMatchingController"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.matching.MultiResumeMatchService",
+    "newType": "com.knowflow.interview.service.career.matching.MultiResumeMatchService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.studio.ResumeStudioSkillController",
+    "newType": "com.knowflow.interview.controller.career.studio.ResumeStudioSkillController"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.studio.ResumeStudioSkillService",
+    "newType": "com.knowflow.interview.service.career.studio.ResumeStudioSkillService"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.tailoring.CareerTailoringController",
+    "newType": "com.knowflow.interview.controller.career.tailoring.CareerTailoringController"
+  },
+  {
+    "oldType": "com.knowflow.interview.career.tailoring.CareerTailoringService",
+    "newType": "com.knowflow.interview.service.career.tailoring.CareerTailoringService"
+  },
+  {
+    "oldType": "com.knowflow.interview.generation.GenerationLease",
+    "newType": "com.knowflow.interview.service.generation.GenerationLease"
+  },
+  {
+    "oldType": "com.knowflow.interview.generation.InterviewRagGenerationController",
+    "newType": "com.knowflow.interview.controller.generation.InterviewRagGenerationController"
+  },
+  {
+    "oldType": "com.knowflow.interview.generation.InterviewRagGenerationService",
+    "newType": "com.knowflow.interview.service.generation.InterviewRagGenerationService"
+  },
+  {
+    "oldType": "com.knowflow.interview.radar.RadarStudyController",
+    "newType": "com.knowflow.interview.controller.radar.RadarStudyController"
+  },
+  {
+    "oldType": "com.knowflow.interview.radar.RadarStudyService",
+    "newType": "com.knowflow.interview.service.radar.RadarStudyService"
+  },
+  {
+    "oldType": "com.knowflow.interview.skill.InterviewSkillController",
+    "newType": "com.knowflow.interview.controller.skill.InterviewSkillController"
+  },
+  {
+    "oldType": "com.knowflow.interview.speech.AudioValidation",
+    "newType": "com.knowflow.interview.service.speech.AudioValidation"
+  },
+  {
+    "oldType": "com.knowflow.interview.speech.InterviewSpeechController",
+    "newType": "com.knowflow.interview.controller.speech.InterviewSpeechController"
+  },
+  {
+    "oldType": "com.knowflow.interview.speech.InterviewSpeechService",
+    "newType": "com.knowflow.interview.service.speech.InterviewSpeechService"
+  },
+  {
+    "oldType": "com.knowflow.interview.speech.InterviewStreamingTranscriptService",
+    "newType": "com.knowflow.interview.service.speech.InterviewStreamingTranscriptService"
+  },
+  {
+    "oldType": "com.knowflow.interview.v2.FollowupQuestionDelta",
+    "newType": "com.knowflow.interview.service.v2.FollowupQuestionDelta"
+  },
+  {
+    "oldType": "com.knowflow.interview.v2.InterviewFollowupEngine",
+    "newType": "com.knowflow.interview.service.v2.InterviewFollowupEngine"
+  },
+  {
+    "oldType": "com.knowflow.interview.v2.InterviewJsonSchema",
+    "newType": "com.knowflow.interview.service.v2.InterviewJsonSchema"
+  },
+  {
+    "oldType": "com.knowflow.interview.v2.InterviewV2Controller",
+    "newType": "com.knowflow.interview.controller.v2.InterviewV2Controller"
+  },
+  {
+    "oldType": "com.knowflow.interview.v2.InterviewV2Service",
+    "newType": "com.knowflow.interview.service.v2.InterviewV2Service"
+  },
+  {
+    "oldType": "com.knowflow.interview.voice.VoiceAccess",
+    "newType": "com.knowflow.interview.service.voice.VoiceAccess"
+  },
+  {
+    "oldType": "com.knowflow.interview.voice.VoiceController",
+    "newType": "com.knowflow.interview.controller.voice.VoiceController"
+  },
+  {
+    "oldType": "com.knowflow.knowledge.rag.RagEvaluationController",
+    "newType": "com.knowflow.knowledge.controller.rag.RagEvaluationController"
+  },
+  {
+    "oldType": "com.knowflow.knowledge.rag.RagEvaluationService",
+    "newType": "com.knowflow.knowledge.service.rag.RagEvaluationService"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.ChatLearningActionService",
+    "newType": "com.knowflow.learning.service.actions.ChatLearningActionService"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.DailyLearningPlanService",
+    "newType": "com.knowflow.learning.service.actions.DailyLearningPlanService"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.LearningActionConfirmationRules",
+    "newType": "com.knowflow.learning.service.actions.LearningActionConfirmationRules"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.LearningActionDraft",
+    "newType": "com.knowflow.learning.entity.actions.LearningActionDraft"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.LearningActionDraftMapper",
+    "newType": "com.knowflow.learning.mapper.actions.LearningActionDraftMapper"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.LearningActionToolExecutor",
+    "newType": "com.knowflow.learning.service.actions.LearningActionToolExecutor"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.LearningContextService",
+    "newType": "com.knowflow.learning.service.actions.LearningContextService"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.LearningDashboardService",
+    "newType": "com.knowflow.learning.service.actions.LearningDashboardService"
+  },
+  {
+    "oldType": "com.knowflow.learning.actions.LearningTaskProjection",
+    "newType": "com.knowflow.learning.service.actions.LearningTaskProjection"
+  },
+  {
+    "oldType": "com.knowflow.learning.adaptive.AdaptivePathService",
+    "newType": "com.knowflow.learning.service.adaptive.AdaptivePathService"
+  },
+  {
+    "oldType": "com.knowflow.learning.adaptive.EvidenceReportService",
+    "newType": "com.knowflow.learning.service.adaptive.EvidenceReportService"
+  },
+  {
+    "oldType": "com.knowflow.learning.adaptive.GraphInsightService",
+    "newType": "com.knowflow.learning.service.adaptive.GraphInsightService"
+  },
+  {
+    "oldType": "com.knowflow.learning.adaptive.InterleavedPracticeService",
+    "newType": "com.knowflow.learning.service.adaptive.InterleavedPracticeService"
+  },
+  {
+    "oldType": "com.knowflow.learning.evidence.LearningEvidenceService",
+    "newType": "com.knowflow.learning.service.evidence.LearningEvidenceService"
+  },
+  {
+    "oldType": "com.knowflow.learning.feedback.ErrorAnnotationService",
+    "newType": "com.knowflow.learning.service.feedback.ErrorAnnotationService"
+  },
+  {
+    "oldType": "com.knowflow.learning.feedback.FeedbackSourceService",
+    "newType": "com.knowflow.learning.service.feedback.FeedbackSourceService"
+  },
+  {
+    "oldType": "com.knowflow.learning.feedback.InterviewRetestService",
+    "newType": "com.knowflow.learning.service.feedback.InterviewRetestService"
+  },
+  {
+    "oldType": "com.knowflow.learning.feedback.ProductMockInterviewService",
+    "newType": "com.knowflow.learning.service.feedback.ProductMockInterviewService"
+  },
+  {
+    "oldType": "com.knowflow.learning.feedback.QuestionVariantService",
+    "newType": "com.knowflow.learning.service.feedback.QuestionVariantService"
+  },
+  {
+    "oldType": "com.knowflow.learning.privatequiz.PrivateQuizService",
+    "newType": "com.knowflow.learning.service.privatequiz.PrivateQuizService"
+  },
+  {
+    "oldType": "com.knowflow.learning.product.QuizLearningReviewService",
+    "newType": "com.knowflow.learning.service.product.QuizLearningReviewService"
+  },
+  {
+    "oldType": "com.knowflow.learning.report.WeeklyReportService",
+    "newType": "com.knowflow.learning.service.report.WeeklyReportService"
+  },
+  {
+    "oldType": "com.knowflow.learning.studypack.StudyPackEventWriter",
+    "newType": "com.knowflow.learning.service.studypack.StudyPackEventWriter"
+  },
+  {
+    "oldType": "com.knowflow.learning.studypack.StudyPackProjection",
+    "newType": "com.knowflow.learning.service.studypack.StudyPackProjection"
+  },
+  {
+    "oldType": "com.knowflow.learning.studypack.StudyPackService",
+    "newType": "com.knowflow.learning.service.studypack.StudyPackService"
+  },
+  {
+    "oldType": "com.knowflow.learning.studypack.StudyPackSourceFile",
+    "newType": "com.knowflow.learning.service.studypack.StudyPackSourceFile"
+  },
+  {
+    "oldType": "com.knowflow.learning.tutor.TutorAssessmentService",
+    "newType": "com.knowflow.learning.service.tutor.TutorAssessmentService"
+  },
+  {
+    "oldType": "com.knowflow.learning.tutor.TutorContextService",
+    "newType": "com.knowflow.learning.service.tutor.TutorContextService"
+  },
+  {
+    "oldType": "com.knowflow.learning.tutor.TutorMicroService",
+    "newType": "com.knowflow.learning.service.tutor.TutorMicroService"
+  },
+  {
+    "oldType": "com.knowflow.mastery.service.KnowledgeMasteryServiceImpl",
+    "newType": "com.knowflow.mastery.service.impl.KnowledgeMasteryServiceImpl"
+  },
+  {
+    "oldType": "com.knowflow.reward.LevelService",
+    "newType": "com.knowflow.reward.service.LevelService"
+  },
+  {
+    "oldType": "com.knowflow.reward.RewardEngine",
+    "newType": "com.knowflow.reward.service.RewardEngine"
+  },
+  {
+    "oldType": "com.knowflow.reward.RewardLedgerService",
+    "newType": "com.knowflow.reward.service.RewardLedgerService"
+  },
+  {
+    "oldType": "com.knowflow.reward.RewardRule",
+    "newType": "com.knowflow.reward.enums.RewardRule"
+  },
+  {
+    "oldType": "com.knowflow.reward.WalletService",
+    "newType": "com.knowflow.reward.service.WalletService"
+  },
+  {
+    "oldType": "com.knowflow.store.EconomyError",
+    "newType": "com.knowflow.store.constant.EconomyError"
+  },
+  {
+    "oldType": "com.knowflow.store.EntitlementService",
+    "newType": "com.knowflow.store.service.EntitlementService"
+  },
+  {
+    "oldType": "com.knowflow.store.OrderService",
+    "newType": "com.knowflow.store.service.OrderService"
+  },
+  {
+    "oldType": "com.knowflow.store.ProductService",
+    "newType": "com.knowflow.store.service.ProductService"
+  },
+  {
+    "oldType": "com.knowflow.store.PurchaseService",
+    "newType": "com.knowflow.store.service.PurchaseService"
+  },
+  {
+    "oldType": "com.knowflow.voice.PcmWav",
+    "newType": "com.knowflow.voice.audio.PcmWav"
+  },
+  {
+    "oldType": "com.knowflow.voice.VoiceCapabilityService",
+    "newType": "com.knowflow.voice.service.VoiceCapabilityService"
+  },
+  {
+    "oldType": "com.knowflow.voice.VoiceMode",
+    "newType": "com.knowflow.voice.enums.VoiceMode"
+  },
+  {
+    "oldType": "com.knowflow.voice.VoiceRuntimeController",
+    "newType": "com.knowflow.voice.controller.VoiceRuntimeController"
+  },
+  {
+    "oldType": "com.knowflow.voice.VoiceRuntimeProperties",
+    "newType": "com.knowflow.voice.config.VoiceRuntimeProperties"
+  },
+  {
+    "oldType": "com.knowflow.voice.VoiceRuntimeSetting",
+    "newType": "com.knowflow.voice.model.VoiceRuntimeSetting"
+  },
+  {
+    "oldType": "com.knowflow.voice.VoiceRuntimeSettingsService",
+    "newType": "com.knowflow.voice.service.VoiceRuntimeSettingsService"
+  },
+  {
+    "oldType": "com.knowflow.voice.VoiceSpeechController",
+    "newType": "com.knowflow.voice.controller.VoiceSpeechController"
+  }
+]

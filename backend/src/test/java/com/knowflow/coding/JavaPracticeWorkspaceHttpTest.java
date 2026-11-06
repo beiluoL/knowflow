@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.knowflow.coding.service.workspace.JavaPracticeService;
 /** 只验证持久化与安全拒绝合同，不在宿主执行Java。 */
 @SpringBootTest(
   properties = {
@@ -35,7 +36,7 @@ class JavaPracticeWorkspaceHttpTest {
   com.knowflow.knowledge.mapper.DocCategoryMapper categories;
 
   @Autowired
-  com.knowflow.coding.workspace.JavaPracticeService workspace;
+  com.knowflow.coding.service.workspace.JavaPracticeService workspace;
 
   @Autowired
   org.springframework.jdbc.core.JdbcTemplate sql;
@@ -265,7 +266,7 @@ class JavaPracticeWorkspaceHttpTest {
   @Test
   void concurrentSameIntentCreatesOneFrozenSubmissionAndRecoversInterruptedJob()
     throws Exception {
-    var input = new com.knowflow.coding.workspace.JavaPracticeService.JobInput(
+    var input = new com.knowflow.coding.service.workspace.JavaPracticeService.JobInput(
       UUID.randomUUID().toString(),
       "java",
       "class Immutable {}",

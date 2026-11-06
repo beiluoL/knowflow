@@ -31,7 +31,7 @@ import com.knowflow.workbench.mapper.WbRecallSessionMapper;
 import com.knowflow.workbench.mapper.WbReviewCardMapper;
 import com.knowflow.workbench.mapper.WbReviewLogMapper;
 import com.knowflow.workbench.mapper.WbStoryMapper;
-import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.contract.LearningEventRecorder;
 import com.knowflow.flashcards.service.SrsService;
 import com.knowflow.workbench.service.WorkbenchService;
 import com.knowflow.workbench.vo.WbForgettingCurveVO;
@@ -76,7 +76,7 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
     private final WbPalaceLociMapper lociMapper;
     private final WbStoryMapper storyMapper;
     private final WbRecallSessionMapper recallSessionMapper;
-    private final LearningEventService learningEventService;
+    private final LearningEventRecorder learningEventService;
     private final SrsService srsService;
 
     /** SM-2 难度系数默认 2.50，以整数存储（×100）。 */

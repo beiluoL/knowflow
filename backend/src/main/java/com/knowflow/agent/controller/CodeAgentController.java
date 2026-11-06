@@ -1,7 +1,7 @@
 package com.knowflow.agent.controller;
 
-import com.knowflow.agent.AgentRuntimeService;
-import com.knowflow.agent.approval.ToolApprovalService;
+import com.knowflow.agent.service.AgentRuntimeService;
+import com.knowflow.agent.service.approval.ToolApprovalService;
 import java.time.Duration;
 import com.knowflow.agent.tool.ToolPermission;
 import com.knowflow.agent.tool.ToolResult;
@@ -15,10 +15,6 @@ import com.knowflow.agent.entity.AgentCallLog;
 import com.knowflow.agent.entity.AgentMessage;
 import com.knowflow.agent.entity.AgentSession;
 import com.knowflow.ai.entity.UserAiConfig;
-import com.knowflow.agent.mapper.AgentCallLogMapper;
-import com.knowflow.agent.mapper.AgentMessageMapper;
-import com.knowflow.agent.mapper.AgentSessionMapper;
-import com.knowflow.ai.mapper.UserAiConfigMapper;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.ai.service.AiService;
 import com.knowflow.coding.service.CodeExecutionService;
@@ -83,12 +79,10 @@ public class CodeAgentController {
 
     private final com.knowflow.agent.service.CodeAgentPersistenceService persistenceService;
     private final AiService aiService;
+    private final com.knowflow.agent.service.AgentSessionCatalogService sessionCatalogService;
+    private final com.knowflow.ai.service.UserAiConfigService configService;
     private final CodeExecutionService codeExecutionService;
     private final AiProviderRegistry providerRegistry;
-    private final UserAiConfigMapper userAiConfigMapper;
-    private final AgentSessionMapper agentSessionMapper;
-    private final AgentMessageMapper agentMessageMapper;
-    private final AgentCallLogMapper agentCallLogMapper;
     private final AgentRuntimeService agentRuntimeService;
     private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
@@ -104,11 +98,7 @@ public class CodeAgentController {
     public Result<Map<String, Object>> models() {
         Long userId = SecurityUtils.getCurrentUserId();
         // 用户已配置的模型列表
-        List<UserAiConfig> configs = userAiConfigMapper.selectList(
-                new LambdaQueryWrapper<UserAiConfig>()
-                        .eq(UserAiConfig::getUserId, userId)
-                        .orderByDesc(UserAiConfig::getIsActive)
-                        .orderByDesc(UserAiConfig::getCreateTime));
+        List<UserAiConfig> configs = configService.listConfigs(userId);
         List<UserAiConfigVO> userModels = configs.stream().map(this::toVO).collect(Collectors.toList());
 
         // 平台预设（用于"添加新配置"时选择提供商）
@@ -448,12 +438,7 @@ public class CodeAgentController {
     @Operation(summary = "列出当前用户的会话（全量，兼容旧前端）")
     @GetMapping("/sessions")
     public Result<List<AgentSessionVO>> listSessions() {
-        Long userId = SecurityUtils.getCurrentUserId();
-        List<AgentSession> sessions = agentSessionMapper.selectList(
-                new LambdaQueryWrapper<AgentSession>()
-                        .eq(AgentSession::getUserId, userId)
-                        .orderByDesc(AgentSession::getUpdateTime));
-        return Result.success(sessions.stream().map(this::toSessionVO).collect(Collectors.toList()));
+        return sessionCatalogService.listSessions();
     }
 
     /**
@@ -465,68 +450,15 @@ public class CodeAgentController {
             @RequestParam(defaultValue = "1") long current,
             @RequestParam(defaultValue = "20") long size,
             @RequestParam(required = false) String keyword) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        LambdaQueryWrapper<AgentSession> wrapper = new LambdaQueryWrapper<AgentSession>()
-                .eq(AgentSession::getUserId, userId)
-                .orderByDesc(AgentSession::getUpdateTime);
-        if (keyword != null && !keyword.isBlank()) {
-            wrapper.like(AgentSession::getTitle, keyword.trim());
-        }
-        Page<AgentSession> page = agentSessionMapper.selectPage(
-                new Page<>(current, Math.min(size, MAX_PAGE_SIZE)), wrapper);
-        return Result.success(page.convert(this::toSessionVO));
+        return sessionCatalogService.pageSessions(current, size, keyword);
     }
 
     /** 会话实体 → VO，并回填模型显示名。 */
-    private AgentSessionVO toSessionVO(AgentSession s) {
-        AgentSessionVO vo = new AgentSessionVO();
-        vo.setId(s.getId());
-        vo.setUserId(s.getUserId());
-        vo.setTitle(s.getTitle());
-        vo.setConfigId(s.getConfigId());
-        vo.setProjectDir(s.getProjectDir());
-        vo.setMessageCount(s.getMessageCount());
-        vo.setLastMessage(s.getLastMessage());
-        vo.setContextWindow(s.getContextWindow());
-        vo.setAgentMode(s.getAgentMode());
-        vo.setCreateTime(s.getCreateTime());
-        vo.setUpdateTime(s.getUpdateTime());
-        if (s.getConfigId() != null) {
-            UserAiConfig cfg = userAiConfigMapper.selectById(s.getConfigId());
-            if (cfg != null) {
-                vo.setConfigLabel(cfg.getDisplayName() != null ? cfg.getDisplayName() : cfg.getProvider());
-            }
-        }
-        return vo;
-    }
 
     @Operation(summary = "创建会话")
     @PostMapping("/sessions")
     public Result<AgentSessionVO> createSession(@RequestBody Map<String, Object> body) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        AgentSession session = new AgentSession();
-        session.setUserId(userId);
-        String title = body.get("title") != null ? body.get("title").toString() : "新会话";
-        session.setTitle(title);
-        if (body.get("configId") != null) {
-            session.setConfigId(Long.valueOf(body.get("configId").toString()));
-        }
-        if (body.get("projectDir") != null) {
-            session.setProjectDir(body.get("projectDir").toString());
-        }
-        session.setMessageCount(0);
-        agentSessionMapper.insert(session);
-
-        AgentSessionVO vo = new AgentSessionVO();
-        vo.setId(session.getId());
-        vo.setUserId(userId);
-        vo.setTitle(session.getTitle());
-        vo.setConfigId(session.getConfigId());
-        vo.setProjectDir(session.getProjectDir());
-        vo.setMessageCount(0);
-        vo.setCreateTime(session.getCreateTime());
-        vo.setUpdateTime(session.getUpdateTime());
-        return Result.success(vo);
+        return sessionCatalogService.createSession(body);
     }
 
     /**
@@ -536,56 +468,19 @@ public class CodeAgentController {
     @Operation(summary = "更新会话（重命名 / 模型 / 上下文窗口 / 模式）")
     @PutMapping("/sessions/{id}")
     public Result<AgentSessionVO> updateSession(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        AgentSession session = agentSessionMapper.selectById(id);
-        if (session == null || !session.getUserId().equals(userId)) {
-            throw new BusinessException("会话不存在或无权访问");
-        }
-        Object title = body.get("title");
-        if (title != null && !title.toString().isBlank()) {
-            session.setTitle(truncate(title.toString(), 100));
-        }
-        if (body.containsKey("configId")) {
-            Object cfg = body.get("configId");
-            session.setConfigId(cfg != null ? Long.valueOf(cfg.toString()) : null);
-        }
-        if (body.containsKey("projectDir")) {
-            Object dir = body.get("projectDir");
-            session.setProjectDir(dir != null ? dir.toString() : null);
-        }
-        if (body.get("contextWindow") != null) {
-            int cw = Integer.parseInt(body.get("contextWindow").toString());
-            // 约束在合理区间，避免上下文过短导致对话不连贯或过长击穿模型上限
-            session.setContextWindow(Math.max(MIN_CONTEXT_WINDOW, Math.min(MAX_CONTEXT_WINDOW, cw)));
-        }
-        Object mode = body.get("agentMode");
-        if (mode != null && ("chat".equals(mode.toString()) || "agent".equals(mode.toString()))) {
-            session.setAgentMode(mode.toString());
-        }
-        agentSessionMapper.updateById(session);
-        return Result.success(toSessionVO(agentSessionMapper.selectById(id)));
+        return sessionCatalogService.updateSession(id, body);
     }
 
     @Operation(summary = "删除会话（逻辑删除，连同消息一并标记）")
     @DeleteMapping("/sessions/{id}")
     public Result<Void> deleteSession(@PathVariable Long id) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        if (!persistenceService.deleteSession(id, userId)) {
-            return Result.error("会话不存在或无权访问");
-        }
-        return Result.success(null);
+        return sessionCatalogService.deleteSession(id);
     }
 
     @Operation(summary = "获取会话的历史消息（全量，兼容旧前端）")
     @GetMapping("/sessions/{id}/messages")
     public Result<List<AgentMessageVO>> getMessages(@PathVariable Long id) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        requireOwnedSession(id, userId);
-        List<AgentMessage> msgs = agentMessageMapper.selectList(
-                new LambdaQueryWrapper<AgentMessage>()
-                        .eq(AgentMessage::getSessionId, id)
-                        .orderByAsc(AgentMessage::getCreateTime));
-        return Result.success(msgs.stream().map(this::toMessageVO).collect(Collectors.toList()));
+        return sessionCatalogService.getMessages(id);
     }
 
     /**
@@ -600,80 +495,19 @@ public class CodeAgentController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "30") long size,
             @RequestParam(required = false) Long beforeId) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        requireOwnedSession(id, userId);
-
-        long limit = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
-        LambdaQueryWrapper<AgentMessage> wrapper = new LambdaQueryWrapper<AgentMessage>()
-                .eq(AgentMessage::getSessionId, id)
-                .orderByDesc(AgentMessage::getId)
-                // 多取一条用于判断是否还有更早的消息
-                .last("LIMIT " + (limit + 1));
-        if (beforeId != null) {
-            wrapper.lt(AgentMessage::getId, beforeId);
-        }
-        List<AgentMessage> rows = agentMessageMapper.selectList(wrapper);
-
-        boolean hasMore = rows.size() > limit;
-        if (hasMore) {
-            rows = rows.subList(0, (int) limit);
-        }
-        List<AgentMessageVO> voList = new ArrayList<>(rows.size());
-        for (int i = rows.size() - 1; i >= 0; i--) {
-            voList.add(toMessageVO(rows.get(i)));
-        }
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("records", voList);
-        data.put("hasMore", hasMore);
-        // 下一页游标：当前页最早一条消息的 ID
-        data.put("nextCursor", voList.isEmpty() ? null : voList.get(0).getId());
-        return Result.success(data);
+        return sessionCatalogService.pageMessages(id, size, beforeId);
     }
 
     /** 消息实体 → VO。 */
-    private AgentMessageVO toMessageVO(AgentMessage m) {
-        AgentMessageVO vo = new AgentMessageVO();
-        vo.setId(m.getId());
-        vo.setSessionId(m.getSessionId());
-        vo.setRole(m.getRole());
-        vo.setContent(m.getContent());
-        vo.setFilePath(m.getFilePath());
-        vo.setMessageType(m.getMessageType());
-        vo.setToolCallId(m.getToolCallId());
-        vo.setToolName(m.getToolName());
-        vo.setTokenCount(m.getTokenCount());
-        vo.setLatencyMs(m.getLatencyMs());
-        vo.setIsError(m.getIsError());
-        vo.setCreateTime(m.getCreateTime());
-        return vo;
-    }
 
     /** 校验会话存在且属于当前用户，否则抛出统一业务异常。 */
-    private AgentSession requireOwnedSession(Long sessionId, Long userId) {
-        AgentSession session = agentSessionMapper.selectById(sessionId);
-        if (session == null || !session.getUserId().equals(userId)) {
-            throw new BusinessException("会话不存在或无权访问");
-        }
-        return session;
-    }
 
     // ==================== 模型监测 ====================
 
     @Operation(summary = "模型监测统计数据（用于仪表盘）")
     @GetMapping("/stats")
     public Result<AgentStatsVO> stats(@RequestParam(defaultValue = "24") int rangeHours) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        // 限制范围：1~168（1小时~7天）
-        int hours = Math.max(1, Math.min(168, rangeHours));
-        LocalDateTime startTime = LocalDateTime.now().minusHours(hours);
-
-        AgentStatsVO vo = new AgentStatsVO();
-        vo.setRangeHours(hours);
-        vo.setSummary(agentCallLogMapper.summary(userId, startTime));
-        vo.setByModel(agentCallLogMapper.statByConfig(userId, startTime));
-        vo.setHourly(agentCallLogMapper.statHourly(userId, startTime));
-        return Result.success(vo);
+        return sessionCatalogService.stats(rangeHours);
     }
 
     @Operation(summary = "执行代码（可信本地开发宿主机执行，非 OS Sandbox）")
@@ -793,7 +627,7 @@ public class CodeAgentController {
     private String resolveProviderName(Long userId, Long configId) {
         if (configId == null) return "default";
         try {
-            UserAiConfig cfg = userAiConfigMapper.selectById(configId);
+            UserAiConfig cfg = configService.findOwned(userId, configId);
             if (cfg != null && cfg.getUserId().equals(userId)) {
                 return cfg.getProvider();
             }

@@ -6,9 +6,7 @@ import com.knowflow.common.SecurityUtils;
 import com.knowflow.community.dto.GroupInviteDTO;
 import com.knowflow.community.dto.GroupMessageSendDTO;
 import com.knowflow.community.dto.StudyGroupCreateDTO;
-import com.knowflow.community.entity.StudyGroupMessage;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.community.mapper.StudyGroupMessageMapper;
 import com.knowflow.community.service.StudyGroupService;
 import com.knowflow.websocket.GroupWebSocketHandler;
 import com.knowflow.community.vo.GroupMessageVO;
@@ -55,7 +53,6 @@ public class StudyGroupController {
 
     private final StudyGroupService studyGroupService;
     private final GroupWebSocketHandler groupWebSocketHandler;
-    private final StudyGroupMessageMapper studyGroupMessageMapper;
     private final UploadConfigProperties uploadConfig;
 
     /**
@@ -208,11 +205,10 @@ public class StudyGroupController {
     @DeleteMapping("/messages/{id}")
     public Result<Void> recallMessage(@PathVariable Long id) {
         Long userId = currentUserId();
-        StudyGroupMessage message = studyGroupMessageMapper.selectById(id);
-        studyGroupService.recallMessage(id, userId);
+        Long destinationId = studyGroupService.recallMessage(id, userId);
         // 实时广播撤回，让小组成员会话里的该消息立即变为“已撤回”
-        if (message != null) {
-            groupWebSocketHandler.broadcastRecall(message.getGroupId(), id);
+        if (destinationId != null) {
+            groupWebSocketHandler.broadcastRecall(destinationId, id);
         }
         return Result.success();
     }

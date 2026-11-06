@@ -88,7 +88,7 @@ public interface StudyGroupService {
     /**
      * 撤回消息
      */
-    void recallMessage(Long messageId, Long userId);
+    Long recallMessage(Long messageId, Long userId);
 
     /**
      * 标记消息已读

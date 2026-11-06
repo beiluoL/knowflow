@@ -1,6 +1,6 @@
 package com.knowflow.coding.controller;
 
-import com.knowflow.coding.workspace.JavaPracticeService;
+import com.knowflow.coding.service.workspace.JavaPracticeService;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import lombok.RequiredArgsConstructor;

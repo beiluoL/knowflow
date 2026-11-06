@@ -60,4 +60,8 @@ public interface LearningScenarioService {
      * 管理端删除场景（逻辑删除）。
      */
     void adminRemove(Long id);
+    /** 原子更新场景及其目录审计。 */
+    com.knowflow.learning.vo.ScenarioAdminVO adminUpdateWithAudit(Long id, com.knowflow.learning.dto.ScenarioAdminDTO dto);
+    /** 在同一事务内逻辑删除场景并记录审计。 */
+    void adminRemoveWithAudit(Long id);
 }

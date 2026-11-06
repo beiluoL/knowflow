@@ -4,7 +4,7 @@ import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.knowledge.service.KnowledgeService;
-import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.contract.LearningEventRecorder;
 import com.knowflow.knowledge.vo.ConceptDiagramVO;
 import com.knowflow.knowledge.vo.EntityGraphVO;
 import com.knowflow.knowledge.vo.ExtractResultVO;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class KnowledgeController {
 
     private final KnowledgeService knowledgeService;
-    private final LearningEventService learningEventService;
+    private final LearningEventRecorder learningEventService;
 
     @Operation(summary = "分类-文档层级图谱")
     @GetMapping("/graph")

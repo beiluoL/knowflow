@@ -1,10 +1,7 @@
 package com.knowflow.administration.controller.admin;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.knowflow.common.Result;
-import com.knowflow.common.SecurityUtils;
 import com.knowflow.administration.entity.SysIcon;
-import com.knowflow.administration.mapper.SysIconMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,44 +22,23 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminIconController {
 
-    private final SysIconMapper iconMapper;
-
-    private Long getCurrentUserId() {
-        return SecurityUtils.getCurrentUserId();
-    }
+    private final com.knowflow.administration.service.AdminIconApplicationService applicationService;
 
     @Operation(summary = "获取自定义图标列表")
     @GetMapping
     public Result<List<SysIcon>> list() {
-        QueryWrapper<SysIcon> wrapper = new QueryWrapper<>();
-        wrapper.eq("deleted", 0).orderByDesc("create_time");
-        return Result.success(iconMapper.selectList(wrapper));
+        return applicationService.list();
     }
 
     @Operation(summary = "上传自定义图标")
     @PostMapping
     public Result<SysIcon> create(@RequestBody SysIcon icon) {
-        if (icon.getName() == null || icon.getName().isBlank()) {
-            return Result.error(400, "图标名称不能为空");
-        }
-        if (icon.getContent() == null || icon.getContent().isBlank()) {
-            return Result.error(400, "图标内容不能为空");
-        }
-        icon.setType("custom");
-        icon.setUserId(getCurrentUserId());
-        iconMapper.insert(icon);
-        return Result.success(icon);
+        return applicationService.create(icon);
     }
 
     @Operation(summary = "删除自定义图标")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        SysIcon icon = iconMapper.selectById(id);
-        if (icon == null || icon.getDeleted() != null && icon.getDeleted() == 1) {
-            return Result.error(404, "图标不存在");
-        }
-        icon.setDeleted(1);
-        iconMapper.updateById(icon);
-        return Result.success(null);
+        return applicationService.delete(id);
     }
 }

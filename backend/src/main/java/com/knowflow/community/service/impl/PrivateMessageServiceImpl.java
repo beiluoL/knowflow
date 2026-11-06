@@ -6,12 +6,12 @@ import com.knowflow.community.dto.PrivateMessageSendDTO;
 import com.knowflow.community.entity.PrivateConversation;
 import com.knowflow.community.entity.PrivateConversationRead;
 import com.knowflow.community.entity.PrivateMessage;
-import com.knowflow.identity.entity.SysUser;
+import com.knowflow.identity.contract.MemberDisplayQuery.MemberDisplay;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.community.mapper.PrivateConversationMapper;
 import com.knowflow.community.mapper.PrivateConversationReadMapper;
 import com.knowflow.community.mapper.PrivateMessageMapper;
-import com.knowflow.identity.mapper.SysUserMapper;
+import com.knowflow.identity.contract.MemberDisplayQuery;
 import com.knowflow.community.service.PrivateMessageService;
 import com.knowflow.community.vo.PrivateConversationVO;
 import com.knowflow.community.vo.PrivateMessageVO;
@@ -37,7 +37,7 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
     private final PrivateConversationMapper conversationMapper;
     private final PrivateConversationReadMapper conversationReadMapper;
     private final PrivateMessageMapper messageMapper;
-    private final SysUserMapper sysUserMapper;
+    private final MemberDisplayQuery memberDisplayQuery;
 
     @Override
     @Transactional
@@ -93,11 +93,9 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         Set<Long> senderIds = messagePage.getRecords().stream()
                 .map(PrivateMessage::getSenderId)
                 .collect(Collectors.toSet());
-        Map<Long, SysUser> senderMap = new HashMap<>();
+        Map<Long, MemberDisplay> senderMap = new HashMap<>();
         if (!senderIds.isEmpty()) {
-            LambdaQueryWrapper<SysUser> userWrapper = new LambdaQueryWrapper<>();
-            userWrapper.in(SysUser::getId, senderIds);
-            sysUserMapper.selectList(userWrapper).forEach(u -> senderMap.put(u.getId(), u));
+            memberDisplayQuery.findAll(senderIds).forEach(u -> senderMap.put(u.id(), u));
         }
 
         // 对方（会话另一人）已读游标：用于判断“我发出的消息”是否被对方读过
@@ -141,8 +139,8 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         // 发送者自己发的消息算已读
         upsertRead(dto.getConversationId(), userId, message.getId());
 
-        SysUser sender = sysUserMapper.selectById(userId);
-        Map<Long, SysUser> senderMap = new HashMap<>();
+        MemberDisplay sender = memberDisplayQuery.find(userId);
+        Map<Long, MemberDisplay> senderMap = new HashMap<>();
         if (sender != null) senderMap.put(userId, sender);
 
         PrivateMessageVO vo = convertToMessageVO(message, senderMap);
@@ -193,7 +191,7 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
 
     @Override
     @Transactional
-    public void recallMessage(Long messageId, Long userId) {
+    public Long recallMessage(Long messageId, Long userId) {
         PrivateMessage message = messageMapper.selectById(messageId);
         if (message == null) {
             // 404：目标资源不存在（区别于「存在但无权」）
@@ -205,6 +203,7 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         }
         message.setRecalled(1);
         messageMapper.updateById(message);
+        return message.getConversationId();
     }
 
     // ===== 私有辅助方法 =====
@@ -265,10 +264,10 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
                 : conversation.getUserAId();
         vo.setTargetUserId(targetId);
 
-        SysUser target = sysUserMapper.selectById(targetId);
+        MemberDisplay target = memberDisplayQuery.find(targetId);
         if (target != null) {
-            vo.setTargetUserName(target.getNickname() != null ? target.getNickname() : target.getUsername());
-            vo.setTargetUserAvatar(target.getAvatar());
+            vo.setTargetUserName(target.nickname() != null ? target.nickname() : target.username());
+            vo.setTargetUserAvatar(target.avatar());
         }
 
         // 最后一条消息预览
@@ -286,7 +285,7 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         return vo;
     }
 
-    private PrivateMessageVO convertToMessageVO(PrivateMessage message, Map<Long, SysUser> senderMap) {
+    private PrivateMessageVO convertToMessageVO(PrivateMessage message, Map<Long, MemberDisplay> senderMap) {
         PrivateMessageVO vo = new PrivateMessageVO();
         vo.setId(message.getId());
         vo.setConversationId(message.getConversationId());
@@ -300,10 +299,10 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         vo.setCreateTime(message.getCreateTime());
         vo.setRecalled(message.getRecalled() == 1);
 
-        SysUser sender = senderMap.get(message.getSenderId());
+        MemberDisplay sender = senderMap.get(message.getSenderId());
         if (sender != null) {
-            vo.setSenderName(sender.getNickname() != null ? sender.getNickname() : sender.getUsername());
-            vo.setSenderAvatar(sender.getAvatar());
+            vo.setSenderName(sender.nickname() != null ? sender.nickname() : sender.username());
+            vo.setSenderAvatar(sender.avatar());
         }
         return vo;
     }

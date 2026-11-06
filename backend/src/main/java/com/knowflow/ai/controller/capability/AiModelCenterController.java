@@ -1,5 +1,6 @@
-package com.knowflow.ai.capability;
+package com.knowflow.ai.controller.capability;
 
+import com.knowflow.ai.capability.AiCapabilityExecutor;
 import com.knowflow.common.Result;
 import com.knowflow.config.AiProviderRegistry;
 import java.util.Arrays;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AiModelCenterController {
   private final AiProviderRegistry providers;
   private final AiCapabilityExecutor executor;
-  private final com.knowflow.ai.billing.AiBillingService billing;
+  private final com.knowflow.ai.service.billing.AiBillingService billing;
 
   @GetMapping
   public Result<Overview> overview() {
@@ -47,7 +48,9 @@ public class AiModelCenterController {
   }
 
   @GetMapping("/billing")
-  public Result<com.knowflow.common.PageResult<com.knowflow.ai.billing.AiBillingService.EntryView>>
+  public Result<
+          com.knowflow.common.PageResult<
+              com.knowflow.ai.service.billing.AiBillingService.EntryView>>
       billing(
           @org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page,
           @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int size) {

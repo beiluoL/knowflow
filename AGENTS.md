@@ -22,6 +22,8 @@
 所有 AI 编程工具（WorkBuddy / Trae / Codex / Cursor / Claude Code / GitHub Copilot / Gemini CLI）统一从 [docs/engineering/ENGINEERING_STANDARDS.md](docs/engineering/ENGINEERING_STANDARDS.md) 进入后端、前端、安全与 AI、测试与门禁分册。本文件仍是架构铁律与工作守则，不被分册替代。
 
 - 后端：[BACKEND_JAVA_STANDARD](docs/engineering/BACKEND_JAVA_STANDARD.md)；前端：[FRONTEND_VUE_TS_STANDARD](docs/engineering/FRONTEND_VUE_TS_STANDARD.md)；安全：[SECURITY_AND_AI_STANDARD](docs/engineering/SECURITY_AND_AI_STANDARD.md)；测试/CI：[TESTING_AND_AUTOMATION_GATES](docs/engineering/TESTING_AND_AUTOMATION_GATES.md)。
+- Java 代码质量（命名/格式化/注释/职责/事务/异常/交付流水线）：[CODE_QUALITY_STANDARD](docs/architecture/backend/CODE_QUALITY_STANDARD.md)（2026-11-06 起强制）。格式化唯一工具是 Spotless + Google Java Format 1.24.0，只对本次改动文件执行 `-DspotlessFiles` 限定，禁止全项目 `spotless:apply`、禁止夹带纯格式化 diff、禁止批量删除未使用 import。
+- AI 智能体交付固定顺序：写代码 → 格式化 → 注释审查 → `check.mjs` → `*ArchitectureTest` → 定向+全量测试 → `git diff/status` 自查 → 报告（状态只写 PASS/PARTIAL/BLOCKED/NOT_VERIFIED）。
 - 提交前运行 `node scripts/engineering/check.mjs`；零容忍项新增即失败，棘轮项只减不增（基线 `scripts/engineering/baseline.json`）。
 - Skill 权威副本在 `.agents/skills/`，`.trae/skills/` 与 `.workbuddy/skills/` 必须逐字节一致，修改后运行上述检查。
 - 规范现状与冲突项见 [工程规范审计](docs/engineering/AUDIT_2026-11-01.md)；该审计是静态结论，不构成功能或发布 VERIFIED。

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
+import com.knowflow.knowledge.service.rag.RagEvaluationService;
 /**
  * 验证版本化检索评估用例及重排前后结果比较。
  */

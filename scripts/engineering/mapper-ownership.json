@@ -105,7 +105,7 @@
     },
     "com.knowflow.ai.mapper.AiBillingEntryMapper": {
       "entity": "AiBillingEntry",
-      "callers": ["backend/src/main/java/com/knowflow/ai/billing/AiBillingService.java"]
+      "callers": ["backend/src/main/java/com/knowflow/ai/service/billing/AiBillingService.java"]
     },
     "com.knowflow.reward.mapper.RewardLedgerMapper": {
       "entity": "RewardLedger",

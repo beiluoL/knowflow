@@ -20,7 +20,7 @@ import com.knowflow.ai.service.AiService;
 import com.knowflow.ai.service.ChatService;
 import com.knowflow.learning.contract.LearningEventType;
 import com.knowflow.knowledge.service.DocChunkService;
-import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.contract.LearningEventRecorder;
 import com.knowflow.ai.vo.ConversationVO;
 import com.knowflow.ai.vo.MessageVO;
 import lombok.RequiredArgsConstructor;
@@ -49,9 +49,9 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
     private final com.knowflow.ai.capability.AiCapabilityProperties capabilityProperties;
     private final DocDocumentMapper docMapper;
     private final DocChunkService docChunkService;
-    private final LearningEventService learningEventService;
+    private final LearningEventRecorder learningEventService;
     @org.springframework.beans.factory.annotation.Autowired(required=false)
-    private com.knowflow.learning.tutor.TutorContextService tutorContext;
+    private com.knowflow.learning.service.tutor.TutorContextService tutorContext;
 
 
     /** 事件序列化独立于业务对象，避免为加字段改动既有测试构造签名。 */
@@ -385,12 +385,12 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         private final SseEmitter emitter;
         /** true=新的一轮对话（消息数 +2）；false=重新生成（用户消息已存在，只刷新会话摘要字段）。 */
         private final boolean countTurn;
-        private final com.knowflow.learning.tutor.TutorContextService.Prepared tutor;
+        private final com.knowflow.learning.service.tutor.TutorContextService.Prepared tutor;
 
         private PersistCallback(ChatConversation conv, Long uid, RagContext rag, SseEmitter emitter, boolean countTurn) {
             this(conv,uid,rag,emitter,countTurn,null);
         }
-        private PersistCallback(ChatConversation conv, Long uid, RagContext rag, SseEmitter emitter, boolean countTurn, com.knowflow.learning.tutor.TutorContextService.Prepared tutor) {
+        private PersistCallback(ChatConversation conv, Long uid, RagContext rag, SseEmitter emitter, boolean countTurn, com.knowflow.learning.service.tutor.TutorContextService.Prepared tutor) {
             this.tutor=tutor;
             this.conv = conv;
             this.uid = uid;

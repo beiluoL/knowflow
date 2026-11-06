@@ -30,6 +30,6 @@ public interface PrivateMessageService {
     /** 获取会话未读消息数 */
     int getUnreadCount(Long conversationId, Long userId);
 
-    /** 撤回消息（仅本人） */
-    void recallMessage(Long messageId, Long userId);
+    /** 撤回本人消息，返回会话 ID 供提交成功后广播。 */
+    Long recallMessage(Long messageId, Long userId);
 }

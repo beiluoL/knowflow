@@ -1,6 +1,8 @@
-package com.knowflow.knowledge.rag;
+package com.knowflow.knowledge.service.rag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.knowflow.knowledge.rag.RagCoverageReranker;
+import com.knowflow.knowledge.rag.RagQueryRewrite;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;

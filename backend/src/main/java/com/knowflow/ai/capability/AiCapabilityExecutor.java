@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.time.LocalDate;
 import java.math.BigDecimal;
 
+import com.knowflow.ai.service.capability.AiCapabilityStateService;
 /**
  * AI 能力调用执行器（Facade 内核）：统一负责超时外的可靠性策略。
  *

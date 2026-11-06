@@ -26,4 +26,6 @@ Catalog 不获得来源题表第二所有权；Store 不拥有 Reward 钱包；L
 
 本批次只改规范、检查脚本和测试，不移动生产 Java、不改前端/Schema、不提交推送、不进入 Batch 2。后续批次需逐类台账、WIP 归属、权限/事务/API 回归及真实门禁证据。执行 `node scripts/engineering/check.mjs` 和相关 Maven 架构测试；FAIL/PARTIAL/NOT_VERIFIED/SKIPPED 不得写成 PASS。
 
+代码质量（命名、格式化、注释、职责、事务、异常、交付流水线）以 [CODE_QUALITY_STANDARD](../docs/architecture/backend/CODE_QUALITY_STANDARD.md) 为准；格式化唯一工具为 Spotless + Google Java Format，只对本次改动文件执行 `-DspotlessFiles` 限定。
+
 详细设计见 [架构规范](../docs/architecture/backend/ARCHITECTURE_STANDARD_V2.md)。docs 可按本地管理策略忽略；本入口及根规则包含可独立理解的核心约束。

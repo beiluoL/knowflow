@@ -1,6 +1,7 @@
-package com.knowflow.knowledge.rag;
+package com.knowflow.knowledge.controller.rag;
 
 import com.knowflow.common.Result;
+import com.knowflow.knowledge.service.rag.RagEvaluationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -8,6 +8,7 @@ import com.knowflow.ai.service.impl.AiServiceImpl;
 import okhttp3.mockwebserver.*;
 import org.junit.jupiter.api.Test;
 import java.util.Map;
+import com.knowflow.ai.service.capability.AiCapabilityStateService;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 /** 本地HTTP协议边界：不冒充真实LLM，只锁定显式结构化请求与普通聊天隔离。 */
@@ -16,7 +17,7 @@ class AiStructuredRequestTest {
   try(var server=new MockWebServer()){
    server.start();var mapper=mock(UserAiConfigMapper.class);var cfg=new UserAiConfig();cfg.setProvider("deepseek");cfg.setApiKey("protocol-test-secret");cfg.setModel("deepseek-flash");cfg.setBaseUrl(server.url("/v1").toString());when(mapper.selectOne(any())).thenReturn(cfg);
    var executor=mock(AiCapabilityExecutor.class);when(executor.execute(anyString(),eq(false),any())).thenAnswer(i->((AiCapabilityExecutor.AiCall)i.getArgument(2)).invoke());
-   var ai=new AiServiceImpl(new AiConfig(),mapper,mock(AiProviderRegistry.class),mock(ModelAdapterFactory.class),executor,mock(AiCapabilityStateService.class),new AiCapabilityProperties(), mock(com.knowflow.ai.billing.AiBillingService.class));
+   var ai=new AiServiceImpl(new AiConfig(),mapper,mock(AiProviderRegistry.class),mock(ModelAdapterFactory.class),executor,mock(AiCapabilityStateService.class),new AiCapabilityProperties(), mock(com.knowflow.ai.service.billing.AiBillingService.class));
    String response=new ObjectMapper().writeValueAsString(Map.of("choices",java.util.List.of(Map.of("message",Map.of("content","{\"ok\":true}")))));
    server.enqueue(new MockResponse().setBody(response));assertEquals("{\"ok\":true}",ai.completeStructured("Output JSON","case",null,7L));var body=new ObjectMapper().readTree(server.takeRequest().getBody().readUtf8());assertEquals("disabled",body.path("thinking").path("type").asText());assertEquals("json_object",body.path("response_format").path("type").asText());
    server.enqueue(new MockResponse().setBody(response));ai.complete("ordinary","case",(String)null,7L);body=new ObjectMapper().readTree(server.takeRequest().getBody().readUtf8());assertFalse(body.has("thinking"));assertFalse(body.has("response_format"));
@@ -28,7 +29,7 @@ class AiStructuredRequestTest {
    var executor=mock(AiCapabilityExecutor.class);when(executor.execute(eq("deepseek:user-stream-model"),eq(false),any())).thenAnswer(i->((AiCapabilityExecutor.AiCall)i.getArgument(2)).invoke());
    var factory=mock(ModelAdapterFactory.class);var adapter=mock(com.knowflow.ai.ModelAdapter.class);when(factory.getAdapter("deepseek")).thenReturn(adapter);when(adapter.protocol()).thenReturn(AiProviderRegistry.Protocol.OPENAI);
    var global=new AiConfig();global.setApiKey("unused-platform-secret");global.setModel("unused-platform-model");
-   var ai=new AiServiceImpl(global,mapper,mock(AiProviderRegistry.class),factory,executor,mock(AiCapabilityStateService.class),new AiCapabilityProperties(), mock(com.knowflow.ai.billing.AiBillingService.class));
+   var ai=new AiServiceImpl(global,mapper,mock(AiProviderRegistry.class),factory,executor,mock(AiCapabilityStateService.class),new AiCapabilityProperties(), mock(com.knowflow.ai.service.billing.AiBillingService.class));
    server.enqueue(new MockResponse().setHeader("Content-Type","text/event-stream").setBody("data: {\"choices\":[{\"delta\":{\"content\":\"first\"}}]}\n\ndata: {\"choices\":[{\"delta\":{\"content\":\"second\"}}]}\n\ndata: [DONE]\n\n"));
    var tokens=new java.util.ArrayList<String>();assertEquals("firstsecond",ai.streamStructured("JSON only","case",7L,tokens::add,()->false));assertEquals(java.util.List.of("first","second"),tokens);
    var request=server.takeRequest();assertEquals("Bearer offline-user-secret",request.getHeader("Authorization"));var body=new ObjectMapper().readTree(request.getBody().readUtf8());assertEquals("user-stream-model",body.path("model").asText());assertTrue(body.path("stream").asBoolean());assertEquals("disabled",body.path("thinking").path("type").asText());assertEquals("json_object",body.path("response_format").path("type").asText());

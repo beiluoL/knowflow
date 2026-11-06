@@ -529,7 +529,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
 
     @Override
     @Transactional
-    public void recallMessage(Long messageId, Long userId) {
+    public Long recallMessage(Long messageId, Long userId) {
         StudyGroupMessage message = studyGroupMessageMapper.selectById(messageId);
         if (message == null) {
             throw new BusinessException(404, "消息不存在");
@@ -541,6 +541,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
 
         message.setRecalled(1);
         studyGroupMessageMapper.updateById(message);
+        return message.getGroupId();
     }
 
     @Override

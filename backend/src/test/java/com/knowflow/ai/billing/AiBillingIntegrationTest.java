@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+import com.knowflow.ai.service.billing.AiBillingService;
 /**
  * 验证 AI 额度预留、并发限制、结算及取消用量处理。
  */

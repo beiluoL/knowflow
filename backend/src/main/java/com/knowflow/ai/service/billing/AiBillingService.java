@@ -1,4 +1,4 @@
-package com.knowflow.ai.billing;
+package com.knowflow.ai.service.billing;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.knowflow.ai.capability.AiCapabilityException;

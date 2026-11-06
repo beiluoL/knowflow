@@ -1,30 +1,66 @@
 package com.knowflow.agent.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.agent.entity.AgentWorkflow;
 import com.knowflow.agent.mapper.AgentWorkflowMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * 自定义工作流匹配服务：在 Agent 编排入口，根据用户消息与已启用工作流，
- * 选出最匹配的工作流并返回渲染后的 prompt 片段。
- * <p>匹配规则：
- * - triggerType=keyword：消息文本命中 triggerValue 中任一关键词（逗号分隔）即匹配；
- * - triggerType=intent：当前编排未做显式意图识别，保留配置但不自动触发；
- * - triggerType=manual：仅由前端手动触发，不走自动注入；
- * 命中多个时取 sortOrder 最小者。
- */
-@Slf4j
+/** 管理工作流默认值、用户隔离及生命周期持久化。 */
 @Service
 @RequiredArgsConstructor
 public class AgentWorkflowService {
 
     private final AgentWorkflowMapper workflowMapper;
+    /** 为工作流操作绑定当前认证所有者。 */
+    public Result<List<AgentWorkflow>> list() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        List<AgentWorkflow> list = workflowMapper.selectList(
+                new LambdaQueryWrapper<AgentWorkflow>()
+                        .eq(AgentWorkflow::getUserId, userId)
+                        .orderByAsc(AgentWorkflow::getSortOrder)
+                        .orderByDesc(AgentWorkflow::getUpdateTime));
+        return Result.success(list);
+    }
 
+    /** 为工作流操作绑定当前认证所有者。 */
+    public Result<AgentWorkflow> create(AgentWorkflow workflow) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        workflow.setId(null);
+        workflow.setUserId(userId);
+        if (workflow.getEnabled() == null) workflow.setEnabled(1);
+        if (workflow.getSortOrder() == null) workflow.setSortOrder(0);
+        workflowMapper.insert(workflow);
+        return Result.success(workflow);
+    }
+
+    /** 为工作流操作绑定当前认证所有者。 */
+    public Result<AgentWorkflow> update(Long id, AgentWorkflow workflow) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        AgentWorkflow exist = workflowMapper.selectById(id);
+        if (exist == null || !exist.getUserId().equals(userId)) {
+            return Result.error("工作流不存在或无权访问");
+        }
+        workflow.setId(id);
+        workflow.setUserId(userId);
+        workflowMapper.updateById(workflow);
+        return Result.success(workflowMapper.selectById(id));
+    }
+
+    /** 为工作流操作绑定当前认证所有者。 */
+    public Result<Void> delete(Long id) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        AgentWorkflow exist = workflowMapper.selectById(id);
+        if (exist == null || !exist.getUserId().equals(userId)) {
+            return Result.error("工作流不存在或无权访问");
+        }
+        workflowMapper.deleteById(id);
+        return Result.success();
+    }
     /**
      * 匹配工作流并渲染 prompt 模板。无命中返回 null。
      * 占位符：{input}=用户输入，{file}=当前文件（暂留空，由前端透传预留），{tree}=留空。

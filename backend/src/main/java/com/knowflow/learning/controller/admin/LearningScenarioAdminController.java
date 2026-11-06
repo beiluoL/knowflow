@@ -34,7 +34,6 @@ import java.util.List;
 public class LearningScenarioAdminController {
 
     private final LearningScenarioService scenarioService;
-    private final com.knowflow.catalog.service.QuestionMutationAudit catalogAudit;
 
     @Operation(summary = "场景列表（含下架，可按关键词/状态过滤）")
     @GetMapping
@@ -58,19 +57,15 @@ public class LearningScenarioAdminController {
 
     @Operation(summary = "覆盖式更新场景")
     @PutMapping("/{id}")
-    @org.springframework.transaction.annotation.Transactional
     public Result<ScenarioAdminVO> update(@PathVariable Long id, @RequestBody ScenarioAdminDTO dto) {
-        var result = scenarioService.adminUpdate(id, dto);
-        catalogAudit.record("SCENARIO", id, "EDIT_STATUS", null, String.valueOf(dto.getStatus()));
+        var result = scenarioService.adminUpdateWithAudit(id, dto);
         return Result.success(result);
     }
 
     @Operation(summary = "删除场景（逻辑删除）")
     @DeleteMapping("/{id}")
-    @org.springframework.transaction.annotation.Transactional
     public Result<Void> remove(@PathVariable Long id) {
-        scenarioService.adminRemove(id);
-        catalogAudit.record("SCENARIO", id, "DELETE", null, "deleted=1");
+        scenarioService.adminRemoveWithAudit(id);
         return Result.success();
     }
 }

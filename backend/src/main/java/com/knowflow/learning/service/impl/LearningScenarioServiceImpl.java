@@ -374,4 +374,22 @@ public class LearningScenarioServiceImpl extends ServiceImpl<LearningScenarioMap
         }
         return "要点覆盖不足：建议先回到资料/闪卡复习，再回到本场景重答。";
     }
+    private final com.knowflow.catalog.service.QuestionMutationAudit catalogAudit;
+
+    /** 在同一事务内执行管理修改并记录目录审计。 */
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public com.knowflow.learning.vo.ScenarioAdminVO adminUpdateWithAudit(Long id, com.knowflow.learning.dto.ScenarioAdminDTO dto) {
+        var result = adminUpdate(id, dto);
+        catalogAudit.record("SCENARIO", id, "EDIT_STATUS", null, String.valueOf(dto.getStatus()));
+        return result;
+    }
+
+    /** 逻辑删除或审计任一失败，二者同时回滚。 */
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void adminRemoveWithAudit(Long id) {
+        adminRemove(id);
+        catalogAudit.record("SCENARIO", id, "DELETE", null, "deleted=1");
+    }
 }

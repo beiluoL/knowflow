@@ -7,8 +7,6 @@ import com.knowflow.common.SecurityUtils;
 import com.knowflow.agent.entity.AgentSession;
 import com.knowflow.agent.entity.AgentToolCall;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.agent.mapper.AgentSessionMapper;
-import com.knowflow.agent.mapper.AgentToolCallMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +27,7 @@ import java.util.stream.Collectors;
 public class AgentToolController {
 
     private final ToolRegistry toolRegistry;
-    private final AgentToolCallMapper toolCallMapper;
-    private final AgentSessionMapper sessionMapper;
+    private final com.knowflow.agent.service.AgentToolCallQueryService toolCallQueryService;
 
     @Operation(summary = "工具列表（含当前用户启用状态）")
     @GetMapping
@@ -82,55 +79,14 @@ public class AgentToolController {
         return Result.success(null);
     }
 
-    @Operation(summary = "会话级工具调用链（可视化用）")
     @GetMapping("/sessions/{id}/call-chain")
     public Result<List<AgentToolCall>> callChain(@PathVariable Long id) {
-        requireOwnedSession(id);
-        List<AgentToolCall> calls = toolCallMapper.selectList(new LambdaQueryWrapper<AgentToolCall>()
-                .eq(AgentToolCall::getSessionId, id)
-                .orderByAsc(AgentToolCall::getCreateTime));
-        return Result.success(calls);
+        return toolCallQueryService.callChain(id);
     }
 
-    /**
-     * 工具调用统计（P3）：按工具名聚合调用次数、成功率与平均耗时，供前端面板展示。
-     */
-    @Operation(summary = "会话工具调用统计")
     @GetMapping("/sessions/{id}/call-stats")
     public Result<List<Map<String, Object>>> callStats(@PathVariable Long id) {
-        requireOwnedSession(id);
-        List<AgentToolCall> calls = toolCallMapper.selectList(new LambdaQueryWrapper<AgentToolCall>()
-                .eq(AgentToolCall::getSessionId, id));
-
-        Map<String, List<AgentToolCall>> grouped = calls.stream()
-                .collect(Collectors.groupingBy(AgentToolCall::getToolName, LinkedHashMap::new, Collectors.toList()));
-        List<Map<String, Object>> stats = new ArrayList<>(grouped.size());
-        grouped.forEach((tool, list) -> {
-            long okCount = list.stream().filter(c -> "success".equals(c.getStatus())).count();
-            double avgLatency = list.stream()
-                    .map(AgentToolCall::getLatencyMs)
-                    .filter(java.util.Objects::nonNull)
-                    .mapToLong(Long::longValue)
-                    .average()
-                    .orElse(0d);
-            Map<String, Object> item = new LinkedHashMap<>();
-            item.put("tool", tool);
-            item.put("total", list.size());
-            item.put("success", okCount);
-            item.put("failed", list.size() - okCount);
-            item.put("avgLatencyMs", Math.round(avgLatency));
-            stats.add(item);
-        });
-        return Result.success(stats);
-    }
-
-    /** 校验会话归属，失败抛出统一业务异常。 */
-    private void requireOwnedSession(Long sessionId) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        AgentSession session = sessionMapper.selectById(sessionId);
-        if (session == null || !session.getUserId().equals(userId)) {
-            throw new BusinessException("会话不存在或无权访问");
-        }
+        return toolCallQueryService.callStats(id);
     }
 
     /** 工具元信息 DTO（含参数 JSON Schema）。 */

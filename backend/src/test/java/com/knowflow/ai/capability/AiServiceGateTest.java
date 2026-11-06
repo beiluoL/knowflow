@@ -8,19 +8,21 @@ import okhttp3.mockwebserver.*;
 import org.junit.jupiter.api.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
+import com.knowflow.ai.service.billing.AiBillingService;
+import com.knowflow.ai.service.capability.AiCapabilityStateService;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /** 仅使用Mock Provider与本地HTTP计数；关闭门禁不能消耗付费Token。 */
 class AiServiceGateTest {
- private AiCapabilityProperties props; private ModelAdapterFactory factory; private ModelAdapter adapter; private AiServiceImpl ai; private MockWebServer server; private AiProviderRegistry providers; private com.knowflow.ai.billing.AiBillingService billing;
+ private AiCapabilityProperties props; private ModelAdapterFactory factory; private ModelAdapter adapter; private AiServiceImpl ai; private MockWebServer server; private AiProviderRegistry providers; private com.knowflow.ai.service.billing.AiBillingService billing;
  @BeforeEach void setup() throws Exception {
   server=new MockWebServer();server.start();props=new AiCapabilityProperties();props.setEnabled(false);
   factory=mock(ModelAdapterFactory.class);adapter=mock(ModelAdapter.class);when(factory.getAdapter(any())).thenReturn(adapter);
   var config=new AiConfig();config.setApiKey("local");config.setBaseUrl(server.url("/v1").toString());config.setModel("local-test");
   var executor=mock(AiCapabilityExecutor.class);when(executor.execute(anyString(),eq(false),any())).thenAnswer(i->((AiCapabilityExecutor.AiCall)i.getArgument(2)).invoke());
   providers=mock(AiProviderRegistry.class);
-  billing=mock(com.knowflow.ai.billing.AiBillingService.class);
+  billing=mock(com.knowflow.ai.service.billing.AiBillingService.class);
   ai=new AiServiceImpl(config,mock(UserAiConfigMapper.class),providers,factory,executor,mock(AiCapabilityStateService.class),props, billing);
  }
  @AfterEach void close() throws Exception {server.shutdown();}

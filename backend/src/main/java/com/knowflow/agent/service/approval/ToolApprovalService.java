@@ -1,4 +1,4 @@
-package com.knowflow.agent.approval;
+package com.knowflow.agent.service.approval;
 
 import java.time.Duration;
 import java.util.Objects;

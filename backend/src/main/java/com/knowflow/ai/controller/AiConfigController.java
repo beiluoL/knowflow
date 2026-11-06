@@ -8,7 +8,6 @@ import com.knowflow.config.AiConfig;
 import com.knowflow.config.AiProviderRegistry;
 import com.knowflow.ai.dto.UserAiConfigDTO;
 import com.knowflow.ai.entity.UserAiConfig;
-import com.knowflow.ai.mapper.UserAiConfigMapper;
 import com.knowflow.ai.vo.PlatformModelVO;
 import com.knowflow.ai.vo.UserAiConfigVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -48,7 +47,6 @@ import java.util.stream.Collectors;
  */
 public class AiConfigController {
 
-    private final UserAiConfigMapper userAiConfigMapper;
     private final com.knowflow.ai.service.UserAiConfigService configService;
     private final AiConfig aiConfig;
     private final AiProviderRegistry providerRegistry;
@@ -68,14 +66,8 @@ public class AiConfigController {
     @Operation(summary = "列出当前用户的全部模型配置（编程 Agent 用）")
     @GetMapping("/list")
     public Result<List<UserAiConfigVO>> listConfigs(Authentication authentication) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        List<UserAiConfig> list = userAiConfigMapper.selectList(
-                new LambdaQueryWrapper<UserAiConfig>()
-                        .eq(UserAiConfig::getUserId, userId)
-                        .orderByDesc(UserAiConfig::getIsActive)
-                        .orderByDesc(UserAiConfig::getCreateTime));
-        List<UserAiConfigVO> vos = list.stream().map(this::toVO).collect(Collectors.toList());
-        return Result.success(vos);
+        return Result.success(configService.listConfigs(SecurityUtils.getCurrentUserId()).stream()
+                .map(this::toVO).collect(Collectors.toList()));
     }
 
     @Operation(summary = "保存（新增或更新）一条模型配置")
@@ -91,13 +83,7 @@ public class AiConfigController {
     @Operation(summary = "删除一条模型配置")
     @DeleteMapping("/{id}")
     public Result<Void> deleteConfig(@PathVariable Long id, Authentication authentication) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        UserAiConfig existing = userAiConfigMapper.selectById(id);
-        if (existing == null || !existing.getUserId().equals(userId)) {
-            return Result.error("配置不存在或无权操作");
-        }
-        userAiConfigMapper.deleteById(id);
-        return Result.success();
+        return configService.deleteConfig(SecurityUtils.getCurrentUserId(), id);
     }
 
     @Operation(summary = "设置某条配置为激活（通用 Chat 使用）")
@@ -109,10 +95,7 @@ public class AiConfigController {
     @Operation(summary = "删除当前用户的全部配置（切换回平台模型）")
     @DeleteMapping
     public Result<Void> deleteAll(Authentication authentication) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        userAiConfigMapper.delete(new LambdaQueryWrapper<UserAiConfig>()
-                .eq(UserAiConfig::getUserId, userId));
-        return Result.success();
+        return configService.deleteAll(SecurityUtils.getCurrentUserId());
     }
 
     @Operation(summary = "获取平台提供的全部模型列表（云端 + 本地）")
@@ -252,10 +235,7 @@ public class AiConfigController {
     // ==================== 内部工具 ====================
 
     private UserAiConfig findActive(Long userId) {
-        return userAiConfigMapper.selectOne(new LambdaQueryWrapper<UserAiConfig>()
-                .eq(UserAiConfig::getUserId, userId)
-                .eq(UserAiConfig::getIsActive, 1)
-                .last("LIMIT 1"));
+        return configService.findActive(userId);
     }
 
     private UserAiConfigVO toVO(UserAiConfig config) {

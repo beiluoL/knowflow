@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.community.dto.PrivateMessageSendDTO;
-import com.knowflow.community.entity.PrivateMessage;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.community.mapper.PrivateMessageMapper;
 import com.knowflow.community.service.PrivateMessageService;
 import com.knowflow.community.vo.PrivateConversationVO;
 import com.knowflow.community.vo.PrivateMessageVO;
@@ -37,7 +35,6 @@ public class PrivateMessageController {
 
     private final PrivateMessageService privateMessageService;
     private final ImWebSocketHandler imWebSocketHandler;
-    private final PrivateMessageMapper messageMapper;
     private final UploadConfigProperties uploadConfig;
 
     /**
@@ -105,11 +102,10 @@ public class PrivateMessageController {
     @DeleteMapping("/messages/{id}")
     public Result<Void> recallMessage(@PathVariable Long id) {
         Long userId = currentUserId();
-        PrivateMessage message = messageMapper.selectById(id);
-        privateMessageService.recallMessage(id, userId);
+        Long destinationId = privateMessageService.recallMessage(id, userId);
         // 实时广播撤回，让对方会话里的该消息立即变为“已撤回”
-        if (message != null) {
-            imWebSocketHandler.broadcastRecall(message.getConversationId(), id);
+        if (destinationId != null) {
+            imWebSocketHandler.broadcastRecall(destinationId, id);
         }
         return Result.success();
     }

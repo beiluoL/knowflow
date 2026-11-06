@@ -1,6 +1,6 @@
 package com.knowflow.coding.service;
 
-import com.knowflow.coding.dto.CodeWorkspaceFileVO;
+import com.knowflow.coding.vo.CodeWorkspaceFileVO;
 
 import java.nio.file.Path;
 import java.util.List;

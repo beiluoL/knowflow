@@ -287,7 +287,7 @@ class LearningEventClosedLoopTest {
         q.setSortOrder(1);
         codeQuestionMapper.insert(q);
 
-        CodeQuestionController.SubmitPayload payload = new CodeQuestionController.SubmitPayload();
+        com.knowflow.coding.dto.CodeSubmitDTO payload = new com.knowflow.coding.dto.CodeSubmitDTO();
         payload.setCode("const add=(a,b)=>a+b");
         payload.setLanguage("javascript");
         payload.setTotal(3);

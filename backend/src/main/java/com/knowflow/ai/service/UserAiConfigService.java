@@ -94,7 +94,8 @@ public class UserAiConfigService {
                 .set(UserAiConfig::getIsActive, 1)));
         return Result.success();
     }
-    private UserAiConfig findActive(Long userId) {
+    /** 解析按所有者隔离的当前模型配置。 */
+    public UserAiConfig findActive(Long userId) {
         return userAiConfigMapper.selectOne(new LambdaQueryWrapper<UserAiConfig>()
                 .eq(UserAiConfig::getUserId, userId)
                 .eq(UserAiConfig::getIsActive, 1)
@@ -115,5 +116,37 @@ public class UserAiConfigService {
 
     private void requireWrite(int affected) {
         if (affected != 1) throw new BusinessException(409, "模型配置更新冲突");
+    }
+
+    /** 列出配置时按所有者隔离。 */
+    public java.util.List<UserAiConfig> listConfigs(Long userId) {
+        java.util.List<UserAiConfig> list = userAiConfigMapper.selectList(
+                new LambdaQueryWrapper<UserAiConfig>()
+                        .eq(UserAiConfig::getUserId, userId)
+                        .orderByDesc(UserAiConfig::getIsActive)
+                        .orderByDesc(UserAiConfig::getCreateTime));
+        return list;
+    }
+
+    /** 删除配置时按所有者隔离。 */
+    public Result<Void> deleteConfig(Long userId, Long id) {
+        UserAiConfig existing = userAiConfigMapper.selectById(id);
+        if (existing == null || !existing.getUserId().equals(userId)) {
+            return Result.error("配置不存在或无权操作");
+        }
+        userAiConfigMapper.deleteById(id);
+        return Result.success();
+    }
+
+    /** 删除全部配置时按所有者隔离。 */
+    public Result<Void> deleteAll(Long userId) {
+        userAiConfigMapper.delete(new LambdaQueryWrapper<UserAiConfig>()
+                .eq(UserAiConfig::getUserId, userId));
+        return Result.success();
+    }
+    /** 仅在指定认证所有者范围内解析配置。 */
+    public UserAiConfig findOwned(Long userId, Long configId) {
+        return userAiConfigMapper.selectOne(new LambdaQueryWrapper<UserAiConfig>()
+                .eq(UserAiConfig::getUserId, userId).eq(UserAiConfig::getId, configId));
     }
 }

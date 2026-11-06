@@ -1,6 +1,6 @@
 package com.knowflow.coding.service.impl;
 
-import com.knowflow.coding.dto.CodeWorkspaceFileVO;
+import com.knowflow.coding.vo.CodeWorkspaceFileVO;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.coding.service.CodeWorkspaceService;
 import lombok.extern.slf4j.Slf4j;

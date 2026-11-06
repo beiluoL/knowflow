@@ -1,14 +1,11 @@
 package com.knowflow.learning.controller.admin;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.learning.entity.QuizQuestion;
-import com.knowflow.learning.mapper.QuizQuestionMapper;
 import com.knowflow.knowledge.contract.QuizSourceQueryService;
 import com.knowflow.ai.service.AiService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.knowflow.learning.service.AdminQuizQuestionApplicationService;
 /**
  * 提供管理端题目的分页、编辑、发布与下架接口。
  */
@@ -33,8 +31,9 @@ import java.util.Map;
 @Slf4j
 public class AdminQuizQuestionController {
 
+    private final com.knowflow.learning.service.AdminQuizQuestionApplicationService applicationService;
+
     private final com.knowflow.catalog.service.QuizQuestionAdminService questionAdmin;
-    private final QuizQuestionMapper quizQuestionMapper;
     private final QuizSourceQueryService quizSources;
     private final AiService aiService;
     private final ObjectMapper objectMapper;
@@ -52,43 +51,13 @@ public class AdminQuizQuestionController {
             @RequestParam(required = false) String source,
             @RequestParam(required = false) Integer status,
             @RequestParam(required = false) Long categoryId) {
-
-        QueryWrapper<QuizQuestion> qw = new QueryWrapper<>();
-        if (keyword != null && !keyword.isBlank()) {
-            qw.and(w -> w.like("title", keyword).or().like("content", keyword));
-        }
-        if (questionType != null && !questionType.isBlank()) {
-            qw.eq("question_type", questionType);
-        }
-        if (difficulty != null) {
-            qw.eq("difficulty", difficulty);
-        }
-        if (source != null && !source.isBlank()) {
-            qw.eq("source", source);
-        }
-        if (status != null) {
-            qw.eq("status", status);
-        }
-        if (categoryId != null) {
-            qw.eq("category_id", categoryId);
-        }
-        qw.ne("question_type", QuizQuestion.TYPE_CODE);
-        qw.orderByDesc("create_time").orderByDesc("id");
-
-        Page<QuizQuestion> p = quizQuestionMapper.selectPage(
-                new Page<>(page, pageSize), qw);
-
-        return Result.success(PageResult.of(p));
+        return applicationService.list(page, pageSize, keyword, questionType, difficulty, source, status, categoryId);
     }
 
     @Operation(summary = "题目详情")
     @GetMapping("/{id}")
     public Result<QuizQuestion> detail(@PathVariable Long id) {
-        QuizQuestion q = quizQuestionMapper.selectById(id);
-        if (q == null) {
-            return Result.error("题目不存在");
-        }
-        return Result.success(q);
+        return applicationService.detail(id);
     }
 
     @Operation(summary = "手动新增题目")

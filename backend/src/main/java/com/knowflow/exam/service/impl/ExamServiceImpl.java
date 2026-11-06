@@ -33,7 +33,7 @@ import com.knowflow.exam.vo.ExamVos;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.mapper.LearningMistakeMapper;
 import com.knowflow.identity.mapper.SysUserMapper;
-import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.contract.LearningEventRecorder;
 import com.knowflow.learning.service.MistakeService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +81,7 @@ public class ExamServiceImpl implements ExamService {
     /** AI_RUNNING 认领僵死回收阈值：实例宕机后，超过此时长允许其他请求/实例重新认领。 */
     private static final long AI_GRADING_STALE_MINUTES = 10;
 
-    private final com.knowflow.learning.evidence.LearningEvidenceService evidenceReceipts;
+    private final com.knowflow.learning.service.evidence.LearningEvidenceService evidenceReceipts;
     private final ExamTemplateMapper templateMapper;
     private final ExamPaperMapper paperMapper;
     private final ExamPaperQuestionMapper paperQuestionMapper;
@@ -92,7 +92,7 @@ public class ExamServiceImpl implements ExamService {
     private final PaperComposer composer;
     private final ExamAiService examAi;
     private final MistakeService mistakeService;
-    private final LearningEventService learningEventService;
+    private final LearningEventRecorder learningEventService;
     private final CodeProblemService codeProblemService;
     private final ObjectMapper objectMapper;
     private final SysUserMapper sysUserMapper;

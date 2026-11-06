@@ -140,7 +140,8 @@
       "backend/src/main/java/com/knowflow/learning/service/studypack/StudyPackService.java",
       "backend/src/main/java/com/knowflow/learning/service/tutor/TutorAssessmentService.java",
       "backend/src/main/java/com/knowflow/learning/service/tutor/TutorContextService.java",
-      "backend/src/main/java/com/knowflow/learning/service/tutor/TutorMicroService.java"
+      "backend/src/main/java/com/knowflow/learning/service/tutor/TutorMicroService.java",
+      "backend/src/main/java/com/knowflow/coding/service/workspace/JavaPracticeService.java"
     ],
     "frontend.arch.apiOutsideApiDir": [],
     "frontend.arch.directHttp": [],

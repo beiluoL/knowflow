@@ -29,7 +29,7 @@ import com.knowflow.learning.entity.QuizQuestion;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.mapper.QuizQuestionMapper;
 import com.knowflow.ai.service.AiService;
-import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.contract.LearningEventRecorder;
 import com.knowflow.learning.service.MistakeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,7 +81,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
         return q;
     }
     private final MistakeService mistakeService;
-    private final LearningEventService learningEventService;
+    private final LearningEventRecorder learningEventService;
     private final ObjectMapper objectMapper;
     private final AiService aiService;
 

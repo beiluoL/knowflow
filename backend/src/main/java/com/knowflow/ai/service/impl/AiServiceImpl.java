@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.ai.capability.AiCapabilityException;
 import com.knowflow.ai.capability.AiCapabilityExecutor;
 import com.knowflow.ai.capability.AiCapabilityProperties;
-import com.knowflow.ai.capability.AiCapabilityStateService;
+import com.knowflow.ai.service.capability.AiCapabilityStateService;
 import com.knowflow.ai.capability.AiFailureKind;
 import com.knowflow.ai.capability.AiRawResult;
 import com.knowflow.ai.capability.ChatModelCapability;
@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.knowflow.ai.service.billing.AiBillingService;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -58,7 +59,7 @@ public class AiServiceImpl implements AiService {
     private final AiCapabilityExecutor capabilityExecutor;
     private final AiCapabilityStateService capabilityStateService;
     private final AiCapabilityProperties capabilityProperties;
-    private final com.knowflow.ai.billing.AiBillingService billing;
+    private final com.knowflow.ai.service.billing.AiBillingService billing;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final OpenAiResponsesStreamClient responsesStreamClient = new OpenAiResponsesStreamClient(objectMapper);
     private final HttpClient httpClient = HttpClient.newBuilder()
@@ -221,7 +222,7 @@ public class AiServiceImpl implements AiService {
     }
 
     private final class BillableAttempt implements AutoCloseable {
-        private final com.knowflow.ai.billing.AiBillingService.Reservation reservation;
+        private final com.knowflow.ai.service.billing.AiBillingService.Reservation reservation;
         private final ModelAdapter.ChatRequest request;
         private boolean success;
         private java.util.function.BooleanSupplier cancelled = () -> false;

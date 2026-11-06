@@ -28,7 +28,7 @@ import com.knowflow.knowledge.service.CategoryService;
 import com.knowflow.knowledge.service.DocChunkService;
 import com.knowflow.knowledge.service.DocService;
 import com.knowflow.learning.contract.LearningEventType;
-import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.contract.LearningEventRecorder;
 import com.knowflow.knowledge.service.DocumentTextExtractor;
 import com.knowflow.knowledge.service.KnowledgeService;
 import com.knowflow.util.UploadHelper;
@@ -71,7 +71,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final DocumentTextExtractor documentTextExtractor;
     private final KnowledgeService knowledgeService;
     private final UploadConfigProperties uploadConfig;
-    private final LearningEventService learningEventService;
+    private final LearningEventRecorder learningEventService;
     private final com.knowflow.security.DocumentAccessPolicy access;
     private final com.knowflow.learning.mapper.LearningPathMapper learningPathMapper;
     private final com.knowflow.learning.mapper.LearningChapterMapper learningChapterMapper;
