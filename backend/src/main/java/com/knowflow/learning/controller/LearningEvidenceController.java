@@ -4,7 +4,7 @@ package com.knowflow.learning.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.learning.evidence.LearningEvidenceService;
+import com.knowflow.learning.service.evidence.LearningEvidenceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;

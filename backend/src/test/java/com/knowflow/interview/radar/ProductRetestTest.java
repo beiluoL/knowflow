@@ -45,9 +45,9 @@ class ProductRetestTest {
  }
  private RadarStudyService.Start start(long q,String stage){return new RadarStudyService.Start(q,stage,"SPECIALTY",null,15,1,true,UUID.randomUUID().toString(),null,List.of());}
 
- @Autowired com.knowflow.learning.feedback.InterviewRetestService retests;
- @Autowired com.knowflow.learning.feedback.FeedbackSourceService feedbackSources;
- @Autowired com.knowflow.learning.privatequiz.PrivateQuizService quizzes; @Autowired com.knowflow.learning.tutor.TutorMicroService micros;
+ @Autowired com.knowflow.learning.service.feedback.InterviewRetestService retests;
+ @Autowired com.knowflow.learning.service.feedback.FeedbackSourceService feedbackSources;
+ @Autowired com.knowflow.learning.service.privatequiz.PrivateQuizService quizzes; @Autowired com.knowflow.learning.service.tutor.TutorMicroService micros;
  @Test void requiresRealPracticeAndPreservesOriginalSnapshotAndUnknownHistory()throws Exception {
   var actor=user();long uid=actor.getId(),q=question(uid);
   jdbc.update("UPDATE quiz_question SET review_status='APPROVED' WHERE id=?",q);
@@ -63,7 +63,7 @@ class ProductRetestTest {
   assertTrue(jdbc.queryForObject("SELECT COUNT(*) FROM learning_note WHERE id=? AND user_id=?",Integer.class,note,uid)>0);
   var qs=List.of(new com.knowflow.learning.privatequiz.PrivateQuizRequests.Question("TRUE_FALSE","数组容量需要验证吗？",List.of(),"true","数组容量和扩容边界，以及工程验证。"),new com.knowflow.learning.privatequiz.PrivateQuizRequests.Question("TRUE_FALSE","扩容有边界吗？",List.of(),"true","数组容量和扩容边界，以及工程验证。"),new com.knowflow.learning.privatequiz.PrivateQuizRequests.Question("TRUE_FALSE","需要工程验证吗？",List.of(),"true","数组容量和扩容边界，以及工程验证。"));
   FakeAiConfiguration.script(json.writeValueAsString(qs));long quiz=((Number)quizzes.preview(uid,new com.knowflow.learning.privatequiz.PrivateQuizRequests.Preview(note,1L,UUID.randomUUID().toString())).get("id")).longValue();quizzes.confirm(uid,quiz,new com.knowflow.learning.privatequiz.PrivateQuizRequests.Confirm(qs));
-  FakeAiConfiguration.script("{\"analogy\":\"容器扩容\",\"concept\":\"验证数组容量\",\"sourceQuote\":\"数组容量和扩容边界，以及工程验证。\"}");long mid=((Number)micros.start(uid,new com.knowflow.learning.tutor.TutorMicroService.Start(note,quiz,0,UUID.randomUUID().toString(),null)).get("id")).longValue();
+  FakeAiConfiguration.script("{\"analogy\":\"容器扩容\",\"concept\":\"验证数组容量\",\"sourceQuote\":\"数组容量和扩容边界，以及工程验证。\"}");long mid=((Number)micros.start(uid,new com.knowflow.learning.service.tutor.TutorMicroService.Start(note,quiz,0,UUID.randomUUID().toString(),null)).get("id")).longValue();
   assertThrows(BusinessException.class,()->retests.linkPractice(uid,id,mid));micros.begin(mid,uid);micros.submit(mid,uid,"true");assertEquals(1,retests.linkPractice(uid,id,mid).get("completedCount"));assertEquals(1,retests.linkPractice(uid,id,mid).get("completedCount"));
   String frozen=jdbc.queryForObject("SELECT questions_json FROM mock_interview_session WHERE id=?",String.class,original.get("sessionId"));
   jdbc.update("UPDATE quiz_question SET answer='Changed bank reference' WHERE id=?",q);
@@ -80,7 +80,7 @@ class ProductRetestTest {
   jdbc.update("UPDATE doc_document SET deleted=1 WHERE id=(SELECT doc_id FROM quiz_question WHERE id=?)",q);assertThrows(BusinessException.class,()->v2.get(uid,((Number)repeated.get("retestSessionId")).longValue()));
  }
 
- @Autowired com.knowflow.learning.feedback.ProductMockInterviewService mocks;
+ @Autowired com.knowflow.learning.service.feedback.ProductMockInterviewService mocks;
  private List<Long> three(long uid)throws Exception {
   var files=new ArrayList<Map<String,Object>>();var merged=new ArrayList<Map<String,Object>>();
   for(int i=1;i<=3;i++){String number="Q10"+i,body="# "+number+" RAG检索合成测试场景"+i+"\n## 标准答案\n检索需要可核对证据，证据不足时明确未知，不虚构事实。",hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(body.getBytes(StandardCharsets.UTF_8))),file="test/"+number+".md";
@@ -91,7 +91,7 @@ class ProductRetestTest {
   var data=json.readTree(evaluation(60));((com.fasterxml.jackson.databind.node.ObjectNode)data).put("decision",follow?"FOLLOW_UP":"NEXT_QUESTION").put("followupQuestion",follow?"你刚才提到的检索有哪些失败条件？":"");((com.fasterxml.jackson.databind.node.ObjectNode)data).set("missingKnowledge",json.valueToTree(List.of("检索")));((com.fasterxml.jackson.databind.node.ObjectNode)data.path("evaluation")).set("citations",json.valueToTree(List.of(text)));FakeAiConfiguration.script(data.toString());long sid=((Number)session.get("sessionId")).longValue();v2.answer(uid,sid,new InterviewV2Service.Answer(((Number)session.get("version")).longValue(),UUID.randomUUID().toString(),text,null,null));for(int i=0;i<200;i++){var next=v2.get(uid,sid);if(!"EVALUATING".equals(next.get("state")))return next;Thread.sleep(10);}throw new AssertionError("evaluation timeout");
  }
  @Test void threeMainQuestionsAndRelevantFollowupsUseOriginalRubricAndFailClosedOnSourceLoss()throws Exception {
-  var actor=user();long uid=actor.getId();var ids=three(uid);var input=new com.knowflow.learning.feedback.ProductMockInterviewService.Start(UUID.randomUUID().toString(),"JAVA_AI","RAG",List.of());assertThrows(BusinessException.class,()->mocks.start(uid,input));for(long id:ids)jdbc.update("UPDATE quiz_question SET review_status='APPROVED' WHERE id=?",id);
+  var actor=user();long uid=actor.getId();var ids=three(uid);var input=new com.knowflow.learning.service.feedback.ProductMockInterviewService.Start(UUID.randomUUID().toString(),"JAVA_AI","RAG",List.of());assertThrows(BusinessException.class,()->mocks.start(uid,input));for(long id:ids)jdbc.update("UPDATE quiz_question SET review_status='APPROVED' WHERE id=?",id);
   var session=mocks.start(uid,input);assertEquals(3,session.get("questionCount"));assertFalse(json.writeValueAsString(session).contains("检索需要可核对证据"));assertEquals(session.get("sessionId"),mocks.start(uid,input).get("sessionId"));assertTrue(session.get("role").toString().contains("通用岗位模板"));
   for(int i=0;i<3;i++){session=respond(uid,session,"我先做检索。",true);assertEquals("FOLLOW_UP",session.get("state"));assertFalse(json.writeValueAsString(session).contains("radarGrade"));session=respond(uid,session,"检索没有证据时明确说明不知道。",false);}
   assertEquals("COMPLETED",session.get("state"));assertEquals(6,((List<?>)session.get("turns")).size());assertEquals(RadarRubric.VERSION,((Map<?,?>)session.get("report")).get("rubricVersion"));assertNotNull(((Map<?,?>)session.get("report")).get("radarOverallScore"));long sid=((Number)session.get("sessionId")).longValue();assertThrows(BusinessException.class,()->v2.get(user().getId(),sid));

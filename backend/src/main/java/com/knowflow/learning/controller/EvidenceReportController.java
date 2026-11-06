@@ -1,5 +1,6 @@
 package com.knowflow.learning.controller;
-import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.adaptive.EvidenceReportService;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
+import com.knowflow.learning.service.adaptive.EvidenceReportService;
+import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.service.adaptive.EvidenceReportService;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
 /**
  * 提供基于原始学习记录的证据报告查询接口。
  */

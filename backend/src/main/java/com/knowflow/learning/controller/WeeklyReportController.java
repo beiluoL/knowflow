@@ -2,7 +2,7 @@ package com.knowflow.learning.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
-import com.knowflow.learning.report.WeeklyReportService;
+import com.knowflow.learning.service.report.WeeklyReportService;
 import com.knowflow.learning.vo.WeeklyReportVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

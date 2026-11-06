@@ -46,7 +46,7 @@ public class TaskController {
     @Operation(summary = "智能列表任务（inbox/today/upcoming/someday/logbook/all），嵌套子任务")
     @GetMapping
     public Result<List<TaskVO>> list(@RequestParam(defaultValue = "inbox") String smart,@RequestParam(defaultValue="Asia/Shanghai") String zoneId) {
-        return Result.success(taskService.listBySmartList(uid(), smart,com.knowflow.learning.actions.LearningContextService.zone(zoneId)));
+        return Result.success(taskService.listBySmartList(uid(), smart,com.knowflow.learning.service.actions.LearningContextService.zone(zoneId)));
     }
 
     @Operation(summary = "某清单 / 项目下的任务树")

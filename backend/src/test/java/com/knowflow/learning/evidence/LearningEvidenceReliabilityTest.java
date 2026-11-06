@@ -10,6 +10,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import java.util.*;
+import com.knowflow.learning.dto.QuizSubmitDTO;
+import com.knowflow.learning.service.LearningEventService;
+import com.knowflow.learning.service.QuizService;
+import com.knowflow.learning.service.evidence.LearningEvidenceService;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

@@ -76,7 +76,7 @@ class TutorHttpTest {
   String result=stream(conv,"保留我的原文");assertTrue(result.contains("error"));assertEquals(1,call("GET","/api/chat/conversations/"+conv+"/messages",null,98401,200).size());
  }
 
- @Autowired com.knowflow.learning.tutor.TutorContextService tutors;
+ @Autowired com.knowflow.learning.service.tutor.TutorContextService tutors;
  @Test void assistantAndConversationUpdateRollbackTogetherAndDeletedSourceCannotCommit()throws Exception{
   long conv=session();var prepared=tutors.prepare(conv,98401);
   var message=new com.knowflow.ai.entity.ChatMessage();message.setConversationId(conv);message.setUserId(98401L);message.setRole("assistant");message.setContent("可回滚导师回复");

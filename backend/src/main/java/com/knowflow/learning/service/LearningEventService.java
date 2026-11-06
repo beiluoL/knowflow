@@ -8,6 +8,7 @@ import com.knowflow.learning.entity.LearningEvent;
 
 import java.util.Map;
 
+import com.knowflow.learning.contract.LearningEventRecorder;
 /**
  * 学习行为事件服务（Learning Event System，Phase 1）。
  * <p>

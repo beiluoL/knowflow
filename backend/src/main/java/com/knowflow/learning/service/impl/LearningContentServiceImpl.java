@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.knowflow.learning.mapper.LearningPathMapper;
 /**
  * AI 学习内容生成服务实现（Architecture-4.4）。
  *

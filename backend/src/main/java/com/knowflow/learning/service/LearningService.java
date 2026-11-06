@@ -22,6 +22,7 @@ import com.knowflow.learning.vo.PersonalizedPathVO;
 
 import java.util.List;
 
+import com.knowflow.mastery.vo.MasteryDistributionVO;
 /** 学习中心业务服务接口。 */
 public interface LearningService extends IService<LearningPath> {
 

@@ -1,5 +1,6 @@
 package com.knowflow.learning.controller;
-import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.adaptive.AdaptivePathService;import jakarta.validation.Valid;import jakarta.validation.constraints.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
+import com.knowflow.learning.service.adaptive.AdaptivePathService;
+import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.service.adaptive.AdaptivePathService;import jakarta.validation.Valid;import jakarta.validation.constraints.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;
 /**
  * 提供用户自适应路径绑定、调整预览、确认及延期接口。
  */

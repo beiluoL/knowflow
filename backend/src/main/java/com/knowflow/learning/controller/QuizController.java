@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import com.knowflow.learning.service.product.QuizLearningReviewService;
+import com.knowflow.learning.vo.SmartPracticeVO;
 /** 在线答题 REST 接口：拉取练习题、提交判分与答题统计。 */
 @Tag(name = "在线答题接口")
 @RestController
@@ -24,7 +26,7 @@ import java.util.List;
 public class QuizController {
 
     private final QuizService quizService;
-    private final com.knowflow.learning.product.QuizLearningReviewService learningReview;
+    private final com.knowflow.learning.service.product.QuizLearningReviewService learningReview;
 
     @GetMapping("/questions/{id}/learning-review")
     public Result<java.util.Map<String,Object>> learningReview(@PathVariable long id){return Result.success(learningReview.report(SecurityUtils.getCurrentUserId(),id));}

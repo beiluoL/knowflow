@@ -2,6 +2,7 @@ package com.knowflow.learning.vo;
 
 import lombok.Data;
 
+import com.knowflow.learning.actions.PlanModels;
 /**
  * 计划条目 VO：属于某个时段块（PlanBlockVO）中的单个执行项。
  * type ∈ {learningTask, todo, habit}，对应只填一种关联 ID，其余为 null。

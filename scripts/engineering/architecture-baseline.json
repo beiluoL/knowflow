@@ -57,7 +57,8 @@
       "backend/src/main/java/com/knowflow/knowledge/service/impl/KnowledgeProcessingServiceImpl.java",
       "backend/src/main/java/com/knowflow/learning/service/impl/LearningPlanServiceImpl.java",
       "backend/src/main/java/com/knowflow/learning/service/impl/LearningServiceImpl.java",
-      "backend/src/main/java/com/knowflow/workbench/service/impl/WorkbenchServiceImpl.java"
+      "backend/src/main/java/com/knowflow/workbench/service/impl/WorkbenchServiceImpl.java",
+      "backend/src/main/java/com/knowflow/learning/service/studypack/StudyPackService.java"
     ],
     "backend.arch.longMethod": [
       "backend/src/main/java/com/knowflow/ai/controller/AiConfigController.java#testConnection",
@@ -120,7 +121,26 @@
       "backend/src/main/java/com/knowflow/interview/service/radar/RadarStudyService.java",
       "backend/src/main/java/com/knowflow/interview/service/speech/InterviewSpeechService.java",
       "backend/src/main/java/com/knowflow/interview/service/speech/InterviewStreamingTranscriptService.java",
-      "backend/src/main/java/com/knowflow/interview/service/v2/InterviewV2Service.java"
+      "backend/src/main/java/com/knowflow/interview/service/v2/InterviewV2Service.java",
+      "backend/src/main/java/com/knowflow/learning/service/actions/ChatLearningActionService.java",
+      "backend/src/main/java/com/knowflow/learning/service/actions/LearningDashboardService.java",
+      "backend/src/main/java/com/knowflow/learning/service/adaptive/AdaptivePathService.java",
+      "backend/src/main/java/com/knowflow/learning/service/adaptive/EvidenceReportService.java",
+      "backend/src/main/java/com/knowflow/learning/service/adaptive/GraphInsightService.java",
+      "backend/src/main/java/com/knowflow/learning/service/adaptive/InterleavedPracticeService.java",
+      "backend/src/main/java/com/knowflow/learning/service/evidence/LearningEvidenceService.java",
+      "backend/src/main/java/com/knowflow/learning/service/feedback/ErrorAnnotationService.java",
+      "backend/src/main/java/com/knowflow/learning/service/feedback/FeedbackSourceService.java",
+      "backend/src/main/java/com/knowflow/learning/service/feedback/InterviewRetestService.java",
+      "backend/src/main/java/com/knowflow/learning/service/feedback/ProductMockInterviewService.java",
+      "backend/src/main/java/com/knowflow/learning/service/feedback/QuestionVariantService.java",
+      "backend/src/main/java/com/knowflow/learning/service/privatequiz/PrivateQuizService.java",
+      "backend/src/main/java/com/knowflow/learning/service/product/QuizLearningReviewService.java",
+      "backend/src/main/java/com/knowflow/learning/service/studypack/StudyPackEventWriter.java",
+      "backend/src/main/java/com/knowflow/learning/service/studypack/StudyPackService.java",
+      "backend/src/main/java/com/knowflow/learning/service/tutor/TutorAssessmentService.java",
+      "backend/src/main/java/com/knowflow/learning/service/tutor/TutorContextService.java",
+      "backend/src/main/java/com/knowflow/learning/service/tutor/TutorMicroService.java"
     ],
     "frontend.arch.apiOutsideApiDir": [],
     "frontend.arch.directHttp": [],

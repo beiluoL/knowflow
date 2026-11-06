@@ -1,11 +1,13 @@
 package com.knowflow.learning.controller;
-import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.feedback.ErrorAnnotationService;import jakarta.validation.Valid;import jakarta.validation.constraints.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;import java.util.*;
+import com.knowflow.learning.service.feedback.ErrorAnnotationService;
+import com.knowflow.learning.service.feedback.InterviewRetestService;
+import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.service.feedback.ErrorAnnotationService;import jakarta.validation.Valid;import jakarta.validation.constraints.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;import java.util.*;
 /**
  * 提供错因标注、纠正、练习及关联接口。
  */
 @RestController @RequestMapping("/api/learning/error-annotations") @RequiredArgsConstructor @ConditionalOnProperty(name={"knowflow.product.interview-learning.enabled","knowflow.product.private-quiz.enabled","knowflow.product.tutor.enabled","knowflow.product.tutor-coaching.enabled"},havingValue="true")
 public class ErrorAnnotationController {
- private final ErrorAnnotationService annotations;private final com.knowflow.learning.feedback.InterviewRetestService retests;private long user(){return SecurityUtils.getCurrentUserId();}
+ private final ErrorAnnotationService annotations;private final com.knowflow.learning.service.feedback.InterviewRetestService retests;private long user(){return SecurityUtils.getCurrentUserId();}
  public record Practice(@NotNull @Positive Long microId){}
  @GetMapping public Result<?> list(@RequestParam String sourceType,@RequestParam long sourceId,@RequestParam(defaultValue="0")int questionIndex){return Result.success(annotations.list(user(),sourceType,sourceId,questionIndex));}
  @PostMapping public Result<?> create(@Valid @RequestBody ErrorAnnotationService.Create input){return Result.success(annotations.create(user(),input));}

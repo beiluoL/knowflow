@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import com.knowflow.learning.service.LearningAnalyticsService;
+import com.knowflow.learning.service.actions.LearningTaskProjection;
 /** 学习中心 REST 接口，提供学习路径、章节、闪卡与任务能力。 */
 @Tag(name = "学习接口")
 @RestController
@@ -42,7 +44,7 @@ import java.util.Map;
 public class LearningController {
 
     private final LearningService learningService;
-    private final com.knowflow.learning.actions.LearningTaskProjection taskProjection;
+    private final com.knowflow.learning.service.actions.LearningTaskProjection taskProjection;
     private final com.knowflow.productivity.service.TaskService realTasks;
     private final com.knowflow.learning.service.LearningAnalyticsService learningAnalyticsService;
 

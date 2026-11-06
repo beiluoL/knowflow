@@ -41,6 +41,7 @@ import org.springframework.test.context.*;
 import java.nio.file.*;
 import java.time.*;
 import java.util.*;
+import com.knowflow.learning.service.actions.DailyLearningPlanService;
 import static org.junit.jupiter.api.Assertions.*;
 /**
  * 通过真实浏览器与数据库状态验证学习证明任务。

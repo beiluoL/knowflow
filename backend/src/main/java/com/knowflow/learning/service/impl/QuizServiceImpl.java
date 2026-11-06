@@ -38,13 +38,19 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.knowflow.learning.actions.LearningWriteGuard;
+import com.knowflow.learning.actions.PersonalLearningResourceScope;
+import com.knowflow.learning.evidence.QuizAttemptProvenance;
+import com.knowflow.learning.product.QuizAnswerSnapshot;
+import com.knowflow.learning.service.product.QuizLearningReviewService;
+import com.knowflow.mastery.service.ResourceKnowledgeService;
 /** 在线答题业务服务实现：拉题、判分、记录持久化与错题同步。 */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAnswerRecord> implements QuizService {
 
-    private final com.knowflow.learning.product.QuizLearningReviewService learningReview;
+    private final com.knowflow.learning.service.product.QuizLearningReviewService learningReview;
     private final com.knowflow.knowledge.mapper.KgEntityMapper knowledgeMapper;
     private final com.knowflow.learning.actions.PersonalLearningResourceScope personal;
     private final com.knowflow.learning.actions.LearningWriteGuard writeGuard;

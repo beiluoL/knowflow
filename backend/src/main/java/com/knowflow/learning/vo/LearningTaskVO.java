@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import com.knowflow.learning.actions.PlanModels;
 /**
  * 学习任务视图对象，封装任务类型、奖励与截止时间等信息。
  */

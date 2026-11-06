@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.*;
 
+import com.knowflow.learning.service.evidence.LearningEvidenceService;
 /** 已使用 recordRequired 的生产者在同一事务捕获，不重复发出事件。 */
 @Component
 @RequiredArgsConstructor

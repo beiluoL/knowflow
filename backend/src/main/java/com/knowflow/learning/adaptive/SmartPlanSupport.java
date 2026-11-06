@@ -16,6 +16,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.knowflow.learning.service.actions.LearningContextService;
+import com.knowflow.learning.service.adaptive.AdaptivePathService;
 /** 原每日草稿与确认服务的约束适配器，不另建任务或计划存储。 */
 @Component
 @RequiredArgsConstructor

@@ -1,12 +1,14 @@
 package com.knowflow.learning.controller;
 import com.knowflow.common.*;
-import com.knowflow.learning.tutor.TutorContextService;
+import com.knowflow.learning.service.tutor.TutorContextService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+import com.knowflow.learning.entity.LearningNote;
+import com.knowflow.learning.service.tutor.TutorAssessmentService;
 /**
  * 提供导师会话创建、消息追加及模式管理接口。
  */
@@ -14,7 +16,7 @@ import java.util.*;
 @ConditionalOnProperty(name="knowflow.product.tutor.enabled",havingValue="true")
 public class TutorController {
  private final TutorContextService tutors;
- private final com.knowflow.learning.tutor.TutorAssessmentService assessments;
+ private final com.knowflow.learning.service.tutor.TutorAssessmentService assessments;
  public record Create(@NotNull @Positive Long noteId,@NotBlank String mode){}
  public record Append(@NotNull @Positive Long expectedRevision,boolean confirmed){}
  @PostMapping("/{id}/answers/{messageId}/to-note") public Result<com.knowflow.learning.entity.LearningNote> append(@PathVariable long id,@PathVariable long messageId,@Valid @RequestBody Append input){return Result.success(tutors.appendAnswer(id,messageId,SecurityUtils.getCurrentUserId(),input.expectedRevision(),input.confirmed()));}
@@ -23,7 +25,7 @@ public class TutorController {
  @PostMapping public Result<Map<String,Object>> create(@Valid @RequestBody Create input){return Result.success(tutors.create(input.noteId(),SecurityUtils.getCurrentUserId(),input.mode()));}
  @GetMapping("/{id}") public Result<Map<String,Object>> get(@PathVariable long id){return Result.success(tutors.get(id,SecurityUtils.getCurrentUserId()));}
  @GetMapping("/{id}/assessments") public Result<List<Map<String,Object>>> assessments(@PathVariable long id){return Result.success(assessments.list(id,SecurityUtils.getCurrentUserId()));}
- @PostMapping("/{id}/assessments") public Result<Map<String,Object>> assess(@PathVariable long id,@Valid @RequestBody com.knowflow.learning.tutor.TutorAssessmentService.Input input){return Result.success(assessments.assess(id,SecurityUtils.getCurrentUserId(),input));}
+ @PostMapping("/{id}/assessments") public Result<Map<String,Object>> assess(@PathVariable long id,@Valid @RequestBody com.knowflow.learning.service.tutor.TutorAssessmentService.Input input){return Result.success(assessments.assess(id,SecurityUtils.getCurrentUserId(),input));}
  @GetMapping("/{id}/hints") public Result<Map<String,Object>> hints(@PathVariable long id){return Result.success(tutors.hints(id,SecurityUtils.getCurrentUserId()));}
  @PostMapping("/{id}/mode") public Result<Map<String,Object>> mode(@PathVariable long id,@Valid @RequestBody Mode input){return Result.success(tutors.mode(id,SecurityUtils.getCurrentUserId(),input.mode(),input.expectedRevision()));}
 }

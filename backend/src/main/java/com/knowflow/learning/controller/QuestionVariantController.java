@@ -1,5 +1,6 @@
 package com.knowflow.learning.controller;
-import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.feedback.QuestionVariantService;import jakarta.validation.Valid;import jakarta.validation.constraints.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;import java.util.*;
+import com.knowflow.learning.service.feedback.QuestionVariantService;
+import com.knowflow.common.*;import com.knowflow.exception.BusinessException;import com.knowflow.learning.service.feedback.QuestionVariantService;import jakarta.validation.Valid;import jakarta.validation.constraints.*;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.http.ResponseEntity;import org.springframework.web.bind.annotation.*;import java.util.*;
 /**
  * 提供变式题生成、确认及作答接口。
  */

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.knowflow.learning.dto.MistakePageQuery;
 /** 错题本 REST 接口，提供错题的增删查、掌握标记与统计。 */
 @Tag(name = "错题本接口")
 @RestController

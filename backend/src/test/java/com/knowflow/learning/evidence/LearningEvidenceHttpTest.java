@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.*;
+import com.knowflow.learning.service.evidence.LearningEvidenceService;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
 @TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:v7_evidence;DB_CLOSE_DELAY=-1;MODE=MySQL", "knowflow.datasource.config-file=/tmp/knowflow-v7-evidence-no-config.json"})
 class LearningEvidenceHttpTest {
- @Autowired com.knowflow.learning.evidence.LearningEvidenceService evidence;
+ @Autowired com.knowflow.learning.service.evidence.LearningEvidenceService evidence;
  @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
  @Autowired JdbcTemplate jdbc; @Autowired MockMvc mvc; @Autowired JwtUtils jwt; @Autowired ObjectMapper json;
  String auth(long id,String role){assertEquals(role,jdbc.queryForObject("SELECT role FROM sys_user WHERE id=?",String.class,id));return "Bearer "+jwt.generateToken(id,"v7-"+id,role);}

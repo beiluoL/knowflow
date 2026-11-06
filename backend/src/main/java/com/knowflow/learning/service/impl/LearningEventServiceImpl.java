@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
+import com.knowflow.learning.actions.LearningActionProgress;
 /**
  * 学习行为事件服务实现（Learning Event System，Phase 1）。
  * <p>

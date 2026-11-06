@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.knowflow.learning.mapper.QuizQuestionMapper;
 /** 仅建立意图和回执唯一索引，原始 Task、答案记录及事件仍为权威来源。 */
 @Component
 @RequiredArgsConstructor

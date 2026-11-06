@@ -90,6 +90,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.knowflow.learning.actions.LearningWriteGuard;
+import com.knowflow.learning.actions.PersonalLearningResourceScope;
+import com.knowflow.learning.adaptive.AdaptivePathOrder;
+import com.knowflow.learning.entity.QuizQuestion;
+import com.knowflow.learning.mapper.QuizQuestionMapper;
+import com.knowflow.mastery.entity.ResourceKnowledgeMapping;
+import com.knowflow.mastery.mapper.ResourceKnowledgeMappingMapper;
 /** 学习中心业务服务实现。 */
 @Slf4j
 @Service

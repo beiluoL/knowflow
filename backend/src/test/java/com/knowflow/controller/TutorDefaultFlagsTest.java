@@ -4,7 +4,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import com.knowflow.learning.tutor.TutorMicroService;
+import com.knowflow.learning.service.tutor.TutorMicroService;
 import static org.junit.jupiter.api.Assertions.*;
 /**
  * 验证导师功能的默认开关行为。

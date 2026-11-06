@@ -73,7 +73,7 @@ class StudyPackHttpTest {
   mvc.perform(multipart("/api/learning/study-packs").file(new MockMultipartFile("file","x.exe","application/octet-stream","x".getBytes())).header("Authorization",auth(owner))).andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value(400));
  }
 
- @Autowired com.knowflow.learning.studypack.StudyPackService packService;
+ @Autowired com.knowflow.learning.service.studypack.StudyPackService packService;
  @Test void committedArtifactsRecoverWithoutRegenerationAndCompleteJobsReconcileAfterRestart()throws Exception{
   long id=upload("recover.txt","JVM提供GC。恢复已提交产物测试").path("id").asLong();var ready=terminal(id);long note=ready.path("note").path("id").asLong();
   sql.update("UPDATE study_pack_step SET state='FAILED' WHERE job_id=? AND kind='NOTE'",id);sql.update("UPDATE study_pack_job SET state='PARTIAL_READY' WHERE id=?",id);

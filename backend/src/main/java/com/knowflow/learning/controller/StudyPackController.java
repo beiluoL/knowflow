@@ -1,7 +1,7 @@
 package com.knowflow.learning.controller;
 import com.knowflow.common.*;
 import com.knowflow.flashcards.dto.FlashcardSaveDTO;
-import com.knowflow.learning.studypack.StudyPackService;
+import com.knowflow.learning.service.studypack.StudyPackService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;

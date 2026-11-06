@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+import com.knowflow.learning.service.privatequiz.PrivateQuizService;
 import static com.knowflow.learning.privatequiz.PrivateQuizRequests.*;
 
 /**

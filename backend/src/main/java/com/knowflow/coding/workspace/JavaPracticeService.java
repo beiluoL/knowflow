@@ -43,7 +43,7 @@ public class JavaPracticeService {
   private final TransactionTemplate tx;
   private final CodeJudgeGateway gateway;
   private final com.knowflow.knowledge.service.NoteService notes;
-  private final com.knowflow.learning.tutor.TutorContextService tutor;
+  private final com.knowflow.learning.service.tutor.TutorContextService tutor;
 
   @org.springframework.beans.factory.annotation.Value(
     "${knowflow.product.tutor.enabled:false}"
