@@ -98,7 +98,9 @@
       "backend/src/main/java/com/knowflow/flashcards/service/FlashcardExchangeService.java",
       "backend/src/main/java/com/knowflow/flashcards/service/FlashcardFsrsService.java",
       "backend/src/main/java/com/knowflow/flashcards/service/FlashcardNoteService.java",
-      "backend/src/main/java/com/knowflow/voice/service/VoiceRuntimeSettingsService.java"
+      "backend/src/main/java/com/knowflow/voice/service/VoiceRuntimeSettingsService.java",
+      "backend/src/main/java/com/knowflow/catalog/service/QuestionCatalogService.java",
+      "backend/src/main/java/com/knowflow/catalog/service/QuestionMutationAudit.java"
     ],
     "frontend.arch.apiOutsideApiDir": [],
     "frontend.arch.directHttp": [],

@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.knowflow.interview.speech.InterviewStreamingAsrProvider;
 import com.knowflow.interview.speech.SpeechStreamCapabilities;
-import com.knowflow.voice.VoiceMode;
-import com.knowflow.voice.VoiceRuntimeProperties;
-import com.knowflow.voice.VoiceRuntimeSetting;
+import com.knowflow.voice.enums.VoiceMode;
+import com.knowflow.voice.config.VoiceRuntimeProperties;
+import com.knowflow.voice.model.VoiceRuntimeSetting;
 import com.knowflow.voice.service.VoiceRuntimeSettingsService;
 import org.junit.jupiter.api.Test;
 

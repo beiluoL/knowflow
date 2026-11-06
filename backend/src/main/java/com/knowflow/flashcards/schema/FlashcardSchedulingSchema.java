@@ -1,4 +1,4 @@
-package com.knowflow.flashcards;
+package com.knowflow.flashcards.schema;
 
 import jakarta.annotation.PostConstruct;
 
@@ -17,7 +17,7 @@ public class FlashcardSchedulingSchema {
     private final JdbcTemplate jdbc;
 
     @PostConstruct
-    void initialize() {
+    public void initialize() {
         jdbc.execute(
                 (ConnectionCallback<Void>)
                         connection -> {

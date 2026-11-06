@@ -13,8 +13,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.knowflow.voice.VoiceMode;
-import com.knowflow.voice.VoiceRuntimeSetting;
+import com.knowflow.voice.enums.VoiceMode;
+import com.knowflow.voice.model.VoiceRuntimeSetting;
 /**
  * 语音运行时能力快照。每一项都区分「配置就绪」与「真实可用」：
  * 本机服务用 /health 探测，云端只声明配置就绪并明确标注未做付费探测。

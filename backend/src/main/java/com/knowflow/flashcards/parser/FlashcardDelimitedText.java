@@ -1,4 +1,4 @@
-package com.knowflow.flashcards;
+package com.knowflow.flashcards.parser;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;

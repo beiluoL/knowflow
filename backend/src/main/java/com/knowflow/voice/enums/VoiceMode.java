@@ -1,4 +1,4 @@
-package com.knowflow.voice;
+package com.knowflow.voice.enums;
 
 import java.util.List;
 

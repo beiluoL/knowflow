@@ -2,7 +2,7 @@ package com.knowflow.voice.llm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.voice.VoiceRuntimeProperties;
+import com.knowflow.voice.config.VoiceRuntimeProperties;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

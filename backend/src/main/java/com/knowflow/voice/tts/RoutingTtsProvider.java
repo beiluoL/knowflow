@@ -2,7 +2,7 @@ package com.knowflow.voice.tts;
 
 import com.knowflow.interview.speech.InterviewTtsProvider;
 import com.knowflow.interview.speech.SpeechStreamCapabilities;
-import com.knowflow.voice.VoiceMode;
+import com.knowflow.voice.enums.VoiceMode;
 import com.knowflow.voice.service.VoiceRuntimeSettingsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;

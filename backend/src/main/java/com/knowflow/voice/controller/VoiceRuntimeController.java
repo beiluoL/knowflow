@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.knowflow.voice.service.VoiceCapabilityService;
 import com.knowflow.voice.service.VoiceRuntimeSettingsService;
-import com.knowflow.voice.VoiceRuntimeSetting;
+import com.knowflow.voice.model.VoiceRuntimeSetting;
 /** 语音运行时设置与能力。读取需登录；切换模式需 ADMIN（影响整机所有语音会话）。 */
 @RestController
 @RequestMapping("/api/voice/runtime")

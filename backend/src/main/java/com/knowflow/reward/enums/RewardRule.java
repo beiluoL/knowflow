@@ -1,4 +1,4 @@
-package com.knowflow.reward;
+package com.knowflow.reward.enums;
 
 import com.knowflow.learning.contract.LearningEventType;
 import lombok.Getter;

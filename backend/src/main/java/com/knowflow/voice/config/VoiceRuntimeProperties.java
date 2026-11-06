@@ -1,4 +1,4 @@
-package com.knowflow.voice;
+package com.knowflow.voice.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -1,4 +1,4 @@
-package com.knowflow.voice;
+package com.knowflow.voice.audio;
 
 /** 16kHz 单声道 PCM16 WAV 的最小解析/封装；只接受一种真实格式，拒绝猜测。 */
 public final class PcmWav {

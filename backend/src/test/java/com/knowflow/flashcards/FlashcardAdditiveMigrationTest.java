@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.knowflow.flashcards.service.FlashcardExchangeService;
+import com.knowflow.flashcards.schema.FlashcardSchedulingSchema;
 /**
  * 验证闪卡重复增量迁移保留旧标识、到期时间和历史。
  */

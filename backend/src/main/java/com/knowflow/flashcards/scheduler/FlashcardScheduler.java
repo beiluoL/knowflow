@@ -1,4 +1,4 @@
-package com.knowflow.flashcards;
+package com.knowflow.flashcards.scheduler;
 
 import io.github.openspacedrepetition.Card;
 import io.github.openspacedrepetition.Rating;

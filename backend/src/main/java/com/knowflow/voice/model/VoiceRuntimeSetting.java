@@ -1,8 +1,9 @@
-package com.knowflow.voice;
+package com.knowflow.voice.model;
 
 import java.time.Instant;
 import java.util.List;
 
+import com.knowflow.voice.enums.VoiceMode;
 /**
  * 实例级语音运行设置的不可变快照。Provider 由模式推导，避免出现
  * 「LOCAL 模式 + 云端 TTS」这种自相矛盾且会偷传数据的组合。

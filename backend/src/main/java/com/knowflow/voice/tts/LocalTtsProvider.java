@@ -2,7 +2,7 @@ package com.knowflow.voice.tts;
 
 import com.knowflow.interview.speech.InterviewTtsProvider;
 import com.knowflow.interview.speech.SpeechStreamCapabilities;
-import com.knowflow.voice.VoiceRuntimeProperties;
+import com.knowflow.voice.config.VoiceRuntimeProperties;
 import jakarta.annotation.PreDestroy;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;

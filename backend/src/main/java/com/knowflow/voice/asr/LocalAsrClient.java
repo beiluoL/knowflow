@@ -2,7 +2,7 @@ package com.knowflow.voice.asr;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowflow.voice.VoiceRuntimeProperties;
+import com.knowflow.voice.config.VoiceRuntimeProperties;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;

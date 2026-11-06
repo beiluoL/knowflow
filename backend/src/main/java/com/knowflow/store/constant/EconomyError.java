@@ -1,4 +1,4 @@
-package com.knowflow.store;
+package com.knowflow.store.constant;
 
 /**
  * 经济层业务错误码（§76/§134-136）。

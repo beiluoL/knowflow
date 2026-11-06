@@ -15,8 +15,8 @@ import java.security.*;
 import java.time.Instant;
 import java.util.*;
 
-import com.knowflow.flashcards.ClozeParser;
-import com.knowflow.flashcards.FlashcardDelimitedText;
+import com.knowflow.flashcards.parser.ClozeParser;
+import com.knowflow.flashcards.parser.FlashcardDelimitedText;
 /** 仅交换内容，所有实例与复习事件仍保存在现有学习表中。 */
 @Service
 @RequiredArgsConstructor

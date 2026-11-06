@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.knowflow.reward.RewardRule;
+import com.knowflow.reward.enums.RewardRule;
 /**
  * 奖励引擎：LearningEvent → RewardRule → Wallet + Ledger（唯一发奖入口，§17/§91/§156）。
  *

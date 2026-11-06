@@ -4,7 +4,7 @@ import com.knowflow.exception.BusinessException;
 import com.knowflow.interview.speech.InterviewStreamingAsrProvider;
 import com.knowflow.interview.speech.InterviewTtsProvider;
 import com.knowflow.interview.v2.InterviewV2Service;
-import com.knowflow.voice.VoiceRuntimeSetting;
+import com.knowflow.voice.model.VoiceRuntimeSetting;
 import com.knowflow.voice.service.VoiceRuntimeSettingsService;
 import java.util.*;
 import lombok.RequiredArgsConstructor;

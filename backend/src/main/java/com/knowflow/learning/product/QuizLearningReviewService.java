@@ -24,7 +24,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.*;
 import com.knowflow.flashcards.dto.FlashcardSaveDTO;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.flashcards.FlashcardScheduler;
+import com.knowflow.flashcards.scheduler.FlashcardScheduler;
 import com.knowflow.learning.actions.*;
 import com.knowflow.learning.service.LearningService;
 import java.util.*;

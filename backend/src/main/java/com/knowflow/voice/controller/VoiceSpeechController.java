@@ -29,9 +29,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.knowflow.voice.service.VoiceRuntimeSettingsService;
-import com.knowflow.voice.PcmWav;
-import com.knowflow.voice.VoiceMode;
-import com.knowflow.voice.VoiceRuntimeSetting;
+import com.knowflow.voice.audio.PcmWav;
+import com.knowflow.voice.enums.VoiceMode;
+import com.knowflow.voice.model.VoiceRuntimeSetting;
 /**
  * 语音实验台的「听」与「说」两个原子能力。
  * <p>这里只做转写与合成，**不**建立第二套聊天业务：文本仍由既有

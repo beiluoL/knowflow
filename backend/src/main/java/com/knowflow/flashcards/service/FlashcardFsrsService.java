@@ -18,8 +18,8 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
 
-import com.knowflow.flashcards.FlashcardScheduler;
-import com.knowflow.flashcards.FlashcardSchedulingSchema;
+import com.knowflow.flashcards.scheduler.FlashcardScheduler;
+import com.knowflow.flashcards.schema.FlashcardSchedulingSchema;
 /**
  * 管理 FSRS 复习设置、调度预览、复习提交和统计。
  */

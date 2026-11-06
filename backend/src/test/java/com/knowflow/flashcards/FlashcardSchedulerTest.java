@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.*;
 
+import com.knowflow.flashcards.scheduler.FlashcardScheduler;
 /** 参考夹具来自 open-spaced-repetition/java-fsrs v1.0.0 的 FSRSTest.testReviewCard（MIT）。 */
 class FlashcardSchedulerTest {
     @Test

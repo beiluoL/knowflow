@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.knowflow.store.EconomyError;
+import com.knowflow.store.constant.EconomyError;
 /**
  * 购买服务：唯一购买事务入口（§66/§90/§161）。
  *

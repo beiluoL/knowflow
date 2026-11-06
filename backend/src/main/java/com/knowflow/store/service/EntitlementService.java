@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.knowflow.store.EconomyError;
+import com.knowflow.store.constant.EconomyError;
 /**
  * 资格服务：查询资格、授予资格（§163/§204）。
  * Entitlement = 拥有资格；UserApp = 启用状态（§45/§87），二者互不影响。

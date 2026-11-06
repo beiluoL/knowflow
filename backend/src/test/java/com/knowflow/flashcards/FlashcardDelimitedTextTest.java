@@ -1,6 +1,7 @@
 package com.knowflow.flashcards;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+import com.knowflow.flashcards.parser.FlashcardDelimitedText;
 /**
  * 验证带引号分隔文本的多行解析、边界和导出往返。
  */

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
+import com.knowflow.voice.audio.PcmWav;
 /** 只接受一种真实格式：16kHz 单声道 PCM16；其余一律拒绝，不做格式猜测。 */
 class PcmWavTest {
 

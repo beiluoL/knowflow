@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.knowflow.store.service.PurchaseService;
+import com.knowflow.store.constant.EconomyError;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

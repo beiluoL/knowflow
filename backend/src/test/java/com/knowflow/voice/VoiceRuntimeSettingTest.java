@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.knowflow.voice.enums.VoiceMode;
+import com.knowflow.voice.model.VoiceRuntimeSetting;
 /** 模式决定数据出境范围与 Provider 组合，必须可读、可验证、不可静默降级。 */
 class VoiceRuntimeSettingTest {
 

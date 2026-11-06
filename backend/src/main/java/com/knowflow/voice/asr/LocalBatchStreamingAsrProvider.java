@@ -2,7 +2,7 @@ package com.knowflow.voice.asr;
 
 import com.knowflow.interview.speech.InterviewStreamingAsrProvider;
 import com.knowflow.interview.speech.SpeechStreamCapabilities;
-import com.knowflow.voice.VoiceRuntimeProperties;
+import com.knowflow.voice.config.VoiceRuntimeProperties;
 import jakarta.annotation.PreDestroy;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
