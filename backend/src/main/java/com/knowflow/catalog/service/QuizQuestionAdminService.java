@@ -102,6 +102,11 @@ public class QuizQuestionAdminService {
     return mapper.selectById(id);
   }
 
+  /**
+   * 发布或下架题目。
+   *
+   * <p>AI 来源的题目必须先经人工审核通过，否则拒绝发布——这是内容安全的硬门禁， 不因批量操作或调用方身份放宽。
+   */
   @Transactional
   public void publish(Long id, boolean published) {
     var q = require(id);
@@ -120,6 +125,11 @@ public class QuizQuestionAdminService {
         String.valueOf(q.getStatus()));
   }
 
+  /**
+   * 审核题目。
+   *
+   * <p>以「版本号 + 编辑令牌」双条件校验：审核人看到的内容必须与当前内容一致， 避免对已变更题目误审。审核结论写入后状态回到未发布，需再次发布才对外可见。
+   */
   @Transactional
   public void review(
       Long id, String decision, String comment, Integer expectedVersion, String expectedToken) {
@@ -143,6 +153,7 @@ public class QuizQuestionAdminService {
             + (comment == null ? "" : comment.substring(0, Math.min(comment.length(), 400))));
   }
 
+  /** 逻辑删除题目；删除前先加锁确认存在，避免并发下删到已变更行。 */
   @Transactional
   public void delete(Long id) {
     var q = require(id);

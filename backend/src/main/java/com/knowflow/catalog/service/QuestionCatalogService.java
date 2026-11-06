@@ -3,8 +3,8 @@ package com.knowflow.catalog.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.knowflow.catalog.util.QuestionEditToken;
 import com.knowflow.catalog.vo.QuestionCatalogItem;
+import com.knowflow.coding.contract.CodeProblemCatalogPort;
 import com.knowflow.coding.contract.LegacyCodeCatalogQueryPort;
-import com.knowflow.coding.service.CodeProblemService;
 import com.knowflow.common.PageResult;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.learning.contract.LearningQuestionCatalogQueryPort;
@@ -16,7 +16,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-/** 只读来源适配目录：DB UNION + 真实 count/limit/offset，不改题目表和历史引用。 */
+/**
+ * 题目目录服务：把 learning / coding 四个来源的题目聚合成统一的只读目录。
+ *
+ * <p>来源表由各模块拥有，Catalog 不建立第二套 Entity 或 Mapper；目录视图用一次 UNION ALL
+ * 查询完成跨来源筛选、真实总数与确定性排序，避免内存合并分页导致的总数与排序偏差。
+ *
+ * <p>唯一写回来源表的操作是 {@link #editBasic} 的基础字段更新，沿用迁移前语义。
+ *
+ * <p>并发控制：编辑以「行锁 + 更新时间 + 版本号」三重条件判定，任一不匹配即 409， 防止并发编辑互相覆盖。
+ */
 @Service
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
@@ -27,7 +36,7 @@ public class QuestionCatalogService {
   private final JdbcTemplate jdbc;
   private final LearningQuestionCatalogQueryPort learningQuestions;
   private final LegacyCodeCatalogQueryPort legacy;
-  private final CodeProblemService code;
+  private final CodeProblemCatalogPort code;
   private static final Set<String> SOURCES =
       Set.of("QUIZ", "SCENARIO", "LEGACY_CODE", "CODE_PROBLEM");
   private static final String BANK =
@@ -41,6 +50,11 @@ UNION ALL
 SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NULL,c.difficulty+1,c.difficulty,c.tags,c.status,NULL,NULL,c.create_time,c.update_time FROM code_question c WHERE c.deleted=0
 """;
 
+  /**
+   * 分页查询目录。
+   *
+   * <p>关键字在标题、正文、标签三列做不区分大小写的模糊匹配，并对 `! % _` 转义， 避免用户输入被当作通配符。
+   */
   public PageResult<QuestionCatalogItem> page(
       int page,
       int size,
@@ -199,6 +213,11 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
             .toList();
   }
 
+  /**
+   * 目录项详情：目录投影 + 来源模块的编辑投影。
+   *
+   * <p>来源投影通过 contract 取得，仅用于计算编辑令牌；令牌不包含答案正文。
+   */
   public Map<String, Object> detail(String catalogId) {
     var identity = parse(catalogId);
     var rows =
@@ -259,15 +278,15 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
 
   @org.springframework.transaction.annotation.Transactional(
       isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
+  /**
+   * 更新题目基础字段。
+   *
+   * <p>流程：入参校验 → 解析身份 → 来源行加锁 → 重读投影 → 令牌/版本校验 → 分类与知识点 存在性校验 → 条件更新 → 写审计。任一步失败整体回滚，不留半更新状态。
+   *
+   * <p>加锁与重读必须处于同一事务，否则乐观锁比较的是过期快照。
+   */
   public void editBasic(String catalogId, BasicEdit req) {
-    if (req.title() == null
-        || req.title().isBlank()
-        || req.title().length() > 200
-        || req.difficulty() == null
-        || req.difficulty() < 1
-        || req.difficulty() > 3) throw new BusinessException(400, "标题不能为空且不超过200字，难度必须为1–3");
-    if (req.tags() != null && req.tags().length() > 500)
-      throw new BusinessException(400, "标签不超过500字");
+    validateBasics(req);
     var identity = parse(catalogId);
     String lockedTable =
         switch (identity.source()) {
@@ -282,20 +301,8 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
         .isEmpty()) throw new BusinessException(404, "题目不存在");
     var detail = detail(catalogId);
     var item = (QuestionCatalogItem) detail.get("item");
-    if ((identity.source().equals("SCENARIO")
-            || identity.source().equals("LEGACY_CODE")
-            || req.expectedEditToken() != null)
-        && !Objects.equals(item.getEditToken(), req.expectedEditToken()))
-      throw new BusinessException(409, "题目内容已变更，请重新加载后编辑");
-    if (!Objects.equals(item.getSourceVersion(), req.expectedSourceVersion()))
-      throw new BusinessException(409, "题目已变更，请重新加载后编辑");
-    java.time.LocalDateTime expected = null;
-    try {
-      if (req.expectedUpdatedAt() != null)
-        expected = java.time.LocalDateTime.parse(req.expectedUpdatedAt().replace(' ', 'T'));
-    } catch (java.time.format.DateTimeParseException e) {
-      throw new BusinessException(400, "更新时间格式错误");
-    }
+    assertNoConcurrentEdit(identity, req, item);
+    java.time.LocalDateTime expected = parseExpectedUpdatedAt(req);
     if (!Objects.equals(item.getUpdatedAt(), expected))
       throw new BusinessException(409, "题目已变更，请重新加载后编辑");
     List<Object> args = new ArrayList<>();
@@ -371,11 +378,54 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
         "title/difficulty/tags/classification updated");
   }
 
+  /** 基础字段入参校验；错误码与校验顺序与重构前保持一致。 */
+  private static void validateBasics(BasicEdit req) {
+    if (req.title() == null
+        || req.title().isBlank()
+        || req.title().length() > 200
+        || req.difficulty() == null
+        || req.difficulty() < 1
+        || req.difficulty() > 3) throw new BusinessException(400, "标题不能为空且不超过200字，难度必须为1–3");
+    if (req.tags() != null && req.tags().length() > 500)
+      throw new BusinessException(400, "标签不超过500字");
+  }
+
+  /**
+   * 并发冲突校验：编辑令牌与来源版本号必须与当前读取到的投影一致。
+   *
+   * <p>场景题与旧版代码题没有版本号，只能依赖令牌；其余来源两者都校验，任一不匹配即 409， 避免覆盖他人编辑。
+   */
+  private static void assertNoConcurrentEdit(
+      Identity identity, BasicEdit req, QuestionCatalogItem item) {
+    if ((identity.source().equals("SCENARIO")
+            || identity.source().equals("LEGACY_CODE")
+            || req.expectedEditToken() != null)
+        && !Objects.equals(item.getEditToken(), req.expectedEditToken()))
+      throw new BusinessException(409, "题目内容已变更，请重新加载后编辑");
+    if (!Objects.equals(item.getSourceVersion(), req.expectedSourceVersion()))
+      throw new BusinessException(409, "题目已变更，请重新加载后编辑");
+  }
+
+  /** 解析期望更新时间；允许前端用空格代替 `T`，格式非法统一按 400 返回。 */
+  private static java.time.LocalDateTime parseExpectedUpdatedAt(BasicEdit req) {
+    if (req.expectedUpdatedAt() == null) return null;
+    try {
+      return java.time.LocalDateTime.parse(req.expectedUpdatedAt().replace(' ', 'T'));
+    } catch (java.time.format.DateTimeParseException e) {
+      throw new BusinessException(400, "更新时间格式错误");
+    }
+  }
+
   private static boolean requiresReview(JsonNode quizDetail) {
     return "AI".equals(quizDetail.path("source").asText()) || quizDetail.hasNonNull("reviewStatus");
   }
 
   @org.springframework.transaction.annotation.Transactional
+  /**
+   * 批量发布/下架。
+   *
+   * <p>先整批校验再执行：任一条来源不支持或缺少专业扩展即整批拒绝，避免「部分成功」； 执行阶段任何一条失败都会回滚整个事务。
+   */
   public void batchStatus(List<String> ids, boolean published) {
     if (ids == null || ids.isEmpty() || ids.size() > 50)
       throw new BusinessException(400, "批量操作需要1–50个题目身份");
@@ -408,6 +458,7 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
 
   public record Topic(String code, String name, String parentCode, long questionCount) {}
 
+  /** 筛选面板数据：来源、分类、知识点（含题目数）与题型集合。 */
   public Map<String, Object> facets() {
     var counts =
         jdbc.queryForList(
@@ -457,6 +508,7 @@ SELECT 'LEGACY_CODE',c.id,NULL,'LEGACY_CODE',c.title,c.description,NULL,NULL,NUL
       String afterState,
       java.time.LocalDateTime createdAt) {}
 
+  /** 审计分页；按写入顺序倒序，便于定位最近一次变更。 */
   public PageResult<AuditEntry> auditPage(int page, int size) {
     if (page < 1 || size < 1 || size > 100) throw new BusinessException(400, "分页范围不正确");
     var result = new PageResult<AuditEntry>();

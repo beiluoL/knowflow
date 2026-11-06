@@ -13,18 +13,26 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class QuestionCatalogController {
   private final QuestionCatalogService service;
-  private final com.knowflow.coding.judge.CodeJudgeGateway judge;
+  private final com.knowflow.coding.contract.CodeJudgeStatusQueryPort judgeStatus;
 
+  /**
+   * 判题能力状态。
+   *
+   * <p>`productionSandboxReady` 恒为 false：当前判题实现（disabled/mock/local-host）均未通过 独立 Runner
+   * 隔离验收，不能作为生产在线判题。此常量与 `CodeJudgeGateway#isolatedExecutionVerified` 的口径一致。
+   *
+   * <p>依赖方向：通过 coding 模块的 `CodeJudgeStatusQueryPort` 契约读取，不直接依赖判题实现。
+   */
   @GetMapping("/judge-status")
   public Result<?> judgeStatus() {
     return Result.success(
         java.util.Map.of(
             "mode",
-            judge.mode(),
+            judgeStatus.mode(),
             "executionEnabled",
-            judge.executionEnabled(),
+            judgeStatus.executionEnabled(),
             "productionSandboxReady",
-            false));
+            judgeStatus.productionSandboxReady()));
   }
 
   @GetMapping
